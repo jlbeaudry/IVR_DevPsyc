@@ -1,0 +1,604 @@
+---
+title: "Immersive Virtual Reality Implementations in Developmental Psychology"
+author: "Araiza-Alba, Keane, Beaudry, Kaufman (Code by Jennifer Beaudry)"
+date: '`r format (Sys.time(), "%d %B %Y")`'
+output: 
+  pdf_document:
+        dev: cairo_pdf
+
+---
+```{r setup, include=FALSE}
+options(scipen = 999)
+
+## Global options
+knitr::opts_chunk$set(
+  echo = FALSE,
+  cache = FALSE, # do not use this with github!
+  prompt = FALSE,
+  tidy = TRUE,
+  comment = NA,
+  message = FALSE,
+  warning = TRUE,
+  results = 'asis',
+  fig.showtext = TRUE, 
+  fig.align = "center", 
+  fig.height = 6,
+  fig.width = 12
+)
+knitr::opts_knit$set(width = 75)
+
+```
+
+```{r library}
+# load the library
+  # need to review the library for the IVR paper
+library(tinytex)
+library(knitr)
+library(here)
+library(compute.es)
+library(BSDA) # run t-test from summary data
+library(finalfit) # to keep trailing zeros
+
+
+library(plyr)
+library(extrafont) #load the fonts needed for latex font in ggplot
+library(tidyverse)
+library(skimr)
+library(ggbeeswarm)
+#library(ggrepel) use this if I'm going to add labels
+library(plotly)
+library(RColorBrewer)
+library(kableExtra)
+library(datapasta) # I don't need this to run the file, so delete when I'm done.
+library(captioner)
+
+```
+
+```{r style}
+
+# standard kable settings
+
+kable_default <- function(dat, col.names, caption) {
+  dat %>% 
+    knitr::kable(booktabs = T, linesep = "",
+            col.names = colnames,
+            caption = title,
+              align = 'lcc')
+}
+
+#### KABLE STYLE #####  
+  # use different styles depending on the output#
+
+styler_html <- function(dat) {
+  dat %>%
+     kable_styling(bootstrap_options = "striped", full_width = F, 
+                 position = 'center',
+                font_size = 16)
+}
+
+styler_pdf <- function(dat) {
+  dat %>%
+     kable_styling(full_width = F, 
+                latex_options = c("striped", "HOLD_position"))
+}
+
+#### CAPTIONER TO ADD FIGURE CAPTIONS ###
+
+fig_nums <- captioner(prefix = "Figure")
+
+### USE LATEX FONT FOR GGPLOT, PLUS CHANGE FONT SIZE
+  # 18 FOR PDF; 12 FOR HTML
+
+ theme_pdf <- theme_classic(base_size = 18, base_family = "LM Roman 10")
+ theme_html <-theme_classic(base_size = 12)
+ 
+```
+
+```{r load data}
+
+# import data
+
+df_all <- read_csv (here::here("data_input.csv")) %>% 
+  select(-c(pages, section))
+
+```
+
+The output is also in a `.csv` file so you can easily copy and paste the numbers
+into a word table.
+
+```{r functions, eval=FALSE}
+
+# I NEED TO CLEAN THIS UP!
+
+# pull out the relevant info
+
+vr_ctrl <- function (x) {c(
+  (m.1 = x$vr_m), 
+  (m.2 = x$ctrl_m),
+  (sd.1 = x$vr_sd), 
+  (sd.2 = x$ctrl_sd), 
+  (n.1 = x$vr_n), 
+  (n.2 = x$ctrl_n)
+  )
+}
+
+vr_ctrl(df_all) #this works..., but not row by row....and it doesn't retain the 
+  # column names, so it's kind of useless...
+
+
+
+p <- split(df_all, df$paper) #this will be useful EXCEPT that I don't want to apply
+  # this to lists, I want to apply it to the data frame
+
+measure <- split(df_all, df$measure)
+
+dat(measure)
+
+
+# DON"T TOUCH THESE
+# effect size calculations from mean & sd [these both work, but they aren't pretty]
+
+# for control > VR
+
+mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, n.1 = df$ctrl_n, 
+    n.2 = df$vr_n,level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+
+
+# for control < VR
+
+mes(m.1 = df$vr_m, m.2 = df$ctrl_m, sd.1 = df$vr_sd, sd.2 = df$ctrl_sd, n.1 = df$vr_n, 
+    n.2 = df$ctrl_n,level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+
+```
+
+```{r playing around, eval = FALSE}
+
+df <- df_all %>% 
+  filter(paper == "Hua et al") %>% 
+  filter(measure == "pain_before")
+
+# THIS WORKS
+
+d <- mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, n.1 = df$ctrl_n, 
+    n.2 = df$vr_n,level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+
+df <- df_all 
+
+lapply(mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, n.1 = df$ctrl_n, 
+    n.2 = df$vr_n,level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL))
+
+lapply(df, )
+
+mes(m.1 = df$vr_m, m.2 = df$ctrl_m, sd.1 = df$vr_sd, sd.2 = df$ctrl_sd, n.1 = df$vr_n, 
+    n.2 = df$ctrl_n,level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+
+df %>% mes(m.1 = vr_m, m.2 = ctrl_m, sd.1 = vr_sd, sd.2 = ctrl_sd, n.1 = vr_n, 
+    n.2 = ctrl_n,level = 95, dig = 4, verbose = TRUE, id=NULL)
+
+mes(m.1 = vr_m, m.2 = ctrl_m, sd.1 = vr_sd, sd.2 = ctrl_sd, n.1 = vr_n, 
+    n.2 = ctrl_n,level = 95, dig = 4, verbose = TRUE, id=NULL, data=df)
+
+# THIS BELOW IS CHAOS THAT DOESN'T WORK BUT IS TRYING TO DO SOMETHING!
+
+lapply(mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, n.1 = df$ctrl_n, 
+    n.2 = df$vr_n,level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL))
+
+lapply(df, )
+
+mes(m.1 = df$vr_m, m.2 = df$ctrl_m, sd.1 = df$vr_sd, sd.2 = df$ctrl_sd, n.1 = df$vr_n, 
+    n.2 = df$ctrl_n,level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+
+df %>% mes(m.1 = vr_m, m.2 = ctrl_m, sd.1 = vr_sd, sd.2 = ctrl_sd, n.1 = vr_n, 
+    n.2 = ctrl_n,level = 95, dig = 4, verbose = TRUE, id=NULL)
+
+mes(m.1 = vr_m, m.2 = ctrl_m, sd.1 = vr_sd, sd.2 = ctrl_sd, n.1 = vr_n, 
+    n.2 = ctrl_n,level = 95, dig = 4, verbose = TRUE, id=NULL, data=df)
+
+
+```
+
+```{r Hua_pain_before, include=FALSE}
+
+df <- df_all %>% 
+  filter(paper == "Hua et al") %>% 
+  filter(measure == "pain_before")
+
+# CALCULATE THE EFFECT SIZE VALUES
+
+# 1 is ctrl group
+d1 <- mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, n.1 = df$ctrl_n, 
+    n.2 = df$vr_n,level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+
+
+# RUN T-Test
+# x is ctrl group
+t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
+          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
+          alternative = "two.sided")
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,4],2), 
+                 lower.ci = round_tidy(d1[1,6],2), 
+                 upper.ci = round_tidy(d1[1,7],2))
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# specific name for this analysis
+df_hua1 <- df 
+```
+
+```{r Hua_pain_during, include=FALSE}
+
+df <- df_all %>% 
+  filter(paper == "Hua et al") %>% 
+  filter(measure == "pain_during")
+
+# CALCULATE THE EFFECT SIZE VALUES
+
+# ctrl as 1
+d1 <- mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, n.1 = df$ctrl_n, 
+    n.2 = df$vr_n,level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+
+
+# RUN T-Test
+# ctrl as x
+t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
+          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
+          alternative = "two.sided")
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,4],2), 
+                 lower.ci = round_tidy(d1[1,6],2), 
+                 upper.ci = round_tidy(d1[1,7],2))
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# specific name for this analysis
+df_hua2 <- df 
+
+```
+
+```{r Hua_pain_after, include=FALSE}
+
+df <- df_all %>% 
+  filter(paper == "Hua et al") %>% 
+  filter(measure == "pain_after")
+
+# CALCULATE THE EFFECT SIZE VALUES
+
+# ctrl as 1
+d1 <- mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, n.1 = df$ctrl_n, 
+    n.2 = df$vr_n,level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+
+
+# RUN T-Test
+# ctrl as x
+t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
+          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
+          alternative = "two.sided")
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,4],2), 
+                 lower.ci = round_tidy(d1[1,6],2), 
+                 upper.ci = round_tidy(d1[1,7],2))
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# note that the p-value is different
+df$notes <- "p-value in text is .034"
+
+# specific name for this analysis
+df_hua3 <- df 
+
+```
+
+```{r Hua_pain_before_cg, include=FALSE}
+
+df <- df_all %>% 
+  filter(paper == "Hua et al") %>% 
+  filter(measure == "pain_before_cg")
+
+# CALCULATE THE EFFECT SIZE VALUES
+
+# ctrl as 1
+d1 <- mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, n.1 = df$ctrl_n, 
+    n.2 = df$vr_n,level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+
+
+# RUN T-Test
+# ctrl as x
+t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
+          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
+          alternative = "two.sided")
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,4],2), 
+                 lower.ci = round_tidy(d1[1,6],2), 
+                 upper.ci = round_tidy(d1[1,7],2))
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# note that the p-value is different
+df$notes <- "p-value in text is .028"
+
+# specific name for this analysis
+df_hua4 <- df 
+
+```
+
+```{r Hua_pain_during_cg, include=FALSE}
+
+df <- df_all %>% 
+  filter(paper == "Hua et al") %>% 
+  filter(measure == "pain_during_cg")
+
+# CALCULATE THE EFFECT SIZE VALUES
+
+# ctrl as 1
+d1 <- mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, n.1 = df$ctrl_n, 
+    n.2 = df$vr_n,level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+
+
+# RUN T-Test
+# ctrl as x
+t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
+          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
+          alternative = "two.sided")
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,4],2), 
+                 lower.ci = round_tidy(d1[1,6],2), 
+                 upper.ci = round_tidy(d1[1,7],2))
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# specific name for this analysis
+df_hua5 <- df 
+
+```
+
+```{r Hua_pain_after_cg, include=FALSE}
+
+df <- df_all %>% 
+  filter(paper == "Hua et al") %>% 
+  filter(measure == "pain_after_cg")
+
+# CALCULATE THE EFFECT SIZE VALUES
+
+# ctrl as 1
+d1 <- mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, n.1 = df$ctrl_n, 
+    n.2 = df$vr_n,level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+
+
+# RUN T-Test
+# ctrl as x
+t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
+          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
+          alternative = "two.sided")
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,4],2), 
+                 lower.ci = round_tidy(d1[1,6],2), 
+                 upper.ci = round_tidy(d1[1,7],2))
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# specific name for this analysis
+df_hua6 <- df 
+
+```
+
+```{r Hua_distress_before, include=FALSE}
+
+df <- df_all %>% 
+  filter(paper == "Hua et al") %>% 
+  filter(measure == "distress_before")
+
+# CALCULATE THE EFFECT SIZE VALUES
+
+# ctrl as 1
+d1 <- mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, n.1 = df$ctrl_n, 
+    n.2 = df$vr_n,level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+
+
+# RUN T-Test
+# ctrl as x
+t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
+          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
+          alternative = "two.sided")
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,4],2), 
+                 lower.ci = round_tidy(d1[1,6],2), 
+                 upper.ci = round_tidy(d1[1,7],2))
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# specific name for this analysis
+df_hua7 <- df 
+
+```
+
+```{r Hua_distress_during, include=FALSE}
+
+df <- df_all %>% 
+  filter(paper == "Hua et al") %>% 
+  filter(measure == "distress_during")
+
+# CALCULATE THE EFFECT SIZE VALUES
+
+# ctrl as 1
+d1 <- mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, n.1 = df$ctrl_n, 
+    n.2 = df$vr_n,level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+
+
+# RUN T-Test
+# ctrl as x
+t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
+          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
+          alternative = "two.sided")
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,4],2), 
+                 lower.ci = round_tidy(d1[1,6],2), 
+                 upper.ci = round_tidy(d1[1,7],2))
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# specific name for this analysis
+df_hua8 <- df 
+
+```
+
+```{r Hua_distress_after, include=FALSE}
+
+df <- df_all %>% 
+  filter(paper == "Hua et al") %>% 
+  filter(measure == "distress_after")
+
+# CALCULATE THE EFFECT SIZE VALUES
+
+# ctrl as 1
+d1 <- mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, n.1 = df$ctrl_n, 
+    n.2 = df$vr_n,level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+
+
+# RUN T-Test
+# ctrl as x
+t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
+          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
+          alternative = "two.sided")
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,4],2), 
+                 lower.ci = round_tidy(d1[1,6],2), 
+                 upper.ci = round_tidy(d1[1,7],2))
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# specific name for this analysis
+df_hua9 <- df 
+
+```
+
+```{r Hua_dressing_changes, include=FALSE}
+
+df <- df_all %>% 
+  filter(paper == "Hua et al") %>% 
+  filter(measure == "dressing_changes")
+
+# CALCULATE THE EFFECT SIZE VALUES
+
+# ctrl as 1
+d1 <- mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, n.1 = df$ctrl_n, 
+    n.2 = df$vr_n,level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+
+
+# RUN T-Test
+# ctrl as x
+t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
+          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
+          alternative = "two.sided")
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,4],2), 
+                 lower.ci = round_tidy(d1[1,6],2), 
+                 upper.ci = round_tidy(d1[1,7],2))
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# specific name for this analysis
+df_hua10 <- df 
+
+```
+
+```{r bind tables}
+
+df_bind <- bind_rows(df_hua1, df_hua2, df_hua3, df_hua4, df_hua5, df_hua6, 
+                     df_hua7, df_hua8, df_hua9, df_hua10)
+```
+
+
+```{r concatenate table}
+
+# combine the d value with the upper and lower boundaries into a new column
+# effect size is Cohen's d
+df_bind$"Cohen's d" <- paste0(df_bind$d, " [", df_bind$lower.ci, ", ", df_bind$upper.ci, "]")
+
+
+# combine the mean & SD for the two conditions
+df_bind$vr_m_sd <- paste0(df_bind$vr_m, " (", df_bind$vr_sd, ")")
+df_bind$ctrl_m_sd <- paste0(df_bind$ctrl_m, " (", df_bind$ctrl_sd, ")")
+
+```
+
+
+```{r clean up dataframe}
+
+# remove the columns that are now redundant
+
+df_final <- df_bind %>% 
+  select (-c(d, lower.ci, upper.ci, ctrl_m, vr_m, ctrl_sd, vr_sd))
+
+# rearrange the columns we are keeping
+df_final <- df_final %>% 
+  relocate (vr_m_sd, .after = vr_n) %>% 
+  relocate (ctrl_m_sd, .after = ctrl_n) %>% 
+  relocate (notes, .after = last_col())
+
+```
+
+```{r Hua Table}
+
+landscape(knitr::kable(df_final))
+
+```
+
+```{r write csv}
+
+# eventually, we will want to remove the d, lower.ci, & upper.ci columns because 
+  # they are redundant
+
+write_csv(df_final, here::here("data_with_stats.csv"))
+```
+
