@@ -1,8 +1,11 @@
 ---
 title: "Immersive Virtual Reality Implementations in Developmental Psychology"
-author: "Code by Jennifer Beaudry"
-date: "15/09/2020"
-output: pdf_document
+author: "Araiza-Alba, Keane, Beaudry, Kaufman (Code by Jennifer Beaudry)"
+date: '`r format (Sys.time(), "%d %B %Y")`'
+output: 
+  pdf_document:
+        dev: cairo_pdf
+
 ---
 ```{r setup, include=FALSE}
 options(scipen = 999)
@@ -95,10 +98,13 @@ fig_nums <- captioner(prefix = "Figure")
 
 # import data
 
-df_all <- read_csv (here::here("data.csv")) %>% 
+df_all <- read_csv (here::here("data_input.csv")) %>% 
   select(-c(pages, section))
 
 ```
+
+The output is also in a `.csv` file so you can easily copy and paste the numbers
+into a word table.
 
 ```{r functions, eval=FALSE}
 
