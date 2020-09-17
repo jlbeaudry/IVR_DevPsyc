@@ -13,6 +13,7 @@ options(scipen = 999)
 ## Global options
 knitr::opts_chunk$set(
   echo = FALSE,
+  include = FALSE,
   cache = FALSE, # do not use this with github!
   prompt = FALSE,
   tidy = TRUE,
@@ -38,6 +39,7 @@ library(here)
 library(compute.es)
 library(BSDA) # run t-test from summary data
 library(finalfit) # to keep trailing zeros
+library(purrrlyr) # keep if I'm using by_row
 
 
 library(plyr)
@@ -98,18 +100,23 @@ fig_nums <- captioner(prefix = "Figure")
 
 # import data
 
-df_all <- read_csv (here::here("data_input.csv")) %>% 
-  select(-c(pages, section))
+df_hua <- read_csv (here::here("data_input_hua.csv")) %>% 
+  select(-c(pages, section, notes))
+
+# this doesn't work, so don't load it now
+# df_jeffs <- read_csv (here::here("data_input_jeffs.csv"))
+
+df_kip <- read_csv (here::here("data_input_kipping.csv")) %>% 
+  select (-c(pages, section, notes))
 
 ```
 
 The output is also in a `.csv` file so you can easily copy and paste the numbers
 into a word table.
 
-```{r functions, eval=FALSE}
+```{r functions, eval = FALSE}
 
 # I NEED TO CLEAN THIS UP!
-
 # pull out the relevant info
 
 vr_ctrl <- function (x) {c(
@@ -122,15 +129,16 @@ vr_ctrl <- function (x) {c(
   )
 }
 
-vr_ctrl(df_all) #this works..., but not row by row....and it doesn't retain the 
+vr_ctrl(df_hua) #this works..., but not row by row....and it doesn't retain the 
   # column names, so it's kind of useless...
 
+df_hua %>% by_row(mes)
 
 
-p <- split(df_all, df$paper) #this will be useful EXCEPT that I don't want to apply
+p <- split(df_hua, df$paper) #this will be useful EXCEPT that I don't want to apply
   # this to lists, I want to apply it to the data frame
 
-measure <- split(df_all, df$measure)
+measure <- split(df_hua, df$measure)
 
 dat(measure)
 
@@ -153,8 +161,23 @@ mes(m.1 = df$vr_m, m.2 = df$ctrl_m, sd.1 = df$vr_sd, sd.2 = df$ctrl_sd, n.1 = df
 
 ```{r playing around, eval = FALSE}
 
-df <- df_all %>% 
-  filter(paper == "Hua et al") %>% 
+# TRYING TO DO SOMETHING WITH PURR
+
+# this might be useful: http://www.rebeccabarter.com/blog/2019-08-19_purrr/
+
+df_hua %>% 
+  pwalk(function(...) {
+    current <- tibble(...)
+    print(current$d)
+  })
+
+# for control > VR
+
+mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, n.1 = df$ctrl_n, 
+    n.2 = df$vr_n,level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+
+
+df <- df_hua %>% 
   filter(measure == "pain_before")
 
 # THIS WORKS
@@ -162,7 +185,7 @@ df <- df_all %>%
 d <- mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, n.1 = df$ctrl_n, 
     n.2 = df$vr_n,level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
 
-df <- df_all 
+df <- df_hua 
 
 lapply(mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, n.1 = df$ctrl_n, 
     n.2 = df$vr_n,level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL))
@@ -197,10 +220,20 @@ mes(m.1 = vr_m, m.2 = ctrl_m, sd.1 = vr_sd, sd.2 = ctrl_sd, n.1 = vr_n,
 
 ```
 
-```{r Hua_pain_before, include=FALSE}
+# Table 1 
+## Hua et al paper
 
-df <- df_all %>% 
-  filter(paper == "Hua et al") %>% 
+For each of the 10 tests, the summary statistics reported in the paper provided 
+the information I needed to compute the required values. I conducted independent 
+t-tests (I report the t-value and p-value) from using the `BSDA` R package 
+(include REF). I also used the `compute.es` R package (include REF) to calculate 
+the effect size (Cohen's d) and the 95% confidence intervals (CI) around this
+parameter. Small, medium, and large effect sizes correspond to d values of 0.2, 
+0.5, and 0.8, respectively (Cohen, 1988). 
+
+```{r Hua_pain_before}
+
+df <- df_hua %>% 
   filter(measure == "pain_before")
 
 # CALCULATE THE EFFECT SIZE VALUES
@@ -231,10 +264,9 @@ df <- df %>%
 df_hua1 <- df 
 ```
 
-```{r Hua_pain_during, include=FALSE}
+```{r Hua_pain_during}
 
-df <- df_all %>% 
-  filter(paper == "Hua et al") %>% 
+df <- df_hua %>% 
   filter(measure == "pain_during")
 
 # CALCULATE THE EFFECT SIZE VALUES
@@ -266,10 +298,9 @@ df_hua2 <- df
 
 ```
 
-```{r Hua_pain_after, include=FALSE}
+```{r Hua_pain_after}
 
-df <- df_all %>% 
-  filter(paper == "Hua et al") %>% 
+df <- df_hua %>% 
   filter(measure == "pain_after")
 
 # CALCULATE THE EFFECT SIZE VALUES
@@ -304,10 +335,9 @@ df_hua3 <- df
 
 ```
 
-```{r Hua_pain_before_cg, include=FALSE}
+```{r Hua_pain_before_cg}
 
-df <- df_all %>% 
-  filter(paper == "Hua et al") %>% 
+df <- df_hua %>% 
   filter(measure == "pain_before_cg")
 
 # CALCULATE THE EFFECT SIZE VALUES
@@ -342,10 +372,9 @@ df_hua4 <- df
 
 ```
 
-```{r Hua_pain_during_cg, include=FALSE}
+```{r Hua_pain_during_cg}
 
-df <- df_all %>% 
-  filter(paper == "Hua et al") %>% 
+df <- df_hua %>% 
   filter(measure == "pain_during_cg")
 
 # CALCULATE THE EFFECT SIZE VALUES
@@ -377,10 +406,9 @@ df_hua5 <- df
 
 ```
 
-```{r Hua_pain_after_cg, include=FALSE}
+```{r Hua_pain_after_cg}
 
-df <- df_all %>% 
-  filter(paper == "Hua et al") %>% 
+df <- df_hua %>% 
   filter(measure == "pain_after_cg")
 
 # CALCULATE THE EFFECT SIZE VALUES
@@ -412,10 +440,9 @@ df_hua6 <- df
 
 ```
 
-```{r Hua_distress_before, include=FALSE}
+```{r Hua_distress_before}
 
-df <- df_all %>% 
-  filter(paper == "Hua et al") %>% 
+df <- df_hua %>% 
   filter(measure == "distress_before")
 
 # CALCULATE THE EFFECT SIZE VALUES
@@ -447,10 +474,9 @@ df_hua7 <- df
 
 ```
 
-```{r Hua_distress_during, include=FALSE}
+```{r Hua_distress_during}
 
-df <- df_all %>% 
-  filter(paper == "Hua et al") %>% 
+df <- df_hua %>% 
   filter(measure == "distress_during")
 
 # CALCULATE THE EFFECT SIZE VALUES
@@ -482,10 +508,9 @@ df_hua8 <- df
 
 ```
 
-```{r Hua_distress_after, include=FALSE}
+```{r Hua_distress_after}
 
-df <- df_all %>% 
-  filter(paper == "Hua et al") %>% 
+df <- df_hua %>% 
   filter(measure == "distress_after")
 
 # CALCULATE THE EFFECT SIZE VALUES
@@ -517,10 +542,9 @@ df_hua9 <- df
 
 ```
 
-```{r Hua_dressing_changes, include=FALSE}
+```{r Hua_dressing_changes}
 
-df <- df_all %>% 
-  filter(paper == "Hua et al") %>% 
+df <- df_hua %>% 
   filter(measure == "dressing_changes")
 
 # CALCULATE THE EFFECT SIZE VALUES
@@ -552,53 +576,469 @@ df_hua10 <- df
 
 ```
 
-```{r bind tables}
+```{r Hua_bind_tables}
 
 df_bind <- bind_rows(df_hua1, df_hua2, df_hua3, df_hua4, df_hua5, df_hua6, 
                      df_hua7, df_hua8, df_hua9, df_hua10)
 ```
 
 
-```{r concatenate table}
+```{r Hua_concatenate_table}
 
 # combine the d value with the upper and lower boundaries into a new column
 # effect size is Cohen's d
-df_bind$"Cohen's d" <- paste0(df_bind$d, " [", df_bind$lower.ci, ", ", df_bind$upper.ci, "]")
+df_bind$"Cohen's d" <- paste0(df_bind$d,
+                              " [",
+                              df_bind$lower.ci,
+                              ", ",
+                              df_bind$upper.ci, 
+                              "]")
 
 
 # combine the mean & SD for the two conditions
-df_bind$vr_m_sd <- paste0(df_bind$vr_m, " (", df_bind$vr_sd, ")")
-df_bind$ctrl_m_sd <- paste0(df_bind$ctrl_m, " (", df_bind$ctrl_sd, ")")
+df_bind$vr_m_sd <- paste0(df_bind$vr_m, 
+                          " (", 
+                          df_bind$vr_sd, 
+                          ")")
+df_bind$ctrl_m_sd <- paste0(df_bind$ctrl_m, 
+                            " (", 
+                            df_bind$ctrl_sd, 
+                            ")")
 
 ```
 
 
-```{r clean up dataframe}
+```{r Hua_clean_dataframe}
 
 # remove the columns that are now redundant
 
-df_final <- df_bind %>% 
+df_hua_final <- df_bind %>% 
   select (-c(d, lower.ci, upper.ci, ctrl_m, vr_m, ctrl_sd, vr_sd))
 
 # rearrange the columns we are keeping
-df_final <- df_final %>% 
+df_hua_final <- df_hua_final %>% 
   relocate (vr_m_sd, .after = vr_n) %>% 
   relocate (ctrl_m_sd, .after = ctrl_n) %>% 
   relocate (notes, .after = last_col())
 
 ```
 
-```{r Hua Table}
+```{r Hua_table,include=TRUE}
 
-landscape(knitr::kable(df_final))
+landscape(knitr::kable(df_hua_final))
 
 ```
 
-```{r write csv}
+```{r Hua_write_data}
 
 # eventually, we will want to remove the d, lower.ci, & upper.ci columns because 
   # they are redundant
 
-write_csv(df_final, here::here("data_with_stats.csv"))
+write_csv(df_hua_final, here::here("data_output_hua.csv"))
+```
+
+## Jeffs et al paper
+
+This isn't done. I need to figure out a way to calculate the SDs. I
+have some potential solutions (links in code), but the best approach
+will be to get what I presume is the standard error from Figure 2 
+using the Enguage Digitizer Software (REF) and then calculate it from 
+that. The paper reports an effect size, but I don't know what the 
+reported measure of effect size is, so I need to confirm it with my 
+own analysis. I don't think I can or should report the t-test analysis
+because the illustrated results are based on estimates after
+controlling for age, sex, state anxiety, opiod analgesic use,
+treatment length, and pre-procedural pain. (see p 402).
+
+I also need to compare the pre- and post-procedural pain, but again, 
+this will be tricky because it's not clear whether that was based
+on the adjusted means (which I have) or the actual means (which I 
+don't have)...
+
+We might have to say that we just couldn't calculate it, but let's 
+see...
+
+```{r jeffs_figure_out_data, eval=FALSE}
+
+# need to calculate standard deviations
+
+# the sample size is small (<100), so we need to use the t-distribution to 
+  # calculate the SE value (https://www.medcalc.org/manual/t-distribution.php)
+
+# SD = sqrt(N) x (upper limit - lower limit)/(2 x SE value)
+
+SD_calc <- function(N, upper, lower, SE) {
+  SD <- (sqrt(N)) x (upper - lower)/(2 * SE)
+  print(SD)
+  }
+
+# VR
+N <- 8
+upper <- 
+
+
+```
+
+## Kipping et al paper
+
+They analysed mean change scores such that they subtracted the baseline measures
+from the removal and application scores for the outcome variables (self-reported 
+pain, self-reported nausea, nurses' report of pain, caregivers' report of pain). 
+For these measures, we ran a t-test on the summary stats and calculated Cohen's 
+d (see the descrption in Hua). 
+
+```{r kipping_data_setup}
+
+# for some reason vr_m was parsed as a character, so change it to a number
+  # this will add NAs to the dataframe because some of the cells are empty. 
+  # So use supress warning 
+df_kip$vr_m <- suppressWarnings(as.numeric(df_kip$vr_m))
+
+```
+
+```{r kipping_self_pain_removal}
+
+df <- df_kip %>% 
+  filter(measure == "self_pain_removal")
+
+# CALCULATE THE EFFECT SIZE VALUES
+
+# 1 is ctrl group
+d1 <- mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, 
+          n.1 = df$ctrl_n, n.2 = df$vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+
+
+# RUN T-Test
+# x is ctrl group
+t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
+          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n, var.equal = TRUE, 
+          alternative = "two.sided")
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,4],2), 
+                 lower.ci = round_tidy(d1[1,6],2), 
+                 upper.ci = round_tidy(d1[1,7],2))
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# specific name for this analysis
+df_kip1 <- df 
+```
+
+```{r kipping_self_pain_application}
+
+df <- df_kip %>% 
+  filter(measure == "self_pain_application")
+
+# CALCULATE THE EFFECT SIZE VALUES
+
+# 1 is ctrl group
+d1 <- mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, 
+          n.1 = df$ctrl_n, n.2 = df$vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+
+
+# RUN T-Test
+# x is ctrl group
+t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
+          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
+          alternative = "two.sided", var.equal = TRUE)
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,4],2), 
+                 lower.ci = round_tidy(d1[1,6],2), 
+                 upper.ci = round_tidy(d1[1,7],2))
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# specific name for this analysis
+df_kip2 <- df 
+```
+
+
+```{r kipping_self_nausea_application}
+
+df <- df_kip %>% 
+  filter(measure == "self_nausea_removal")
+
+# CALCULATE THE EFFECT SIZE VALUES
+
+# 1 is ctrl group
+d1 <- mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, 
+          n.1 = df$ctrl_n, n.2 = df$vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+
+
+# RUN T-Test
+# x is ctrl group
+t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
+          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
+          alternative = "two.sided", var.equal = TRUE)
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,4],2), 
+                 lower.ci = round_tidy(d1[1,6],2), 
+                 upper.ci = round_tidy(d1[1,7],2))
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# specific name for this analysis
+df_kip3 <- df 
+```
+
+```{r kipping_self_nausea_application}
+
+df <- df_kip %>% 
+  filter(measure == "self_nausea_application")
+
+# CALCULATE THE EFFECT SIZE VALUES
+
+# 1 is ctrl group
+d1 <- mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, 
+          n.1 = df$ctrl_n, n.2 = df$vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+
+
+# RUN T-Test
+# x is ctrl group
+t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
+          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
+          alternative = "two.sided", var.equal = TRUE)
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,4],2), 
+                 lower.ci = round_tidy(d1[1,6],2), 
+                 upper.ci = round_tidy(d1[1,7],2))
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# specific name for this analysis
+df_kip4 <- df 
+```
+
+```{r kipping_nurse_pain_removal}
+
+df <- df_kip %>% 
+  filter(measure == "nurse_pain_removal")
+
+# CALCULATE THE EFFECT SIZE VALUES
+
+# 1 is ctrl group
+d1 <- mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, 
+          n.1 = df$ctrl_n, n.2 = df$vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+
+
+# RUN T-Test
+# x is ctrl group
+t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
+          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
+          alternative = "two.sided", var.equal = TRUE)
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,4],2), 
+                 lower.ci = round_tidy(d1[1,6],2), 
+                 upper.ci = round_tidy(d1[1,7],2))
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# specific name for this analysis
+df_kip5 <- df 
+```
+
+```{r kipping_nurse_pain_application}
+
+df <- df_kip %>% 
+  filter(measure == "nurse_pain_application")
+
+# CALCULATE THE EFFECT SIZE VALUES
+
+# 1 is ctrl group
+d1 <- mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, 
+          n.1 = df$ctrl_n, n.2 = df$vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+
+
+# RUN T-Test
+# x is ctrl group
+t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
+          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
+          alternative = "two.sided", var.equal = TRUE)
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,4],2), 
+                 lower.ci = round_tidy(d1[1,6],2), 
+                 upper.ci = round_tidy(d1[1,7],2))
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# specific name for this analysis
+df_kip6 <- df 
+```
+
+
+```{r kipping_care_pain_removal}
+
+df <- df_kip %>% 
+  filter(measure == "care_pain_removal")
+
+# CALCULATE THE EFFECT SIZE VALUES
+
+# 1 is ctrl group
+d1 <- mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, 
+          n.1 = df$ctrl_n, n.2 = df$vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+
+
+# RUN T-Test
+# x is ctrl group
+t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
+          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
+          alternative = "two.sided", var.equal = TRUE)
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,4],2), 
+                 lower.ci = round_tidy(d1[1,6],2), 
+                 upper.ci = round_tidy(d1[1,7],2))
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# specific name for this analysis
+df_kip7 <- df 
+```
+
+```{r kipping_care_pain_application}
+
+df <- df_kip %>% 
+  filter(measure == "care_pain_application")
+
+# CALCULATE THE EFFECT SIZE VALUES
+
+# 1 is ctrl group
+d1 <- mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, 
+          n.1 = df$ctrl_n, n.2 = df$vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+
+
+# RUN T-Test
+# x is ctrl group
+t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
+          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
+          alternative = "two.sided", var.equal = TRUE)
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,4],2), 
+                 lower.ci = round_tidy(d1[1,6],2), 
+                 upper.ci = round_tidy(d1[1,7],2))
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# specific name for this analysis
+df_kip8 <- df 
+```
+
+```{r kipping_rescue_doses}
+
+# select the relevant data
+df <- df_kip %>% 
+  filter(measure == "rescue_doses")
+
+# build a tibble with the relevant data
+df2 <-  tibble (
+  condition = c("vr", "ctrl"),
+  dose = c(df$vr_dose_n, df$ctrl_dose_n),
+  total = c(df$vr_n, df$ctrl_n)
+)
+
+df2 <- 
+chisq.test(df2, dose)
+
+```
+
+
+```{r kipping_bind_tables}
+
+df_bind <- bind_rows(df_kip1, df_kip2, df_kip3, df_kip4, df_kip5, df_kip6, 
+                     df_kip7, df_kip8, df_kip9, df_kip10)
+```
+
+
+```{r Kipping_concatenate_table}
+
+# combine the d value with the upper and lower boundaries into a new column
+# effect size is Cohen's d
+df_bind$"Cohen's d" <- paste0(df_bind$d,
+                              " [",
+                              df_bind$lower.ci,
+                              ", ",
+                              df_bind$upper.ci, 
+                              "]")
+
+
+# combine the mean & SD for the two conditions
+df_bind$vr_m_sd <- paste0(df_bind$vr_m, 
+                          " (", 
+                          df_bind$vr_sd, 
+                          ")")
+df_bind$ctrl_m_sd <- paste0(df_bind$ctrl_m, 
+                            " (", 
+                            df_bind$ctrl_sd, 
+                            ")")
+
+```
+
+
+```{r Kipping_clean_dataframe}
+
+# remove the columns that are now redundant
+
+df_kip_final <- df_bind %>% 
+  select (-c(d, lower.ci, upper.ci, ctrl_m, vr_m, ctrl_sd, vr_sd))
+
+# rearrange the columns we are keeping
+df_kip_final <- df_kip_final %>% 
+  relocate (vr_m_sd, .after = vr_n) %>% 
+  relocate (ctrl_m_sd, .after = ctrl_n) %>% 
+  relocate (notes, .after = last_col())
+
+```
+
+```{r Kipping_table,include=TRUE}
+
+landscape(knitr::kable(df_kip_final))
+
 ```
 
