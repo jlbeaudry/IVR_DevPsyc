@@ -36,10 +36,13 @@ knitr::opts_knit$set(width = 75)
 library(tinytex)
 library(knitr)
 library(here)
-library(compute.es)
+library(compute.es) # for Cohen's d
 library(BSDA) # run t-test from summary data
+library(fmsb) # for odds ratio
+library(pwr) # for Cohen's h
 library(finalfit) # to keep trailing zeros
 library(purrrlyr) # keep if I'm using by_row
+library(apa) # report apa style results in rmarkdown
 
 
 library(plyr)
@@ -100,23 +103,40 @@ fig_nums <- captioner(prefix = "Figure")
 
 # import data
 
-df_hua <- read_csv (here::here("data_input_hua.csv")) %>% 
-  select(-c(pages, section, notes))
+df_hua <- read_csv (here::here("data_input", "hua_data_input.csv")) %>% 
+  select(-c(pages, section, notes, paper, table))
 
 # this doesn't work, so don't load it now
-# df_jeffs <- read_csv (here::here("data_input_jeffs.csv"))
+# df_jeffs <- read_csv (here::here("data_input", "jeffs_data_input.csv"))
 
-df_kip <- read_csv (here::here("data_input_kipping.csv")) %>% 
-  select (-c(pages, section, notes))
+df_kip <- read_csv (here::here("data_input", "kipping_data_input.csv")) %>% 
+  select (-c(pages, section, notes, paper, table))
 
 ```
 
 The output is also in a `.csv` file so you can easily copy and paste the numbers
 into a word table.
 
-```{r functions, eval = FALSE}
+```{r functions}
 
-# I NEED TO CLEAN THIS UP!
+# Cohen's h with confidence intervals
+# from: https://stats.stackexchange.com/questions/80082/confidence-intervals-for-cohens-h-effect-size/409927
+
+cohens_h = function( prop_1, prop_2, n1, n2, ci = 0.95 ){
+    x1 = asin(sign(prop_1) * sqrt(abs(prop_1)))
+    x2 = asin(sign(prop_2) * sqrt(abs(prop_2)))
+    es = x1 - x2
+    se = sqrt(0.25 * (1 / n1 + 1 / n2 ))
+    ci_diff = qnorm(1 - (1-ci) / 2) * se
+    return( c( h = es*2, h_low = (es-ci_diff)*2, h_upp = (es+ci_diff)*2 ) )
+}
+
+```
+
+
+```{r functions_I_can_delete, eval = FALSE}
+
+# I NEED TO CLEAN THE REST OF THIS UP!
 # pull out the relevant info
 
 vr_ctrl <- function (x) {c(
@@ -260,6 +280,9 @@ df <- df %>%
   dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
                 "p-value" = round_tidy(t$p.value, 3))
 
+# compare the original p-value reported in the paper & the p-value we calculated
+df$original_p == df$`p-value`
+
 # specific name for this analysis
 df_hua1 <- df 
 ```
@@ -292,6 +315,9 @@ df <- df %>%
 df <- df %>% 
   dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
                 "p-value" = round_tidy(t$p.value, 3))
+
+# compare the original p-value reported in the paper & the p-value we calculated
+df$original_p == df$`p-value`
 
 # specific name for this analysis
 df_hua2 <- df 
@@ -330,6 +356,12 @@ df <- df %>%
 # note that the p-value is different
 df$notes <- "p-value in text is .034"
 
+# compare the original p-value reported in the paper & the p-value we calculated
+df$original_p == df$`p-value`
+
+# make a note if they are different
+df$notes <- "p-values differ, but conclusions unchanged"
+
 # specific name for this analysis
 df_hua3 <- df 
 
@@ -364,8 +396,11 @@ df <- df %>%
   dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
                 "p-value" = round_tidy(t$p.value, 3))
 
-# note that the p-value is different
-df$notes <- "p-value in text is .028"
+# compare the original p-value reported in the paper & the p-value we calculated
+df$original_p == df$`p-value`
+
+# make a note if they are different
+df$notes <- "p-values differ, but conclusions unchanged"
 
 # specific name for this analysis
 df_hua4 <- df 
@@ -401,6 +436,9 @@ df <- df %>%
   dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
                 "p-value" = round_tidy(t$p.value, 3))
 
+# compare the original p-value reported in the paper & the p-value we calculated
+df$original_p == df$`p-value`
+
 # specific name for this analysis
 df_hua5 <- df 
 
@@ -434,6 +472,9 @@ df <- df %>%
 df <- df %>% 
   dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
                 "p-value" = round_tidy(t$p.value, 3))
+
+# compare the original p-value reported in the paper & the p-value we calculated
+df$original_p == df$`p-value`
 
 # specific name for this analysis
 df_hua6 <- df 
@@ -469,6 +510,9 @@ df <- df %>%
   dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
                 "p-value" = round_tidy(t$p.value, 3))
 
+# compare the original p-value reported in the paper & the p-value we calculated
+df$original_p == df$`p-value`
+
 # specific name for this analysis
 df_hua7 <- df 
 
@@ -502,6 +546,9 @@ df <- df %>%
 df <- df %>% 
   dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
                 "p-value" = round_tidy(t$p.value, 3))
+
+# compare the original p-value reported in the paper & the p-value we calculated
+df$original_p == df$`p-value`
 
 # specific name for this analysis
 df_hua8 <- df 
@@ -537,6 +584,9 @@ df <- df %>%
   dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
                 "p-value" = round_tidy(t$p.value, 3))
 
+# compare the original p-value reported in the paper & the p-value we calculated
+df$original_p == df$`p-value`
+
 # specific name for this analysis
 df_hua9 <- df 
 
@@ -570,6 +620,9 @@ df <- df %>%
 df <- df %>% 
   dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
                 "p-value" = round_tidy(t$p.value, 3))
+
+# compare the original p-value reported in the paper & the p-value we calculated
+df$original_p == df$`p-value`
 
 # specific name for this analysis
 df_hua10 <- df 
@@ -619,22 +672,23 @@ df_hua_final <- df_bind %>%
 df_hua_final <- df_hua_final %>% 
   relocate (vr_m_sd, .after = vr_n) %>% 
   relocate (ctrl_m_sd, .after = ctrl_n) %>% 
+  relocate (original_p, .after = `p-value`) %>% 
   relocate (notes, .after = last_col())
 
 ```
 
 ```{r Hua_table,include=TRUE}
 
-landscape(knitr::kable(df_hua_final))
+landscape(knitr::kable(df_hua_final, 
+                   caption = "Hua et al. Paper", 
+                   align = 'llccccccccl')) %>% 
+            column_spec(column = 11, width = "5cm")
 
 ```
 
 ```{r Hua_write_data}
 
-# eventually, we will want to remove the d, lower.ci, & upper.ci columns because 
-  # they are redundant
-
-write_csv(df_hua_final, here::here("data_output_hua.csv"))
+write_csv(df_hua_final, here::here("data_output", "hua_data_output.csv"))
 ```
 
 ## Jeffs et al paper
@@ -681,11 +735,13 @@ upper <-
 
 ## Kipping et al paper
 
-They analysed mean change scores such that they subtracted the baseline measures
-from the removal and application scores for the outcome variables (self-reported 
-pain, self-reported nausea, nurses' report of pain, caregivers' report of pain). 
-For these measures, we ran a t-test on the summary stats and calculated Cohen's 
-d (see the descrption in Hua). 
+For the continuous measures, they analysed mean change scores such that they
+subtracted the baseline measures from the removal and application scores for 
+the outcome variables (self-reported pain, self-reported nausea, nurses' report 
+of pain, caregivers' report of pain). For these measures, Table 
+\ref{tab:kipping_table} reports the t-tests that we ran on the
+summary stats and the computed effect sizes (Cohen's d; see the interpretation 
+in Hua section). 
 
 ```{r kipping_data_setup}
 
@@ -726,6 +782,12 @@ df <- df %>%
   dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
                 "p-value" = round_tidy(t$p.value, 3))
 
+# compare the original p-value reported in the paper & the p-value we calculated
+df$original_p == df$`p-value`
+
+# make a note if they are different
+df$notes <- "p-values differ, but conclusions unchanged"
+
 # specific name for this analysis
 df_kip1 <- df 
 ```
@@ -741,7 +803,6 @@ df <- df_kip %>%
 d1 <- mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, 
           n.1 = df$ctrl_n, n.2 = df$vr_n,
           level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
-
 
 # RUN T-Test
 # x is ctrl group
@@ -760,12 +821,18 @@ df <- df %>%
   dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
                 "p-value" = round_tidy(t$p.value, 3))
 
+# compare the original p-value reported in the paper & the p-value we calculated
+df$original_p == df$`p-value`
+
+# make a note if they are different
+df$notes <- "p-values differ, but conclusions unchanged"
+
 # specific name for this analysis
 df_kip2 <- df 
 ```
 
 
-```{r kipping_self_nausea_application}
+```{r kipping_self_nausea_removal}
 
 df <- df_kip %>% 
   filter(measure == "self_nausea_removal")
@@ -795,6 +862,12 @@ df <- df %>%
   dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
                 "p-value" = round_tidy(t$p.value, 3))
 
+# compare the original p-value reported in the paper & the p-value we calculated
+df$original_p == df$`p-value`
+
+# make a note if they are different
+df$notes <- "p-values differ, but conclusions unchanged"
+
 # specific name for this analysis
 df_kip3 <- df 
 ```
@@ -810,7 +883,6 @@ df <- df_kip %>%
 d1 <- mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, 
           n.1 = df$ctrl_n, n.2 = df$vr_n,
           level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
-
 
 # RUN T-Test
 # x is ctrl group
@@ -828,6 +900,12 @@ df <- df %>%
 df <- df %>% 
   dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
                 "p-value" = round_tidy(t$p.value, 3))
+
+# compare the original p-value reported in the paper & the p-value we calculated
+df$original_p == df$`p-value`
+
+# make a note if they are different
+df$notes <- "p-values differ, but conclusions unchanged"
 
 # specific name for this analysis
 df_kip4 <- df 
@@ -863,6 +941,9 @@ df <- df %>%
   dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
                 "p-value" = round_tidy(t$p.value, 3))
 
+# compare the original p-value reported in the paper & the p-value we calculated
+df$original_p == df$`p-value`
+
 # specific name for this analysis
 df_kip5 <- df 
 ```
@@ -896,6 +977,12 @@ df <- df %>%
 df <- df %>% 
   dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
                 "p-value" = round_tidy(t$p.value, 3))
+
+# compare the original p-value reported in the paper & the p-value we calculated
+df$original_p == df$`p-value`
+
+# make a note if they are different
+df$notes <- "p-values differ, but conclusions unchanged"
 
 # specific name for this analysis
 df_kip6 <- df 
@@ -932,6 +1019,12 @@ df <- df %>%
   dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
                 "p-value" = round_tidy(t$p.value, 3))
 
+# compare the original p-value reported in the paper & the p-value we calculated
+df$original_p == df$`p-value`
+
+# make a note if they are different
+df$notes <- "p-values differ, but conclusions unchanged"
+
 # specific name for this analysis
 df_kip7 <- df 
 ```
@@ -966,9 +1059,16 @@ df <- df %>%
   dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
                 "p-value" = round_tidy(t$p.value, 3))
 
+# compare the original p-value reported in the paper & the p-value we calculated
+df$original_p == df$`p-value`
+
+# make a note if they are different
+df$notes <-"p-values differ, but conclusions unchanged"
+
 # specific name for this analysis
 df_kip8 <- df 
 ```
+
 
 ```{r kipping_rescue_doses}
 
@@ -976,27 +1076,70 @@ df_kip8 <- df
 df <- df_kip %>% 
   filter(measure == "rescue_doses")
 
-# build a tibble with the relevant data
-df2 <-  tibble (
-  condition = c("vr", "ctrl"),
-  dose = c(df$vr_dose_n, df$ctrl_dose_n),
-  total = c(df$vr_n, df$ctrl_n)
-)
+# calculate number in each condition that did not get a rescue dose
 
-df2 <- 
-chisq.test(df2, dose)
+vr_no_dose <- df$vr_n-df$vr_dose_n
+ctrl_no_dose <- df$ctrl_n-df$ctrl_dose_n
 
+# build a dataframe with the relevant data
+
+obsfreq_or <- matrix (c(df$vr_dose_n, vr_no_dose, df$ctrl_dose_n, ctrl_no_dose), 
+                     nrow = 2, ncol = 2)
+
+obsfreq <- matrix (c(df$ctrl_dose_n, ctrl_no_dose, df$vr_dose_n, vr_no_dose), 
+                     nrow = 2, ncol = 2)
+
+# run the stats
+chi <- chisq.test(obsfreq)
+
+# run the z-test of proportions
+
+dose <- c(df$vr_dose_n,df$ctrl_dose_n)
+total <- c(df$vr_n, df$ctrl_n)
+
+# two-tailed z-test for proportions
+# same result as normal chi square, as expected
+res2 <- prop.test(x = dose, n = total, alternative = "two.sided")
+
+# a one-sided test gets us the same value as in the paper
+res1 <- prop.test(x = dose, n = total, alternative = "less")
+
+# calculate Cohen's h as effect size with CIs using cohens_h function
+
+prop_1 = (df$ctrl_dose_n/(df$ctrl_dose_n+ctrl_no_dose))
+prop_2 = (df$vr_dose_n/(df$vr_dose_n+vr_no_dose))
+n1 = df$ctrl_n
+n2 = df$vr_n
+
+h <- cohens_h(prop_1, prop_2, n1, n2)
+h <- round(h, 2)
 ```
 
+Unlike the other measures, the rescue doses outcome was binary data. Of the 20 
+adolescents in the VR group, only 3 needed rescue doeses (15%). Of the 21 
+adolescents in the SD group, 9 needed rescue doses (43%). In the paper, they 
+reported running a chi-square test, which produced a significant result at p =
+.05.
+
+We tried to reproduce this analysis, but our chi-square test revealed a 
+non-significant difference, `r apa(chi)`. 
+A one-sided z-test of proportions produced a similar result to that of the original
+paper, z = `r round(sqrt(res1$statistic),2)`, p = `r round(res1$p.value, 3)`,
+although this p-value still exceeds the alpha level of .05. Cohen's h is a measure
+of effect size for proportions that can be interpreted using the same rules of 
+thumb as Cohen's d for small, medium, and large differences (Cohen, 1988). The 
+effect size for this difference was medium-large (h = `r h[1]` [`r h[2]`, 
+`r h[3]`]), but with a large 95% confidence interval. Taken together, these 
+results suggest this finding might not be reliable. 
 
 ```{r kipping_bind_tables}
 
 df_bind <- bind_rows(df_kip1, df_kip2, df_kip3, df_kip4, df_kip5, df_kip6, 
-                     df_kip7, df_kip8, df_kip9, df_kip10)
+                     df_kip7, df_kip8)
 ```
 
 
-```{r Kipping_concatenate_table}
+```{r kipping_concatenate_table}
 
 # combine the d value with the upper and lower boundaries into a new column
 # effect size is Cohen's d
@@ -1026,19 +1169,29 @@ df_bind$ctrl_m_sd <- paste0(df_bind$ctrl_m,
 # remove the columns that are now redundant
 
 df_kip_final <- df_bind %>% 
-  select (-c(d, lower.ci, upper.ci, ctrl_m, vr_m, ctrl_sd, vr_sd))
+  select (-c(d, lower.ci, upper.ci, ctrl_m, vr_m, ctrl_sd, vr_sd, 
+             ctrl_dose_n, vr_dose_n))
 
 # rearrange the columns we are keeping
 df_kip_final <- df_kip_final %>% 
   relocate (vr_m_sd, .after = vr_n) %>% 
   relocate (ctrl_m_sd, .after = ctrl_n) %>% 
+  relocate (original_p, .after = `p-value`) %>% 
   relocate (notes, .after = last_col())
 
 ```
 
-```{r Kipping_table,include=TRUE}
+```{r kipping_table,include=TRUE}
 
-landscape(knitr::kable(df_kip_final))
+landscape(knitr::kable(df_kip_final, 
+                       caption = "Kipping et al. Paper", 
+                       align = 'llccccccccl')) %>% 
+            column_spec(column = 11, width = "3cm")
 
+```
+
+```{r kipping_write_data}
+
+write_csv(df_kip_final, here::here("data_output", "kipping_data_output.csv"))
 ```
 
