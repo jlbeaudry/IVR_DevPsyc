@@ -43,6 +43,7 @@ library(pwr) # for Cohen's h
 library(finalfit) # to keep trailing zeros
 library(purrrlyr) # keep if I'm using by_row
 library(apa) # report apa style results in rmarkdown
+library(effsize) # Cohen's d for within subjects data
 
 
 library(plyr)
@@ -112,6 +113,9 @@ df_hua <- read_csv (here::here("data_input", "hua_data_input.csv")) %>%
 df_kip <- read_csv (here::here("data_input", "kipping_data_input.csv")) %>% 
   select (-c(pages, section, notes, paper, table))
 
+df_sil <- read_csv (here::here("data_input", "sil_data_input.csv")) %>% 
+  select (-c(pages, section, notes, paper, table))
+
 ```
 
 The output is also in a `.csv` file so you can easily copy and paste the numbers
@@ -168,14 +172,12 @@ dat(measure)
 
 # for control > VR
 
-mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, n.1 = df$ctrl_n, 
-    n.2 = df$vr_n,level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+mes(m.1 = ctrl_m, m.2 = vr_m, 
+          sd.1 = ctrl_sd, sd.2 = vr_sd, 
+          n.1 = ctrl_n, n.2 = vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
 
 
-# for control < VR
-
-mes(m.1 = df$vr_m, m.2 = df$ctrl_m, sd.1 = df$vr_sd, sd.2 = df$ctrl_sd, n.1 = df$vr_n, 
-    n.2 = df$ctrl_n,level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
 
 ```
 
@@ -193,8 +195,10 @@ df_hua %>%
 
 # for control > VR
 
-mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, n.1 = df$ctrl_n, 
-    n.2 = df$vr_n,level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
+          sd.1 = ctrl_sd, sd.2 = vr_sd, 
+          n.1 = ctrl_n, n.2 = vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
 
 
 df <- df_hua %>% 
@@ -202,8 +206,10 @@ df <- df_hua %>%
 
 # THIS WORKS
 
-d <- mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, n.1 = df$ctrl_n, 
-    n.2 = df$vr_n,level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
+          sd.1 = ctrl_sd, sd.2 = vr_sd, 
+          n.1 = ctrl_n, n.2 = vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
 
 df <- df_hua 
 
@@ -259,8 +265,10 @@ df <- df_hua %>%
 # CALCULATE THE EFFECT SIZE VALUES
 
 # 1 is ctrl group
-d1 <- mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, n.1 = df$ctrl_n, 
-    n.2 = df$vr_n,level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
+          sd.1 = ctrl_sd, sd.2 = vr_sd, 
+          n.1 = ctrl_n, n.2 = vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
 
 
 # RUN T-Test
@@ -271,9 +279,9 @@ t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n,
 
 # add columns for the d-value & CI
 df <- df %>% 
-  dplyr::mutate (d = round_tidy(d1[1,4],2), 
-                 lower.ci = round_tidy(d1[1,6],2), 
-                 upper.ci = round_tidy(d1[1,7],2))
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
 
 # add columns for the t-value & p-value
 df <- df %>% 
@@ -295,8 +303,10 @@ df <- df_hua %>%
 # CALCULATE THE EFFECT SIZE VALUES
 
 # ctrl as 1
-d1 <- mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, n.1 = df$ctrl_n, 
-    n.2 = df$vr_n,level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
+          sd.1 = ctrl_sd, sd.2 = vr_sd, 
+          n.1 = ctrl_n, n.2 = vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
 
 
 # RUN T-Test
@@ -307,9 +317,9 @@ t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n,
 
 # add columns for the d-value & CI
 df <- df %>% 
-  dplyr::mutate (d = round_tidy(d1[1,4],2), 
-                 lower.ci = round_tidy(d1[1,6],2), 
-                 upper.ci = round_tidy(d1[1,7],2))
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
 
 # add columns for the t-value & p-value
 df <- df %>% 
@@ -332,8 +342,10 @@ df <- df_hua %>%
 # CALCULATE THE EFFECT SIZE VALUES
 
 # ctrl as 1
-d1 <- mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, n.1 = df$ctrl_n, 
-    n.2 = df$vr_n,level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
+          sd.1 = ctrl_sd, sd.2 = vr_sd, 
+          n.1 = ctrl_n, n.2 = vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
 
 
 # RUN T-Test
@@ -344,9 +356,9 @@ t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n,
 
 # add columns for the d-value & CI
 df <- df %>% 
-  dplyr::mutate (d = round_tidy(d1[1,4],2), 
-                 lower.ci = round_tidy(d1[1,6],2), 
-                 upper.ci = round_tidy(d1[1,7],2))
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
 
 # add columns for the t-value & p-value
 df <- df %>% 
@@ -375,8 +387,10 @@ df <- df_hua %>%
 # CALCULATE THE EFFECT SIZE VALUES
 
 # ctrl as 1
-d1 <- mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, n.1 = df$ctrl_n, 
-    n.2 = df$vr_n,level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
+          sd.1 = ctrl_sd, sd.2 = vr_sd, 
+          n.1 = ctrl_n, n.2 = vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
 
 
 # RUN T-Test
@@ -387,9 +401,9 @@ t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n,
 
 # add columns for the d-value & CI
 df <- df %>% 
-  dplyr::mutate (d = round_tidy(d1[1,4],2), 
-                 lower.ci = round_tidy(d1[1,6],2), 
-                 upper.ci = round_tidy(d1[1,7],2))
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
 
 # add columns for the t-value & p-value
 df <- df %>% 
@@ -415,8 +429,10 @@ df <- df_hua %>%
 # CALCULATE THE EFFECT SIZE VALUES
 
 # ctrl as 1
-d1 <- mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, n.1 = df$ctrl_n, 
-    n.2 = df$vr_n,level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
+          sd.1 = ctrl_sd, sd.2 = vr_sd, 
+          n.1 = ctrl_n, n.2 = vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
 
 
 # RUN T-Test
@@ -427,9 +443,9 @@ t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n,
 
 # add columns for the d-value & CI
 df <- df %>% 
-  dplyr::mutate (d = round_tidy(d1[1,4],2), 
-                 lower.ci = round_tidy(d1[1,6],2), 
-                 upper.ci = round_tidy(d1[1,7],2))
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
 
 # add columns for the t-value & p-value
 df <- df %>% 
@@ -452,8 +468,10 @@ df <- df_hua %>%
 # CALCULATE THE EFFECT SIZE VALUES
 
 # ctrl as 1
-d1 <- mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, n.1 = df$ctrl_n, 
-    n.2 = df$vr_n,level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
+          sd.1 = ctrl_sd, sd.2 = vr_sd, 
+          n.1 = ctrl_n, n.2 = vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
 
 
 # RUN T-Test
@@ -464,10 +482,9 @@ t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n,
 
 # add columns for the d-value & CI
 df <- df %>% 
-  dplyr::mutate (d = round_tidy(d1[1,4],2), 
-                 lower.ci = round_tidy(d1[1,6],2), 
-                 upper.ci = round_tidy(d1[1,7],2))
-
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
 # add columns for the t-value & p-value
 df <- df %>% 
   dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
@@ -489,8 +506,10 @@ df <- df_hua %>%
 # CALCULATE THE EFFECT SIZE VALUES
 
 # ctrl as 1
-d1 <- mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, n.1 = df$ctrl_n, 
-    n.2 = df$vr_n,level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
+          sd.1 = ctrl_sd, sd.2 = vr_sd, 
+          n.1 = ctrl_n, n.2 = vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
 
 
 # RUN T-Test
@@ -501,9 +520,9 @@ t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n,
 
 # add columns for the d-value & CI
 df <- df %>% 
-  dplyr::mutate (d = round_tidy(d1[1,4],2), 
-                 lower.ci = round_tidy(d1[1,6],2), 
-                 upper.ci = round_tidy(d1[1,7],2))
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
 
 # add columns for the t-value & p-value
 df <- df %>% 
@@ -526,8 +545,10 @@ df <- df_hua %>%
 # CALCULATE THE EFFECT SIZE VALUES
 
 # ctrl as 1
-d1 <- mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, n.1 = df$ctrl_n, 
-    n.2 = df$vr_n,level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
+          sd.1 = ctrl_sd, sd.2 = vr_sd, 
+          n.1 = ctrl_n, n.2 = vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
 
 
 # RUN T-Test
@@ -538,9 +559,9 @@ t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n,
 
 # add columns for the d-value & CI
 df <- df %>% 
-  dplyr::mutate (d = round_tidy(d1[1,4],2), 
-                 lower.ci = round_tidy(d1[1,6],2), 
-                 upper.ci = round_tidy(d1[1,7],2))
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
 
 # add columns for the t-value & p-value
 df <- df %>% 
@@ -563,8 +584,10 @@ df <- df_hua %>%
 # CALCULATE THE EFFECT SIZE VALUES
 
 # ctrl as 1
-d1 <- mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, n.1 = df$ctrl_n, 
-    n.2 = df$vr_n,level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
+          sd.1 = ctrl_sd, sd.2 = vr_sd, 
+          n.1 = ctrl_n, n.2 = vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
 
 
 # RUN T-Test
@@ -575,9 +598,9 @@ t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n,
 
 # add columns for the d-value & CI
 df <- df %>% 
-  dplyr::mutate (d = round_tidy(d1[1,4],2), 
-                 lower.ci = round_tidy(d1[1,6],2), 
-                 upper.ci = round_tidy(d1[1,7],2))
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
 
 # add columns for the t-value & p-value
 df <- df %>% 
@@ -600,8 +623,10 @@ df <- df_hua %>%
 # CALCULATE THE EFFECT SIZE VALUES
 
 # ctrl as 1
-d1 <- mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, n.1 = df$ctrl_n, 
-    n.2 = df$vr_n,level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
+          sd.1 = ctrl_sd, sd.2 = vr_sd, 
+          n.1 = ctrl_n, n.2 = vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
 
 
 # RUN T-Test
@@ -612,9 +637,9 @@ t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n,
 
 # add columns for the d-value & CI
 df <- df %>% 
-  dplyr::mutate (d = round_tidy(d1[1,4],2), 
-                 lower.ci = round_tidy(d1[1,6],2), 
-                 upper.ci = round_tidy(d1[1,7],2))
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
 
 # add columns for the t-value & p-value
 df <- df %>% 
@@ -760,9 +785,10 @@ df <- df_kip %>%
 # CALCULATE THE EFFECT SIZE VALUES
 
 # 1 is ctrl group
-d1 <- mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, 
-          n.1 = df$ctrl_n, n.2 = df$vr_n,
-          level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
+          sd.1 = ctrl_sd, sd.2 = vr_sd, 
+          n.1 = ctrl_n, n.2 = vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
 
 
 # RUN T-Test
@@ -773,9 +799,9 @@ t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n,
 
 # add columns for the d-value & CI
 df <- df %>% 
-  dplyr::mutate (d = round_tidy(d1[1,4],2), 
-                 lower.ci = round_tidy(d1[1,6],2), 
-                 upper.ci = round_tidy(d1[1,7],2))
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
 
 # add columns for the t-value & p-value
 df <- df %>% 
@@ -800,9 +826,10 @@ df <- df_kip %>%
 # CALCULATE THE EFFECT SIZE VALUES
 
 # 1 is ctrl group
-d1 <- mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, 
-          n.1 = df$ctrl_n, n.2 = df$vr_n,
-          level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
+          sd.1 = ctrl_sd, sd.2 = vr_sd, 
+          n.1 = ctrl_n, n.2 = vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
 
 # RUN T-Test
 # x is ctrl group
@@ -812,9 +839,9 @@ t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n,
 
 # add columns for the d-value & CI
 df <- df %>% 
-  dplyr::mutate (d = round_tidy(d1[1,4],2), 
-                 lower.ci = round_tidy(d1[1,6],2), 
-                 upper.ci = round_tidy(d1[1,7],2))
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
 
 # add columns for the t-value & p-value
 df <- df %>% 
@@ -840,9 +867,10 @@ df <- df_kip %>%
 # CALCULATE THE EFFECT SIZE VALUES
 
 # 1 is ctrl group
-d1 <- mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, 
-          n.1 = df$ctrl_n, n.2 = df$vr_n,
-          level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
+          sd.1 = ctrl_sd, sd.2 = vr_sd, 
+          n.1 = ctrl_n, n.2 = vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
 
 
 # RUN T-Test
@@ -853,9 +881,9 @@ t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n,
 
 # add columns for the d-value & CI
 df <- df %>% 
-  dplyr::mutate (d = round_tidy(d1[1,4],2), 
-                 lower.ci = round_tidy(d1[1,6],2), 
-                 upper.ci = round_tidy(d1[1,7],2))
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
 
 # add columns for the t-value & p-value
 df <- df %>% 
@@ -880,9 +908,10 @@ df <- df_kip %>%
 # CALCULATE THE EFFECT SIZE VALUES
 
 # 1 is ctrl group
-d1 <- mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, 
-          n.1 = df$ctrl_n, n.2 = df$vr_n,
-          level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
+          sd.1 = ctrl_sd, sd.2 = vr_sd, 
+          n.1 = ctrl_n, n.2 = vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
 
 # RUN T-Test
 # x is ctrl group
@@ -892,9 +921,9 @@ t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n,
 
 # add columns for the d-value & CI
 df <- df %>% 
-  dplyr::mutate (d = round_tidy(d1[1,4],2), 
-                 lower.ci = round_tidy(d1[1,6],2), 
-                 upper.ci = round_tidy(d1[1,7],2))
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
 
 # add columns for the t-value & p-value
 df <- df %>% 
@@ -919,9 +948,10 @@ df <- df_kip %>%
 # CALCULATE THE EFFECT SIZE VALUES
 
 # 1 is ctrl group
-d1 <- mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, 
-          n.1 = df$ctrl_n, n.2 = df$vr_n,
-          level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
+          sd.1 = ctrl_sd, sd.2 = vr_sd, 
+          n.1 = ctrl_n, n.2 = vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
 
 
 # RUN T-Test
@@ -932,9 +962,9 @@ t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n,
 
 # add columns for the d-value & CI
 df <- df %>% 
-  dplyr::mutate (d = round_tidy(d1[1,4],2), 
-                 lower.ci = round_tidy(d1[1,6],2), 
-                 upper.ci = round_tidy(d1[1,7],2))
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
 
 # add columns for the t-value & p-value
 df <- df %>% 
@@ -956,9 +986,10 @@ df <- df_kip %>%
 # CALCULATE THE EFFECT SIZE VALUES
 
 # 1 is ctrl group
-d1 <- mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, 
-          n.1 = df$ctrl_n, n.2 = df$vr_n,
-          level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
+          sd.1 = ctrl_sd, sd.2 = vr_sd, 
+          n.1 = ctrl_n, n.2 = vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
 
 
 # RUN T-Test
@@ -969,9 +1000,9 @@ t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n,
 
 # add columns for the d-value & CI
 df <- df %>% 
-  dplyr::mutate (d = round_tidy(d1[1,4],2), 
-                 lower.ci = round_tidy(d1[1,6],2), 
-                 upper.ci = round_tidy(d1[1,7],2))
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
 
 # add columns for the t-value & p-value
 df <- df %>% 
@@ -997,9 +1028,10 @@ df <- df_kip %>%
 # CALCULATE THE EFFECT SIZE VALUES
 
 # 1 is ctrl group
-d1 <- mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, 
-          n.1 = df$ctrl_n, n.2 = df$vr_n,
-          level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
+d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
+          sd.1 = ctrl_sd, sd.2 = vr_sd, 
+          n.1 = ctrl_n, n.2 = vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
 
 
 # RUN T-Test
@@ -1010,9 +1042,9 @@ t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n,
 
 # add columns for the d-value & CI
 df <- df %>% 
-  dplyr::mutate (d = round_tidy(d1[1,4],2), 
-                 lower.ci = round_tidy(d1[1,6],2), 
-                 upper.ci = round_tidy(d1[1,7],2))
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
 
 # add columns for the t-value & p-value
 df <- df %>% 
@@ -1037,10 +1069,10 @@ df <- df_kip %>%
 # CALCULATE THE EFFECT SIZE VALUES
 
 # 1 is ctrl group
-d1 <- mes(m.1 = df$ctrl_m, m.2 = df$vr_m, sd.1 = df$ctrl_sd, sd.2 = df$vr_sd, 
-          n.1 = df$ctrl_n, n.2 = df$vr_n,
-          level = 95, dig = 4, verbose = TRUE, id=NULL, data=NULL)
-
+d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
+          sd.1 = ctrl_sd, sd.2 = vr_sd, 
+          n.1 = ctrl_n, n.2 = vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
 
 # RUN T-Test
 # x is ctrl group
@@ -1050,9 +1082,9 @@ t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n,
 
 # add columns for the d-value & CI
 df <- df %>% 
-  dplyr::mutate (d = round_tidy(d1[1,4],2), 
-                 lower.ci = round_tidy(d1[1,6],2), 
-                 upper.ci = round_tidy(d1[1,7],2))
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
 
 # add columns for the t-value & p-value
 df <- df %>% 
@@ -1194,4 +1226,217 @@ landscape(knitr::kable(df_kip_final,
 
 write_csv(df_kip_final, here::here("data_output", "kipping_data_output.csv"))
 ```
+
+## Sil et al
+
+They used a one-way within-subjects ANOVA to compare pain tolerance across the
+three conditions (baseline, traditional distraction, VR distrancion). Thye 
+reported a large effect size (f) of .56, but they didn't report Cohen's d 
+for the mean comparisons nor include the confidence interval around the f value.
+
+I won't be able to recreate their analyses from the summary data, so we should 
+just report the t-values & p-values from the paper (p. 6). But, I can calculate
+the effect sizes with confidence intervals for the three comparisons.
+
+
+
+```{r sil_pain_attempt_1, eval = FALSE}
+
+# I can delete this
+
+df1 <- df_sil
+
+# put it into a useable format
+
+df2 <- df %>% 
+  select(-c(measure,scale,comparison, original_p)) %>% 
+  pivot_wider(names_from = condition,
+            values_from = c(mean,sd))
+
+# CALCULATE THE STATS
+
+# RUN T-Test
+# x is traditional group; mu = baseline
+
+
+t <- tsum.test(mean.x = df2$mean_traditional, s.x = df2$sd_traditional, 
+               n.x = df2$n, 
+         mu = df2$mean_baseline,
+          alternative = "two.sided", var.equal = TRUE)
+
+# 1 is ctrl group
+d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
+          sd.1 = ctrl_sd, sd.2 = vr_sd, 
+          n.1 = ctrl_n, n.2 = vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
+
+
+
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# compare the original p-value reported in the paper & the p-value we calculated
+df$original_p == df$`p-value`
+
+# make a note if they are different
+df$notes <-"p-values differ, but conclusions unchanged"
+
+# specific name for this analysis
+df_kip8 <- df 
+
+```
+
+```{r sil_pain_base_vs_trad}
+
+df <- df_sil
+
+# select comparison
+df <- df %>% 
+  filter(comparison == "base vs. trad")
+
+# CALCULATE THE STATS
+
+# change the order of m1 and m2 so we get a positive d value
+
+d1 <- mes(m.1 = m.2, m.2 = m.1, sd.1 = sd.2, sd.2 = sd.1, 
+          n.1 = n, n.2 = n, level = 95, dig = 4, verbose = TRUE, id=1, data=df)
+
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
+
+
+# specific name for this analysis
+df_sil1 <- df 
+
+```
+
+```{r sil_pain_base_vs_vr}
+
+df <- df_sil
+
+# select comparison
+df <- df %>% 
+  filter(comparison == "base vs. VR")
+
+# CALCULATE THE STATS
+
+# change the order of m1 and m2 so we get a positive d value
+
+d1 <- mes(m.1 = m.2, m.2 = m.1, sd.1 = sd.2, sd.2 = sd.1, 
+          n.1 = n, n.2 = n, level = 95, dig = 4, verbose = TRUE, id=1, data=df)
+
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
+
+
+# specific name for this analysis
+df_sil2 <- df 
+
+```
+
+```{r sil_pain_trad_vs_vr}
+
+df <- df_sil
+
+# select comparison
+df <- df %>% 
+  filter(comparison == "trad vs VR")
+
+# CALCULATE THE STATS
+
+d1 <- mes(m.1 = m.1, m.2 = m.2, sd.1 = sd.1, sd.2 = sd.2, 
+          n.1 = n, n.2 = n, level = 95, dig = 4, verbose = TRUE, id=1, data=df)
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
+
+
+# specific name for this analysis
+df_sil3 <- df 
+
+```
+
+
+```{r sil_bind_tables}
+
+df_bind <- bind_rows(df_sil1, df_sil2, df_sil3)
+```
+
+
+```{r sil_concatenate_table}
+
+# combine the d value with the upper and lower boundaries into a new column
+# effect size is Cohen's d
+df_bind$"Cohen's d" <- paste0(df_bind$d,
+                              " [",
+                              df_bind$lower.ci,
+                              ", ",
+                              df_bind$upper.ci, 
+                              "]")
+
+
+# combine the mean & SD for the two conditions in each comparison
+df_bind$m_sd_1 <- paste0(df_bind$m.1, 
+                          " (", 
+                          df_bind$sd.1, 
+                          ")")
+df_bind$m_sd_2 <- paste0(df_bind$m.2, 
+                            " (", 
+                            df_bind$sd.2, 
+                            ")")
+
+```
+
+
+```{r sil_clean_dataframe}
+
+# remove the columns that are now redundant
+
+df_sil_final <- df_bind %>% 
+  select (-c(condition, mean, sd, m.1, sd.1, m.2, sd.2, d, lower.ci, upper.ci))
+
+# rearrange the columns we are keeping
+df_sil_final <- df_sil_final %>% 
+  relocate (n, .after = comparison) %>% 
+  relocate (m_sd_1, .after = n) %>% 
+  relocate (m_sd_2, .after = m_sd_1)
+
+```
+
+```{r sil_table,include=TRUE}
+
+knitr::kable(df_sil_final, 
+             caption = "Sil et al. Paper", 
+              align = 'lllcccccc') %>% 
+  column_spec(column = 7, width = "1.5cm") %>% 
+   kable_styling(full_width = F, 
+                latex_options = "HOLD_position")
+
+```
+
+```{r sil_write_data}
+
+write_csv(df_sil_final, here::here("data_output", "sil_data_output.csv"))
+```
+
 
