@@ -5,7 +5,8 @@ date: '`r format (Sys.time(), "%d %B %Y")`'
 output: 
   pdf_document:
         dev: cairo_pdf
-
+csl: apa-old-doi-prefix.csl
+bibliography: Beaudry_Library.bib
 ---
 ```{r setup, include=FALSE}
 options(scipen = 999)
@@ -268,8 +269,8 @@ p-values. For each of the 10 tests, I used the summary statistics (means & stand
 deviation) reported in the paper to compute the required values. 
 
 I conducted independent t-tests (I report the t-value and p-value) from using 
-the `BSDA` R package (include REF). I also used the `compute.es` R package 
-(include REF) to calculate the effect size (Cohen's d) and the 95% confidence 
+the `BSDA` R package [@arnholt_bsda_2017]. I also used the `compute.es` R package 
+[@re_computees_2020] to calculate the effect size (Cohen's d) and the 95% confidence 
 intervals (CI) around this parameter. Small, medium, and large effect sizes 
 correspond to d values of 0.2, 0.5, and 0.8, respectively (Cohen, 1988). 
 
@@ -782,8 +783,8 @@ the outcome variables (self-reported pain, self-reported nausea, nurses' report
 of pain, caregivers' report of pain). For these measures, Table 
 \ref{tab:kipping_table} reports the t-tests that we ran on the
 summary stats and the computed effect sizes (Cohen's d; see the interpretation 
-in Hua section). For these analyses, as in Hua, we used the R packages `BSDA` (REF) and 
-`compute.es` (REF).
+in Hua section). For these analyses, as in Hua, we used the R packages `BSDA` 
+[@arnholt_bsda_2017] and `compute.es` [@re_computees_2020].
 
 ```{r kipping_data_setup}
 
@@ -1175,7 +1176,7 @@ non-significant difference, `r apa(chi)`.
 A one-sided z-test of proportions produced a similar result to that of the original
 paper, z = `r round(sqrt(res1$statistic),2)`, p = `r round(res1$p.value, 3)`,
 although this p-value still exceeds the alpha level of .05.  Using
-the R `pwr` package (REF), we calculated Cohen's h, a measure
+the R `pwr` package [@champely_pwr_2020], we calculated Cohen's h, a measure
 of effect size for proportions that can be interpreted using the same rules of 
 thumb as Cohen's d for small, medium, and large differences (Cohen, 1988). This
 analysis revealed a medium-large effect size (h = `r h[1]` [`r h[2]`, 
@@ -1259,8 +1260,8 @@ I won't be able to recreate their analyses from the summary data because it's a
 within-subjects design, so we should just report the t-values & p-values from 
 the paper (p. 6). But, based on the 
 summary statistics reported in the paper, I have used the R package `effsize` 
-(REF) to calculate the effect size (Cohen's d) with confidence intervals for 
-the three comparisons.
+[@torchiano_effsize_2020] to calculate the effect size (Cohen's d) with 
+confidence intervals for the three comparisons.
 
 ```{r sil_pain_base_vs_trad}
 
@@ -1416,7 +1417,7 @@ confidence interval around the f value.
 I won't be able to recreate their analyses from the summary data because it's a 
 within-subjects design, so we should just report the t-values & p-values from 
 the paper (p. 622).  But, based on the summary statistics reported in the paper, 
-I have used the R package `effsize` (REF) to calculate the effect size 
+I have used the R package `effsize` [@torchiano_effsize_2020] to calculate the effect size 
 (Cohen's d) with confidence intervals for the three comparisons.
 
 ```{r dahl_pain_base_vs_distraction}
@@ -1557,3 +1558,5 @@ knitr::kable(df_dahl_final,
 
 write_csv(df_dahl_final, here::here("data_output", "dahlquist_data_output.csv"))
 ```
+\newpage
+# References
