@@ -37,6 +37,7 @@ knitr::opts_knit$set(width = 75)
 library(tinytex)
 library(knitr)
 library(here)
+library(tidyverse)
 library(compute.es) # for Cohen's d
 library(BSDA) # run t-test from summary data
 library(fmsb) # for odds ratio [currently not using because we are using Cohen's h]
@@ -45,19 +46,19 @@ library(finalfit) # to keep trailing zeros
 library(purrrlyr) # keep if I'm using by_row
 library(apa) # report apa style results in rmarkdown
 library(effsize) # Cohen's d for within subjects data
-library(citr) # to cite the packages we use
+library(kableExtra) # build tables
 
-library(plyr)
-library(extrafont) #load the fonts needed for latex font in ggplot
-library(tidyverse)
-library(skimr)
-library(ggbeeswarm)
+
+# library(captioner) 
+# library(plyr)
+# library(extrafont) #load the fonts needed for latex font in ggplot
+# library(skimr)
+# library(ggbeeswarm)
 #library(ggrepel) use this if I'm going to add labels
-library(plotly)
-library(RColorBrewer)
-library(kableExtra)
-library(datapasta) # I don't need this to run the file, so delete when I'm done.
-library(captioner)
+# library(plotly)
+# library(RColorBrewer)
+# library(datapasta) # I don't need this to run the file, so delete when I'm done.
+
 
 ```
 
@@ -91,7 +92,7 @@ styler_pdf <- function(dat) {
 
 #### CAPTIONER TO ADD FIGURE CAPTIONS ###
 
-fig_nums <- captioner(prefix = "Figure")
+# fig_nums <- captioner(prefix = "Figure")
 
 ### USE LATEX FONT FOR GGPLOT, PLUS CHANGE FONT SIZE
   # 18 FOR PDF; 12 FOR HTML
@@ -121,10 +122,13 @@ df_kip <- read_csv (here::here("data_input", "kipping_data_input.csv")) %>%
 df_sil <- read_csv (here::here("data_input", "sil_data_input.csv")) %>% 
   select (-c(pages, section, notes, paper, table))
 
-#Dahlquist et al
-df_dahl <- read_csv (here::here("data_input", "dahlquist_data_input.csv")) %>% 
+#Dahlquist et al (2010)
+df_dahl <- read_csv (here::here("data_input", "dahlquist_2010_data_input.csv")) %>% 
   select (-c(pages, section, notes, paper, table))
 
+#Dahlquist et al (2009)
+df_dahl_09 <- read_csv (here::here("data_input", "dahlquist_2009_data_input.csv")) %>% 
+  select (-c(pages, section, notes, paper, table))
 ```
 
 For each data set, I will provide the output in this pdf and also in a `.csv` file. 
@@ -191,6 +195,8 @@ mes(m.1 = ctrl_m, m.2 = vr_m,
 ```
 
 ```{r playing around, eval = FALSE}
+
+# I'm sure I can delete this...
 
 # TRYING TO DO SOMETHING WITH PURR
 
@@ -1404,9 +1410,9 @@ knitr::kable(df_sil_final,
 write_csv(df_sil_final, here::here("data_output", "sil_data_output.csv"))
 ```
 
-## Dahlquist et al.
+## Dahlquist et al. (2010)
 
-Two one-way within-subjects ANOVA to compare the three conditions (baseline, 
+They used one-way within-subjects ANOVA to compare the three conditions (baseline, 
 traditional distraction, VR distrancion) on log 
 transformed pain tolerance scores. 
 
@@ -1420,7 +1426,7 @@ the paper (p. 622).  But, based on the summary statistics reported in the paper,
 I have used the R package `effsize` [@torchiano_effsize_2020] to calculate the effect size 
 (Cohen's d) with confidence intervals for the three comparisons.
 
-```{r dahl_pain_base_vs_distraction}
+```{r dahl_2010_pain_base_vs_distraction}
 
 df <- df_dahl
 
@@ -1446,7 +1452,7 @@ df_dahl1 <- df
 
 ```
 
-```{r dahl_pain_base_vs_distraction+helmet}
+```{r dahl_2010_pain_base_vs_distraction+helmet}
 
 df <- df_dahl
 
@@ -1473,7 +1479,7 @@ df_dahl2 <- df
 
 ```
 
-```{r dahl_pain_distraction_vs_distraction+helmet}
+```{r dahl_2010_pain_distraction_vs_distraction+helmet}
 
 df <- df_dahl
 
@@ -1498,12 +1504,142 @@ df_dahl3 <- df
 
 ```
 
-```{r dahl_bind_tables}
+```{r dahl_2010_bind_tables}
 
 df_bind <- bind_rows(df_dahl1, df_dahl2, df_dahl3)
 ```
 
-```{r dahl_concatenate_table}
+```{r dahl_2010_concatenate_table}
+
+# combine the d value with the upper and lower boundaries into a new column
+# effect size is Cohen's d
+df_bind$"Cohen's d" <- paste0(df_bind$d,
+                              " [",
+                              df_bind$lower.ci,
+                              ", ",
+                              df_bind$upper.ci, 
+                              "]")
+
+# combine the mean & SD for the two conditions in each comparison
+df_bind$m_sd_1 <- paste0(df_bind$m.1, 
+                          " (", 
+                          df_bind$sd.1, 
+                          ")")
+df_bind$m_sd_2 <- paste0(df_bind$m.2, 
+                            " (", 
+                            df_bind$sd.2, 
+                            ")")
+
+```
+
+```{r dahl_2010_clean_dataframe}
+
+# remove the columns that are now redundant
+
+df_dahl_final <- df_bind %>% 
+  select (-c(condition, mean, sd, m.1, sd.1, m.2, sd.2, d, lower.ci, upper.ci))
+
+# rearrange the columns we are keeping
+df_dahl_final <- df_dahl_final %>% 
+  relocate (n, .after = comparison) %>% 
+  relocate (m_sd_1, .after = n) %>% 
+  relocate (m_sd_2, .after = m_sd_1)
+
+```
+
+```{r dahl_2010_table,include=TRUE}
+
+knitr::kable(df_dahl_final, 
+             caption = "Dahl et al. (2010) Paper", 
+              align = 'lllcccccc') %>% 
+  column_spec(column = 7, width = "1.5cm") %>% 
+  column_spec(column = 3, width = "3cm") %>% 
+  column_spec(column = 9, width = "2cm") %>% 
+   kable_styling(full_width = F, 
+                latex_options = "HOLD_position")
+
+```
+
+```{r dahl_2010_write_data}
+
+write_csv(df_dahl_final, here::here("data_output", "dahlquist_2010_data_output.csv"))
+```
+
+## Dahlquist et al. (2009)
+
+They had two age groups: younger (6-10 years) and older (11-14 years). 
+
+They ran a 2 x 3 mixed factorial ANOVA to compare the two age groups and 
+the three experimental conditions (baseline, traditional distraction, VR 
+distrancion) on pain tolerance scores (no transformation reported).
+
+Their ANOVA revealed main effects of experimental condition, F (2,78) = 7.84, 
+p < .001, f = .62, and a significant age by experimental condition interaction
+effect for pain tolerance, F (2,78) = 3.82, p < .05, f = .43. Both of these 
+are large effects (they did not report the confidence intervals around the f value.)
+
+*Decisions:* They didn't report the means for the experimental conditions, so I 
+can't *easily* report the means or effect size for that comparison. 
+There's probably a way for me to figure it out, but I'm not sure how much you 
+care... Likewise, their significant comparisons were for younger vs older children
+in the baseline and VR conditions. Given that we don't care about age effects, 
+I've not reported the comparison of the baseline pain tolerance scores across
+the two age groups (but I can, if you want it). The pain tolerance scores of 
+the younger vs older children were not significantly different in the 
+distraction-only condition, so they didn't report the standard deviation around 
+the two means. If you want stats around that comparison, I can likely pull that '
+info from Figure 1 (p. 580), but how much do you care about it?
+
+To compare the pain tolerance scores of younger and older children in the 
+distraction+helmet condition, I used the the `BSDA` R package 
+[@arnholt_bsda_2017] to compute the t-test statistic based on the summary
+statistics reported in the paper. I also used the `compute.es` R package 
+[@re_computees_2020] to calculate the effect size 
+(Cohen's d) and the 95% confidence intervals (CI) around this parameter.
+
+```{r dahl_2009_pain_base_vs_distraction}
+
+df <- df_dahl_09
+
+# select comparison
+df <- df %>% 
+  filter(comparison == "distraction+helmet: younger vs. older")
+
+# CALCULATE THE STATS
+
+# x is the older group
+t <- tsum.test(mean.x = df$m.2, s.x = df$sd.2, n.x = df$n.2, 
+          mean.y = df$m.1, s.y = df$sd.1, n.y = df$n.1,
+          alternative = "two.sided", var.equal = TRUE)
+
+# change the order of m1 and m2 so we get a positive d value
+
+d1 <- mes(m.1 = m.2, m.2 = m.1, sd.1 = sd.2, sd.2 = sd.1, 
+          n.1 = n, n.2 = n, level = 95, dig = 4, verbose = TRUE, id=1, data=df)
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
+
+df <- df %>% 
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+              "p-value" = round_tidy(t$p.value, 3))
+
+
+# specific name for this analysis
+df_dahl1 <- df 
+
+```
+
+```{r dahl_09_bind_tables}
+
+# I don't really need this, but keeping it in case we add additional comparisons
+df_bind <- bind_rows(df_dahl1)
+```
+
+```{r dahl_09_concatenate_table}
 
 # combine the d value with the upper and lower boundaries into a new column
 # effect size is Cohen's d
@@ -1531,24 +1667,25 @@ df_bind$m_sd_2 <- paste0(df_bind$m.2,
 # remove the columns that are now redundant
 
 df_dahl_final <- df_bind %>% 
-  select (-c(condition, mean, sd, m.1, sd.1, m.2, sd.2, d, lower.ci, upper.ci))
+  select (-c(condition, mean, sd, m.1, sd.1, m.2, 
+             sd.2, d, lower.ci, upper.ci, n, `age group`))
 
 # rearrange the columns we are keeping
 df_dahl_final <- df_dahl_final %>% 
-  relocate (n, .after = comparison) %>% 
-  relocate (m_sd_1, .after = n) %>% 
-  relocate (m_sd_2, .after = m_sd_1)
+  relocate (m_sd_1, .after = n.1) %>% 
+  relocate (m_sd_2, .after = n.2) %>% 
+  relocate (original_p, .after = 'p-value')
 
 ```
 
 ```{r dahl_table,include=TRUE}
 
-knitr::kable(df_dahl_final, 
-             caption = "Dahl et al. Paper", 
-              align = 'lllcccccc') %>% 
-  column_spec(column = 7, width = "1.5cm") %>% 
+landscape(knitr::kable(df_dahl_final, 
+             caption = "Dahl et al. (2009) Paper", 
+              align = 'llllcccccccc')) %>% 
   column_spec(column = 3, width = "3cm") %>% 
-  column_spec(column = 9, width = "2cm") %>% 
+  column_spec(column = 5, width = "1.5cm") %>% 
+  column_spec(column = 7, width = "1.5cm") %>% 
    kable_styling(full_width = F, 
                 latex_options = "HOLD_position")
 
@@ -1556,7 +1693,40 @@ knitr::kable(df_dahl_final,
 
 ```{r dahl_write_data}
 
-write_csv(df_dahl_final, here::here("data_output", "dahlquist_data_output.csv"))
+write_csv(df_dahl_final, here::here("data_output", "dahlquist_2009_data_output.csv"))
 ```
+
+# Table 2
+## Diaz-Orueta article 
+
+The convergent validity stats are presented in Table 3.There's no point in 
+pulling that data into
+R because no manipulation is necessary. Paola, you can create a table with the 
+info from Table 3 that you want to report?
+
+*Decision*: They also compare the test scores for those children in treatment and those 
+not under treatment (Table 5). Do you want any of that data in a table? I can probably 
+calculate r as an effect size (z value divided by the number of observations), 
+but I'll need to figure out how to calculate the CIs. The `rcompanion` package
+might be useful for this. But, I won't put any effort in this unless you want it.
+I won't put any effort in this unless you want it. BUT, you’ll also have to 
+decide *what* you want. They report about 20 different comparisons—do you want 
+them all?
+
+https://rcompanion.org/handbook/F_04.html
+
+## Nolin et al. (2016)
+
+They want to report the correlations between the two measures as an
+indication of convergent validity. There's no point in pulling that data into
+R because no manipulation is necessary. Paola, you can create a table with the 
+info from Table 1 (first three columns: correct response, commission, reaction
+time). I suggest revising it a little so that ClinicaVR is on the row above the three 
+measures, rather than in the same row (like Table 3 in Diaz-Orueta). 
+
+
+
+
+
 \newpage
 # References
