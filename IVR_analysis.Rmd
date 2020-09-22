@@ -116,7 +116,7 @@ df_hua <- read_csv (here::here("data_input", "hua_data_input.csv")) %>%
 # this doesn't work, so don't load it now
 # df_jeffs <- read_csv (here::here("data_input", "jeffs_data_input.csv"))
 
-#Kipping et al
+# Kipping et al
 df_kip <- read_csv (here::here("data_input", "kipping_data_input.csv")) %>% 
   select (-c(pages, section, notes, paper, table))
 
@@ -124,12 +124,16 @@ df_kip <- read_csv (here::here("data_input", "kipping_data_input.csv")) %>%
 df_sil <- read_csv (here::here("data_input", "sil_data_input.csv")) %>% 
   select (-c(pages, section, notes, paper, table))
 
-#Dahlquist et al (2010)
+# Dahlquist et al (2010)
 df_dahl <- read_csv (here::here("data_input", "dahlquist_2010_data_input.csv")) %>% 
   select (-c(pages, section, notes, paper, table))
 
-#Dahlquist et al (2009)
+# Dahlquist et al (2009)
 df_dahl_09 <- read_csv (here::here("data_input", "dahlquist_2009_data_input.csv")) %>% 
+  select (-c(pages, section, notes, paper, table))
+
+# Negut et al (2016)
+df_negut <- read_csv (here::here("data_input", "negut_data_input.csv")) %>% 
   select (-c(pages, section, notes, paper, table))
 ```
 
@@ -746,7 +750,7 @@ landscape(knitr::kable(df_hua_final,
 write_csv(df_hua_final, here::here("data_output", "hua_data_output.csv"))
 ```
 
-## Jeffs et al paper
+## Jeffs et al paper - NEED TO DO
 
 This isn't done. I need to figure out a way to calculate the SDs. I
 have some potential solutions (links in code), but the best approach
@@ -795,9 +799,9 @@ subtracted the baseline measures from the removal and application scores for
 the outcome variables (self-reported pain, self-reported nausea, nurses' report 
 of pain, caregivers' report of pain). For these measures, Table 
 \ref{tab:kipping_table} reports the t-tests that we ran on the
-summary stats and the computed effect sizes (Cohen's d; see the interpretation 
-in Hua section). For these analyses, as in Hua, we used the R packages `BSDA` 
-[@arnholt_bsda_2017] and `compute.es` [@re_computees_2020].
+summary stats and the computed effect sizes (Cohen's d). For these analyses, 
+as in Hua, we used the R packages `BSDA` [@arnholt_bsda_2017] and 
+`compute.es` [@re_computees_2020].
 
 ```{r kipping_data_setup}
 
@@ -1262,19 +1266,22 @@ write_csv(df_kip_final, here::here("data_output", "kipping_data_output.csv"))
 ## Sil et al
 
 They used a one-way within-subjects ANOVA to compare the
-three conditions (baseline, traditional distraction, VR distrancion) on log 
+three conditions (baseline, traditional distraction, VR distraction) on log 
 transformed pain tolerance scores.
 
 They reported a large effect size (f) of .56 from the ANOVA, but they didn't 
 report Cohen's d for the mean comparisons nor include the confidence interval 
 around the f value.
 
-I won't be able to recreate their analyses from the summary data because it's a 
+I couldn't recreate their analyses from the summary data because it's a 
 within-subjects design, so we should just report the t-values & p-values from 
-the paper (p. 6). But, based on the 
-summary statistics reported in the paper, I have used the R package `effsize` 
+the paper (p. 6). But, based on the summary statistics reported in the paper, 
+I have used the R package `effsize` 
 [@torchiano_effsize_2020] to calculate the effect size (Cohen's d) with 
 confidence intervals for the three comparisons.
+
+As discussed on Sept 22nd, we probably want to pull the `n` out of the table
+because it's a within-subjects design.
 
 ```{r sil_pain_base_vs_trad}
 
@@ -1420,7 +1427,7 @@ write_csv(df_sil_final, here::here("data_output", "sil_data_output.csv"))
 ## Dahlquist et al. (2010)
 
 They used one-way within-subjects ANOVA to compare the three conditions (baseline, 
-traditional distraction, VR distrancion) on log 
+traditional distraction, VR distraction) on log 
 transformed pain tolerance scores. 
 
 They reported a large effect size (f) of .65 from the ANOVA, 
@@ -1578,7 +1585,7 @@ They had two age groups: younger (6-10 years) and older (11-14 years).
 
 They ran a 2 x 3 mixed factorial ANOVA to compare the two age groups and 
 the three experimental conditions (baseline, traditional distraction, VR 
-distrancion) on pain tolerance scores (no transformation reported).
+distraction) on pain tolerance scores (no transformation reported).
 
 Their ANOVA revealed main effects of experimental condition, F (2,78) = 7.84, 
 p < .001, f = .62, and a significant age by experimental condition interaction
@@ -1596,6 +1603,9 @@ the younger vs older children were not significantly different in the
 distraction-only condition, so they didn't report the standard deviation around 
 the two means. If you want stats around that comparison, I can likely pull that '
 info from Figure 1 (p. 580), but how much do you care about it?
+
+*Action*: We decided that we don't need the stats for those comparisons. No 
+additional action required. 
 
 To compare the pain tolerance scores of younger and older children in the 
 distraction+helmet condition, I used the the `BSDA` R package 
@@ -1707,9 +1717,8 @@ write_csv(df_dahl_final, here::here("data_output", "dahlquist_2009_data_output.c
 ## Diaz-Orueta article 
 
 The convergent validity stats are presented in Table 3.There's no point in 
-pulling that data into
-R because no manipulation is necessary. Paola, you can create a table with the 
-info from Table 3 that you want to report?
+pulling that data into R because no manipulation is necessary. 
+Paola, you can create a table with the info from Table 3 that you want to report?
 
 *Decision*: They also compare the test scores for those children in treatment and those 
 not under treatment (Table 5). Do you want any of that data in a table? I can probably 
@@ -1717,8 +1726,11 @@ calculate r as an effect size (z value divided by the number of observations),
 but I'll need to figure out how to calculate the CIs. The `rcompanion` package
 might be useful for this. But, I won't put any effort in this unless you want it.
 I won't put any effort in this unless you want it. BUT, you’ll also have to 
-decide *what* you want. They report about 20 different comparisons—do you want 
-them all?
+decide *what* you want. They report about 20 different comparisons—--do you want 
+them all? 
+
+*ACTION*: We decided not to report any of the stats from Table 5. Paola will 
+pull the data from Table 3 re: the correlations between the two measures. 
 
 https://rcompanion.org/handbook/F_04.html
 
@@ -1731,12 +1743,153 @@ info from Table 1 (first three columns: correct response, commission, reaction
 time). I suggest revising it a little so that ClinicaVR is on the row above the three 
 measures, rather than in the same row (like Table 3 in Diaz-Orueta). 
 
+*ACTION*: Paola will pull the data from Table 1 re: the correlations between the 
+two measures. 
 
-## Negut et al. (2016 or 2017?)
+## Negut et al. (2016) - Not done
 
-Need the correct manuscript
+They used a mixed factorial design with two between-subject factors: test condition
+(VC assessment vs. traditional CPT) and clinical status (children with ADHD vs. 
+typically developing children), and one within-subjects factor: test modality 
+(with vs. without distractors). They ran MANCOVA with age and IQ as covariates. 
+I used the  R package `effectsize` [@ben-shachar_effectsize_2020] to calculate 
+partial eta-squared with 90% confidence intervals for these effects (but, I report
+their V, F, and p values). 
 
-## Pollak et al. (2009)
+
+```{r negut_data}
+
+clin_eta <- F_to_eta2(f = 7.06, df = 4, df_error = 66, ci = .90)
+
+inter_eta <- F_to_eta2(f = 1.60, df = 4, df_error = 66, ci = .90)
+
+```
+
+
+Two key findings emerged from the multivariate analysis: 
+1. A significant effect of clinical status, V = .30, F(4,66) = 7.06, p < .001, 
+(np^2^ = `r round_tidy(clin_eta$Eta_Sq_partial, 3)` 90% CI [`r round(clin_eta$CI_low, 3)`, 
+`r round(clin_eta$CI_high, 3)`]). See Table \ref{tab: negut_table} for statistics 
+comparing the children with ADHD (n = `r df_negut$adhd_n[1]`) with the typically-developing
+children (n = `r df_negut$td_n[1]`) on errors of commission, errors of omission, 
+and total correct responses [**I cannot find the means for the mean response time**]. 
+I conducted independent t-tests (I report the t-value and p-value) from using 
+the `BSDA` R package [@arnholt_bsda_2017]. I also used the `compute.es` R package 
+[@re_computees_2020] to calculate the effect size (Cohen's d) and the 95% confidence 
+intervals (CI) around this parameter.
+
+2. No significant interaction between test condition and clinical status
+of the children, V = .08, F(4,66) = 1.60, p > .05, (np^2^ = 
+`r round(inter_eta$Eta_Sq_partial, 3)` 90% CI [`r round_tidy(inter_eta$CI_low, 3)`, 
+`r round(inter_eta$CI_high, 3)`]), which suggests that the children with ADHD 
+and the typically-developing children's performance was similar regardless of 
+the type of test used. 
+
+```{r negut_commission}
+
+df <- df_negut
+
+# select measure
+df <- df %>% 
+  filter(measure == "commission errors")
+
+# CALCULATE THE STATS
+
+d1 <- mes(m.1 = adhd_m, m.2 = td_m, sd.1 = adhd_sd, sd.2 = td_sd, 
+          n.1 = adhd_n, n.2 = td_n, level = 95, dig = 4, verbose = TRUE, id=1, data=df)
+
+# RUN T-Test
+# x is the adhd group
+
+t <- tsum.test(mean.x = df$adhd_m, s.x = df$adhd_sd, n.x = df$adhd_n, 
+          mean.y = df$td_m, s.y = df$td_sd, n.y = df$td_n,
+          alternative = "two.sided")
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+
+# compare the original t-value reported in the paper & the p-value we calculated
+df$original_t == df$`t-value`
+
+# compare the original p-value reported in the paper & the p-value we calculated
+df$original_d == df$d
+
+
+df$notes <- "p-value in text is .034"
+
+# specific name for this analysis
+df_negut1 <- df 
+
+```
+
+```{r negut_concatenate_table}
+
+# combine the d value with the upper and lower boundaries into a new column
+# effect size is Cohen's d
+df_bind$"Cohen's d" <- paste0(df_bind$d,
+                              " [",
+                              df_bind$lower.ci,
+                              ", ",
+                              df_bind$upper.ci, 
+                              "]")
+
+
+# combine the mean & SD for the two conditions in each comparison
+df_bind$m_sd_1 <- paste0(df_bind$m.1, 
+                          " (", 
+                          df_bind$sd.1, 
+                          ")")
+df_bind$m_sd_2 <- paste0(df_bind$m.2, 
+                            " (", 
+                            df_bind$sd.2, 
+                            ")")
+
+```
+
+```{r sil_clean_dataframe}
+
+# remove the columns that are now redundant
+
+df_sil_final <- df_bind %>% 
+  select (-c(condition, mean, sd, m.1, sd.1, m.2, sd.2, d, lower.ci, upper.ci))
+
+# rearrange the columns we are keeping
+df_sil_final <- df_sil_final %>% 
+  relocate (n, .after = comparison) %>% 
+  relocate (m_sd_1, .after = n) %>% 
+  relocate (m_sd_2, .after = m_sd_1)
+
+```
+
+```{r negut_table,include=TRUE}
+
+knitr::kable(df_sil_final, 
+             caption = "Sil et al. Paper", 
+              align = 'lllcccccc') %>% 
+  column_spec(column = 7, width = "1.5cm") %>% 
+   kable_styling(full_width = F, 
+                latex_options = "HOLD_position")
+
+```
+
+```{r sil_write_data}
+
+write_csv(df_sil_final, here::here("data_output", "sil_data_output.csv"))
+```
+
+
+
+
+## Pollak et al. (2009) - Not done
 
 What are they interested in here? They report Cohen's d values for the comparison
 of kids with ADHD vs. without ADHD across the three evaluation conditions, but
@@ -1749,13 +1902,15 @@ paper. Waiting on confirmation.
 ## Rodriguez et al. (2018)
 
 All comparisons include effect sizes, so Paola can simply include the information
-that she wants to mention. No manipulation in R is necessary, though you will
-have to give some thought to what you want to include. We can't do a direct 
-comparison of means across the VR (Aula Nesplora) test and the TOVA test 
-because the values are interpreted differently (high scores on VR are indicitative 
-of defict; high scores on the TOVA are indicative of good executive functioning). 
-Based on your write up, I suggest that you should include the following
-in the text itself (or something along these lines): 
+that she wants to mention. 
+
+No manipulation in R is necessary, though you will have to give some thought to 
+what you want to include. We can't do a directcomparison of means across the 
+VR (Aula Nesplora) test and the TOVA test because the values are interpreted 
+differently (high scores on VR are indicitative of defict; high scores on the 
+TOVA are indicative of good executive functioning). Based on your write up, 
+I suggest that you should include the following in the text itself 
+(or something along these lines): 
 
 ```{r Rod check stats}
 
@@ -1768,25 +1923,23 @@ vr_f <- F_to_f(f = 4.93, df = 24, df_error = 429, ci = .95)
 #partial eta-squared for TOVA
 tova_eta <- F_to_eta2(f = 1.18, df = 24, df_error = 465, ci = .90)
 
-
-
 ```
 
 1. They conducted two MANCOVAs (one for VR & one for TOVA) to examine differences 
 across the four groups (control & 3 ADHD presentation groups: Inattentive, 
 Impulsive and Hyperactivity, Combined) on the dependent variables (omissions, 
 commissions, response time, and variability) across the two halves of the tests. 
-I used the  `effectsize` package in R (REF[@ben-shachar_effectsize_2020]) to calculate 
+I used the  `effectsize` package in R [@ben-shachar_effectsize_2020] to calculate 
 partial eta-squared with 90% confidence intervals for both models.
 
   + The MANCOVA for VR (Aula Nesplora) included age as a covariate. The 
   multivariate model was stastically significant (np^2^ = `r round(vr_eta$Eta_Sq_partial, 3)` 
-  [`r round(vr_eta$CI_low, 3)`, `r round(vr_eta$CI_high, 3)`]), with significant 
+  90% CI [`r round(vr_eta$CI_low, 3)`, `r round(vr_eta$CI_high, 3)`]), with significant 
   univariate effects for all dependent varialbes (.057 $\geq$ np^2^s $\leq$ .228). 
 
   + The MANCOVA for TOVA included IQ as a covariate. The multivariate 
   model was not stastically significant (np^2^ = `r round(tova_eta$Eta_Sq_partial, 3)` 
-  [`r round(tova_eta$CI_low, 3)`, `r round(tova_eta$CI_high, 3)`]). 
+  90% CI [`r round(tova_eta$CI_low, 3)`, `r round(tova_eta$CI_high, 3)`]). 
   
   + Taken together, these findings suggest that the Aula Nesplora was 
   able to discriminate between children with and without ADHD symptoms, whereas
@@ -1801,8 +1954,7 @@ of the sample.
   + The discriminant function for the VR test (Aula Nesplora) correctly 
   classified 56.60% of the sample. 
   
-  + The discriminant function for the VR test (Aula Nesplora) correctly 
-  classified 33.70% of the sample. 
+  + The discriminant function for TOVA correctly classified 33.70% of the sample. 
 
 
 
