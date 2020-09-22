@@ -4,6 +4,7 @@ author: "Araiza-Alba, Keane, Beaudry, Kaufman (Code by Jennifer Beaudry)"
 date: '`r format (Sys.time(), "%d %B %Y")`'
 output: 
   pdf_document:
+        number_sections: true
         dev: cairo_pdf
 csl: apa-old-doi-prefix.csl
 bibliography: Beaudry_Library.bib
@@ -47,6 +48,7 @@ library(purrrlyr) # keep if I'm using by_row
 library(apa) # report apa style results in rmarkdown
 library(effsize) # Cohen's d for within subjects data
 library(kableExtra) # build tables
+library(effectsize) # partial eta2 from F stats
 
 
 # library(captioner) 
@@ -265,7 +267,12 @@ mes(m.1 = vr_m, m.2 = ctrl_m, sd.1 = vr_sd, sd.2 = ctrl_sd, n.1 = vr_n,
 
 Cohen's f: small = .10, medium = .25, large = .40 {for ANOVAs} \newline
 Cohen's d: small = .20, medium = .50, large = .80 {for t-tests} \newline
-Cohen's h: small = .20, medium = .50, large = .80 {for proportions}
+Cohen's h: small = .20, medium = .50, large = .80 {for proportions} \newline
+partial eta-squared (np^2^): small = .01, medium = .06, large = .14 {for ANOVAs 
+and MANOVAs}
+Squared canoninical correlation (r^2^): small = .01--.09, medium = .09--.25, 
+large > .25 {discriminant analyses} [We might not need this, depending on 
+the decisions around the Rodriguez paper.]
 
 # Table 1 
 ## Hua et al paper
@@ -1725,6 +1732,77 @@ time). I suggest revising it a little so that ClinicaVR is on the row above the 
 measures, rather than in the same row (like Table 3 in Diaz-Orueta). 
 
 
+## Negut et al. (2016 or 2017?)
+
+Need the correct manuscript
+
+## Pollak et al. (2009)
+
+What are they interested in here? They report Cohen's d values for the comparison
+of kids with ADHD vs. without ADHD across the three evaluation conditions, but
+they do not report (at least in the table), the comparisons across the three
+conditions. 
+
+What does Paola want here? Also, it's not clear that this is actually the same 
+paper. Waiting on confirmation. 
+
+## Rodriguez et al. (2018)
+
+All comparisons include effect sizes, so Paola can simply include the information
+that she wants to mention. No manipulation in R is necessary, though you will
+have to give some thought to what you want to include. We can't do a direct 
+comparison of means across the VR (Aula Nesplora) test and the TOVA test 
+because the values are interpreted differently (high scores on VR are indicitative 
+of defict; high scores on the TOVA are indicative of good executive functioning). 
+Based on your write up, I suggest that you should include the following
+in the text itself (or something along these lines): 
+
+```{r Rod check stats}
+
+#partial eta-squared for VR
+vr_eta <- F_to_eta2(f = 4.93, df = 24, df_error = 429, ci = .90)
+
+# Cohen's f for VR
+vr_f <- F_to_f(f = 4.93, df = 24, df_error = 429, ci = .95)
+
+#partial eta-squared for TOVA
+tova_eta <- F_to_eta2(f = 1.18, df = 24, df_error = 465, ci = .90)
+
+
+
+```
+
+1. They conducted two MANCOVAs (one for VR & one for TOVA) to examine differences 
+across the four groups (control & 3 ADHD presentation groups: Inattentive, 
+Impulsive and Hyperactivity, Combined) on the dependent variables (omissions, 
+commissions, response time, and variability) across the two halves of the tests. 
+I used the  `effectsize` package in R (REF[@ben-shachar_effectsize_2020]) to calculate 
+partial eta-squared with 90% confidence intervals for both models.
+
+  + The MANCOVA for VR (Aula Nesplora) included age as a covariate. The 
+  multivariate model was stastically significant (np^2^ = `r round(vr_eta$Eta_Sq_partial, 3)` 
+  [`r round(vr_eta$CI_low, 3)`, `r round(vr_eta$CI_high, 3)`]), with significant 
+  univariate effects for all dependent varialbes (.057 $\geq$ np^2^s $\leq$ .228). 
+
+  + The MANCOVA for TOVA included IQ as a covariate. The multivariate 
+  model was not stastically significant (np^2^ = `r round(tova_eta$Eta_Sq_partial, 3)` 
+  [`r round(tova_eta$CI_low, 3)`, `r round(tova_eta$CI_high, 3)`]). 
+  
+  + Taken together, these findings suggest that the Aula Nesplora was 
+  able to discriminate between children with and without ADHD symptoms, whereas
+  the TOVA was not able to discriminate between the four groups. 
+
+2. Rodrigues et al also explored whether the dependent variables (omissions, 
+commissions, response time, and variability; split by test half) provided by the 
+two tests could correctly predict group membership. Both analyses were significant, 
+but the function with the variables from the VR test correctly classified more 
+of the sample. 
+
+  + The discriminant function for the VR test (Aula Nesplora) correctly 
+  classified 56.60% of the sample. 
+  
+  + The discriminant function for the VR test (Aula Nesplora) correctly 
+  classified 33.70% of the sample. 
 
 
 
