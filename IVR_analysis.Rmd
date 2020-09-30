@@ -142,7 +142,7 @@ df_pol <- read_csv (here::here("data_input", "pollak_data_input.csv")) %>%
 
 # Bioulac et al (2012)
 df_bio <- read_csv (here::here("data_input", "bioulac_data_input.csv")) %>% 
-  select (-c(pages, section, notes, paper, table))
+  select (-c(pages, section, paper, table))
 ```
 
 For each data set, I will provide the output in this pdf and also in a `.csv` file. 
@@ -2600,24 +2600,36 @@ Sample: 36 children; 20 with ADHD and 16 in control group
 They used a within-subjects design so the physicians first assessed them with 
 the CPT and, after 10 min, the test of the Virtual Classroom. 
 
-*Actions*: 
+*Issues*: 
 
   + I need to pull the data from the two figures. The figure has the 95% CI, but 
-I then need to calculate the standard deviations. I think I can do that using 
-info from Cochrane. [I think I'll need to do the same thing with Jeffs data]
+  I then need to calculate the standard deviations. I think I can do that using
+  info from Cochrane. [I think I'll need to do the same thing with Jeffs data]
   + I need to figure out what I can do re: calculating effect sizes for the data 
-that used non-parametric tests. The standard one is Vargha & Delaney's A, but I 
-need to figure out if I can calculate it from the summary stats. Possible approaches: 
+  that used non-parametric tests. The standard one is Vargha & Delaney's A, but I 
+  need to figure out if I can calculate it from the summary stats. Possible 
+  approaches: 
 
     + `effsize` needs raw data (https://rdrr.io/cran/effsize/man/VD.A.html)
     + `rcompanion` needs raw data (https://rcompanion.org/handbook/F_04.html
 
+
 *Solution*:
 
   + Using the Mann-Whitney U values reported on p. 517, I can calculate 
-the effect size with the Vargha-Delaney's A (using formula 7 from
-@ruscio_probability-based_2008). But, I cannot calculate confidence intervals
-without the original data.
+  the effect size with the Vargha-Delaney's A (using formula 7 from
+  @ruscio_probability-based_2008). But, I cannot calculate confidence intervals
+  without the original data.
+
+*Action*:
+
+  + With regard to the block comparisons, there is no obvious effect size for 
+  that data, so we should just include some text re: the reported stats from the 
+  paper. Something along the lines of: 
+    + According to the paper, the deteroriation of performance for children 
+    with ADHD across the blocks was significant for the Virtual Classroom test, 
+    chi-square(df = 4) = 25,299, p <.001, but not for the CPT test, 
+    chi-square(df = 5) = 10,145, p = .07. 
 
 ```{r bioulac_A}
 
@@ -2629,10 +2641,11 @@ df <- df_bio
 df <- df %>% mutate (A =
 VD.A.sum(U = df$u, n1 = df$ctrl_n, n2 = df$adhd_n))
 
+
 ```
 
 
-```{r bioulac_concatenate_table}
+```{r bioulac_concatenate_table, eval = FALSE}
 
 # combine the d value with the upper and lower boundaries into a new column
 # effect size is Cohen's d
@@ -2659,26 +2672,23 @@ df_bind$m_sd_adhd <- paste0(df_bind$adhd_m,
 
 # remove the columns that are now redundant
 
-df_bio_final <- df_bind %>% 
-  select (-c(ctrl_m, ctrl_sd, adhd_m, adhd_sd, d, lower.ci, upper.ci, exact_p, 
-             original_F, original_p, `d comparison`))
+df_bio_final <- df %>% 
+  select (-c(ctrl_m, ctrl_sd, adhd_m, adhd_sd))
 
 # rearrange the columns we are keeping
 df_bio_final <- df_bio_final %>% 
-  relocate (m_sd_ctrl, .after = ctrl_n) %>% 
-  relocate (m_sd_adhd, .after = adhd_n) %>% 
-  relocate (`Cohen's d`, .after = m_sd_adhd)
+  relocate (c(ctrl_n,adhd_n), .after = block) %>% 
+  relocate (notes, .after = last_col())
 
 ```
 
 ```{r bioulac_table,include=TRUE}
 
-landscape(knitr::kable(df_bio_final, 
+knitr::kable(df_bio_final, 
              caption = "Bioulac et al. (2012) Paper", 
-              align = 'lllccccccccl')) %>% 
-  column_spec(column = 1, width = "1.5cm") %>% 
-  column_spec(column = 8, width = "2cm") %>% 
-  column_spec(column = 12, width = "3cm") 
+              align = 'llccccccl') %>% 
+     kable_styling(full_width = F, 
+                latex_options = "HOLD_position")
 
 ```
 
