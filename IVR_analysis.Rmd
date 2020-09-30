@@ -135,6 +135,10 @@ df_dahl_09 <- read_csv (here::here("data_input", "dahlquist_2009_data_input.csv"
 # Negut et al (2016)
 df_negut <- read_csv (here::here("data_input", "negut_data_input.csv")) %>% 
   select (-c(pages, section, notes, paper, table))
+
+# Pollak et al (2009)
+df_pol <- read_csv (here::here("data_input", "pollak_data_input.csv")) %>% 
+  select (-c(pages, section, notes, paper, table))
 ```
 
 For each data set, I will provide the output in this pdf and also in a `.csv` file. 
@@ -1748,10 +1752,11 @@ two measures.
 
 ## Negut et al. (2016)
 
-They used a mixed factorial design with two between-subject factors: test condition
-(VC assessment vs. traditional CPT) and clinical status (children with ADHD 
-[n = `r df_negut$adhd_n[1]`] vs. typically-developing children 
-[n = `r df_negut$td_n[1]`]), and one within-subjects factor: test modality 
+They used a mixed factorial design with two between-subject factors: test
+condition (VC assessment vs. traditional CPT) and clinical status 
+(children with ADHD [n = `r df_negut$adhd_n[1]`] vs. 
+typically-developing children [n = `r df_negut$td_n[1]`]), and one 
+within-subjects factor: test modality 
 (with vs. without distractors). They ran MANCOVA with age and IQ as covariates. 
 I used the  R package `effectsize` [@ben-shachar_effectsize_2020] to calculate 
 partial eta-squared with 90% confidence intervals for these effects (but, I report
@@ -1982,15 +1987,527 @@ write_csv(df_sil_final, here::here("data_output", "negut_data_output.csv"))
 
 
 
-## Pollak et al. (2009) - Not done
+## Pollak et al. (2009)
 
-What are they interested in here? They report Cohen's d values for the comparison
-of kids with ADHD vs. without ADHD across the three evaluation conditions, but
-they do not report (at least in the table), the comparisons across the three
-conditions. 
+Pollak et al used 3 types of CPT (within-subjects, counterbalanced): 
+* VR classroom with an embedded CPT (VR-CPT)
+* similar CPT (No VR-CPT)
+* TOVA on a flatscreen. 
 
-What does Paola want here? Also, it's not clear that this is actually the same 
-paper. Waiting on confirmation. 
+Sample: 37 boys (20 boys with ADHD & a control group of 17 boys).
+
+*Note*: They have a typo in Table 1. For the Errors of Omission measure, they 
+report a mean of .29 and a standard deviation of 48 in the TOVA score for 
+the control group. They must have missed the decimal place, so I've corrected it
+in my table. 
+
+Also, they report an "approximate Cohen's d values" with no explanation of why 
+they are approximate. Given that, I'm not concerned about the consistent, but
+minimal differences between the values they reported and those I calculated. 
+
+```{r pollak_response_time_d}
+
+df <- df_pol
+
+# select measure
+df <- df %>% 
+  filter(measure == "reaction time")
+
+# confirm the p-value for the comparison (group main effect)
+p <- pf(q = df$`original_F`[1], df1 = 1, df2 = 34, lower.tail = FALSE)
+
+# add to tibble 
+df <- df %>% 
+  dplyr::mutate (`exact_p` = round_tidy(p,2)) 
+
+# CALCULATE THE EFFECT SIZE
+
+# we can calculate d for each of the three test types simultaneously. 
+# adhd group is 1st group [calculating it for the three tests, 
+  # comparing ctrl vs ADHD groups]
+
+d1 <-
+  mes(
+    m.1 = adhd_m,
+    m.2 = ctrl_m,
+    sd.1 = adhd_sd,
+    sd.2 = ctrl_sd,
+    n.1 = adhd_n,
+    n.2 = ctrl_n,
+    level = 95,
+    dig = 4,
+    verbose = TRUE,
+    id = 1,
+    data = df
+  )
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[,5],2), 
+                 lower.ci = round_tidy(d1[,7],2), 
+                 upper.ci = round_tidy(d1[,8],2))
+
+# specific name for this analysis
+df_pol_rt <- df 
+```
+
+```{r pollak_response_time_t_tests}
+
+# CALCULATE THE STATS FOR EACH COMPARISON
+
+# RUN T-Test for TOVA
+
+df <- df_pol_rt %>% 
+  filter(`test type` == "TOVA")
+
+# x is adhd group
+t <- tsum.test(mean.x = df$adhd_m, s.x = df$adhd_sd, n.x = df$adhd_n, 
+          mean.y = df$ctrl_m, s.y = df$ctrl_sd, n.y = df$ctrl_n,
+          alternative = "two.sided")
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# specific name for this analysis
+df_pol1 <- df 
+
+# RUN T-Test for No VR-CPT
+
+df <- df_pol_rt %>% 
+  filter(`test type` == "No VR-CPT")
+
+# x is adhd group
+t <- tsum.test(mean.x = df$adhd_m, s.x = df$adhd_sd, n.x = df$adhd_n, 
+          mean.y = df$ctrl_m, s.y = df$ctrl_sd, n.y = df$ctrl_n,
+          alternative = "two.sided")
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# specific name for this analysis
+df_pol2 <- df 
+
+
+# RUN T-Test for VR-CPT
+
+df <- df_pol_rt %>% 
+  filter(`test type` == "VR-CPT")
+
+# x is adhd group
+t <- tsum.test(mean.x = df$adhd_m, s.x = df$adhd_sd, n.x = df$adhd_n, 
+          mean.y = df$ctrl_m, s.y = df$ctrl_sd, n.y = df$ctrl_n,
+          alternative = "two.sided")
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# specific name for this analysis
+df_pol3 <- df 
+
+```
+
+```{r pollak_variability_d}
+
+df <- df_pol
+
+# select measure
+df <- df %>% 
+  filter(measure == "variability of reaction time")
+
+# confirm the p-value for the comparison (group main effect)
+p <- pf(q = df$`original_F`[1], df1 = 1, df2 = 34, lower.tail = FALSE)
+
+# add to tibble 
+df <- df %>% 
+  dplyr::mutate (`exact_p` = round_tidy(p,2)) 
+
+# CALCULATE THE EFFECT SIZE
+
+# we can calculate d for each of the three test types simultaneously. 
+# adhd group is 1st group [calculating it for the three tests, 
+  # comparing ctrl vs ADHD groups]
+
+d1 <-
+  mes(
+    m.1 = adhd_m,
+    m.2 = ctrl_m,
+    sd.1 = adhd_sd,
+    sd.2 = ctrl_sd,
+    n.1 = adhd_n,
+    n.2 = ctrl_n,
+    level = 95,
+    dig = 4,
+    verbose = TRUE,
+    id = 1,
+    data = df
+  )
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[,5],2), 
+                 lower.ci = round_tidy(d1[,7],2), 
+                 upper.ci = round_tidy(d1[,8],2))
+
+# specific name for this analysis
+df_pol_var <- df 
+```
+
+```{r pollak_variability_t_tests}
+
+# CALCULATE THE STATS FOR EACH COMPARISON
+
+# RUN T-Test for TOVA
+
+df <- df_pol_var %>% 
+  filter(`test type` == "TOVA")
+
+# x is adhd group
+t <- tsum.test(mean.x = df$adhd_m, s.x = df$adhd_sd, n.x = df$adhd_n, 
+          mean.y = df$ctrl_m, s.y = df$ctrl_sd, n.y = df$ctrl_n,
+          alternative = "two.sided")
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# specific name for this analysis
+df_pol4 <- df 
+
+# RUN T-Test for No VR-CPT
+
+df <- df_pol_var %>% 
+  filter(`test type` == "No VR-CPT")
+
+# x is adhd group
+t <- tsum.test(mean.x = df$adhd_m, s.x = df$adhd_sd, n.x = df$adhd_n, 
+          mean.y = df$ctrl_m, s.y = df$ctrl_sd, n.y = df$ctrl_n,
+          alternative = "two.sided")
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# specific name for this analysis
+df_pol5 <- df 
+
+
+# RUN T-Test for VR-CPT
+
+df <- df_pol_var %>% 
+  filter(`test type` == "VR-CPT")
+
+# x is adhd group
+t <- tsum.test(mean.x = df$adhd_m, s.x = df$adhd_sd, n.x = df$adhd_n, 
+          mean.y = df$ctrl_m, s.y = df$ctrl_sd, n.y = df$ctrl_n,
+          alternative = "two.sided")
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# specific name for this analysis
+df_pol6 <- df 
+
+```
+
+
+```{r pollak_omission_d}
+
+df <- df_pol
+
+# select measure
+df <- df %>% 
+  filter(measure == "errors of omission")
+
+# confirm the p-value for the comparison (group main effect)
+p <- pf(q = df$`original_F`[1], df1 = 1, df2 = 34, lower.tail = FALSE)
+
+# add to tibble 
+df <- df %>% 
+  dplyr::mutate (`exact_p` = round_tidy(p,2)) 
+
+# CALCULATE THE EFFECT SIZE
+
+# we can calculate d for each of the three test types simultaneously. 
+# adhd group is 1st group [calculating it for the three tests, 
+  # comparing ctrl vs ADHD groups]
+
+d1 <-
+  mes(
+    m.1 = adhd_m,
+    m.2 = ctrl_m,
+    sd.1 = adhd_sd,
+    sd.2 = ctrl_sd,
+    n.1 = adhd_n,
+    n.2 = ctrl_n,
+    level = 95,
+    dig = 4,
+    verbose = TRUE,
+    id = 1,
+    data = df
+  )
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[,5],2), 
+                 lower.ci = round_tidy(d1[,7],2), 
+                 upper.ci = round_tidy(d1[,8],2))
+
+# specific name for this analysis
+df_pol_om <- df 
+```
+
+
+```{r pollak_omission_t_tests}
+
+# CALCULATE THE STATS FOR EACH COMPARISON
+
+# RUN T-Test for TOVA
+
+df <- df_pol_om %>% 
+  filter(`test type` == "TOVA")
+
+# x is adhd group
+t <- tsum.test(mean.x = df$adhd_m, s.x = df$adhd_sd, n.x = df$adhd_n, 
+          mean.y = df$ctrl_m, s.y = df$ctrl_sd, n.y = df$ctrl_n,
+          alternative = "two.sided")
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# specific name for this analysis
+df_pol7 <- df 
+
+# RUN T-Test for No VR-CPT
+
+df <- df_pol_om %>% 
+  filter(`test type` == "No VR-CPT")
+
+# x is adhd group
+t <- tsum.test(mean.x = df$adhd_m, s.x = df$adhd_sd, n.x = df$adhd_n, 
+          mean.y = df$ctrl_m, s.y = df$ctrl_sd, n.y = df$ctrl_n,
+          alternative = "two.sided")
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# specific name for this analysis
+df_pol8 <- df 
+
+
+# RUN T-Test for VR-CPT
+
+df <- df_pol_om %>% 
+  filter(`test type` == "VR-CPT")
+
+# x is adhd group
+t <- tsum.test(mean.x = df$adhd_m, s.x = df$adhd_sd, n.x = df$adhd_n, 
+          mean.y = df$ctrl_m, s.y = df$ctrl_sd, n.y = df$ctrl_n,
+          alternative = "two.sided")
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# specific name for this analysis
+df_pol9 <- df 
+
+```
+
+```{r pollak_commission_d}
+
+df <- df_pol
+
+# select measure
+df <- df %>% 
+  filter(measure == "errors of commission")
+
+# confirm the p-value for the comparison (group main effect)
+p <- pf(q = df$`original_F`[1], df1 = 1, df2 = 34, lower.tail = FALSE)
+
+# add to tibble 
+df <- df %>% 
+  dplyr::mutate (`exact_p` = round_tidy(p,2)) 
+
+# CALCULATE THE EFFECT SIZE
+
+# we can calculate d for each of the three test types simultaneously. 
+# adhd group is 1st group [calculating it for the three tests, 
+  # comparing ctrl vs ADHD groups]
+
+d1 <-
+  mes(
+    m.1 = adhd_m,
+    m.2 = ctrl_m,
+    sd.1 = adhd_sd,
+    sd.2 = ctrl_sd,
+    n.1 = adhd_n,
+    n.2 = ctrl_n,
+    level = 95,
+    dig = 4,
+    verbose = TRUE,
+    id = 1,
+    data = df
+  )
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[,5],2), 
+                 lower.ci = round_tidy(d1[,7],2), 
+                 upper.ci = round_tidy(d1[,8],2))
+
+# specific name for this analysis
+df_pol_com <- df 
+```
+
+
+```{r pollak_commission_t_tests}
+
+# CALCULATE THE STATS FOR EACH COMPARISON
+
+# RUN T-Test for TOVA
+
+df <- df_pol_com %>% 
+  filter(`test type` == "TOVA")
+
+# x is adhd group
+t <- tsum.test(mean.x = df$adhd_m, s.x = df$adhd_sd, n.x = df$adhd_n, 
+          mean.y = df$ctrl_m, s.y = df$ctrl_sd, n.y = df$ctrl_n,
+          alternative = "two.sided")
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# specific name for this analysis
+df_pol10 <- df 
+
+# RUN T-Test for No VR-CPT
+
+df <- df_pol_com %>% 
+  filter(`test type` == "No VR-CPT")
+
+# x is adhd group
+t <- tsum.test(mean.x = df$adhd_m, s.x = df$adhd_sd, n.x = df$adhd_n, 
+          mean.y = df$ctrl_m, s.y = df$ctrl_sd, n.y = df$ctrl_n,
+          alternative = "two.sided")
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# specific name for this analysis
+df_pol11 <- df 
+
+
+# RUN T-Test for VR-CPT
+
+df <- df_pol_com %>% 
+  filter(`test type` == "VR-CPT")
+
+# x is adhd group
+t <- tsum.test(mean.x = df$adhd_m, s.x = df$adhd_sd, n.x = df$adhd_n, 
+          mean.y = df$ctrl_m, s.y = df$ctrl_sd, n.y = df$ctrl_n,
+          alternative = "two.sided")
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# specific name for this analysis
+df_pol12 <- df 
+
+```
+
+
+
+```{r pollak_bind_tables}
+
+df_bind <- bind_rows(df_pol1, df_pol2, df_pol3, df_pol4, df_pol5, df_pol6,
+                     df_pol7, df_pol8, df_pol9, df_pol10, df_pol11, df_pol12)
+
+
+# compare the original d-value reported in the paper & the d-value we calculated
+df_bind <- df_bind %>% 
+  dplyr::mutate("d comparison" = original_d == `d`)
+
+# make a note if they are different
+df_bind$notes <- "d values differ, but conclusions unchanged"
+
+```
+
+```{r pollak_concatenate_table}
+
+# combine the d value with the upper and lower boundaries into a new column
+# effect size is Cohen's d
+df_bind$"Cohen's d" <- paste0(df_bind$d,
+                              " [",
+                              df_bind$lower.ci,
+                              ", ",
+                              df_bind$upper.ci, 
+                              "]")
+
+# combine the mean & SD for the two conditions in each comparison
+df_bind$m_sd_ctrl <- paste0(df_bind$ctrl_m, 
+                          " (", 
+                          df_bind$ctrl_sd, 
+                          ")")
+df_bind$m_sd_adhd <- paste0(df_bind$adhd_m, 
+                            " (", 
+                            df_bind$adhd_sd, 
+                            ")")
+
+```
+
+```{r pollak_clean_dataframe}
+
+# remove the columns that are now redundant
+
+df_pol_final <- df_bind %>% 
+  select (-c(ctrl_m, ctrl_sd, adhd_m, adhd_sd, d, lower.ci, upper.ci, exact_p, 
+             original_F, original_p, `d comparison`))
+
+# rearrange the columns we are keeping
+df_pol_final <- df_pol_final %>% 
+  relocate (m_sd_ctrl, .after = ctrl_n) %>% 
+  relocate (m_sd_adhd, .after = adhd_n) %>% 
+  relocate (`Cohen's d`, .after = m_sd_adhd)
+
+```
+
+```{r pollak_table,include=TRUE}
+
+landscape(knitr::kable(df_pol_final, 
+             caption = "Pollak et al. (2009) Paper", 
+              align = 'lllccccccccl')) %>% 
+  column_spec(column = 1, width = "1.5cm") %>% 
+  column_spec(column = 8, width = "2cm") %>% 
+  column_spec(column = 12, width = "3cm") 
+
+```
+
+```{r pollak_write_data}
+
+write_csv(df_pol_final, here::here("data_output", "pollak_data_output.csv"))
+```
+
 
 ## Rodriguez et al. (2018)
 
@@ -1998,7 +2515,7 @@ All comparisons include effect sizes, so Paola can simply include the informatio
 that she wants to mention. 
 
 No manipulation in R is necessary, though you will have to give some thought to 
-what you want to include. We can't do a directcomparison of means across the 
+what you want to include. We can't do a direct comparison of means across the 
 VR (Aula Nesplora) test and the TOVA test because the values are interpreted 
 differently (high scores on VR are indicitative of defict; high scores on the 
 TOVA are indicative of good executive functioning). Based on your write up, 
@@ -2036,13 +2553,13 @@ partial eta-squared with 90% confidence intervals for both models.
   
   + Taken together, these findings suggest that the Aula Nesplora was 
   able to discriminate between children with and without ADHD symptoms, whereas
-  the TOVA was not able to discriminate between the four groups. 
+  the TOVA was not able to discriminate between the two groups. 
 
 2. Rodrigues et al also explored whether the dependent variables (omissions, 
 commissions, response time, and variability; split by test half) provided by the 
-two tests could correctly predict group membership. Both analyses were significant, 
-but the function with the variables from the VR test correctly classified more 
-of the sample. 
+two tests could correctly predict group membership. Both analyses were
+significant, but the function with the variables from the VR test correctly
+classified more of the sample. 
 
   + The discriminant function for the VR test (Aula Nesplora) correctly 
   classified 56.60% of the sample. 
