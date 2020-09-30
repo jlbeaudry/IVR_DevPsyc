@@ -139,6 +139,10 @@ df_negut <- read_csv (here::here("data_input", "negut_data_input.csv")) %>%
 # Pollak et al (2009)
 df_pol <- read_csv (here::here("data_input", "pollak_data_input.csv")) %>% 
   select (-c(pages, section, notes, paper, table))
+
+# Bioulac et al (2012)
+df_bio <- read_csv (here::here("data_input", "bioulac_data_input.csv")) %>% 
+  select (-c(pages, section, notes, paper, table))
 ```
 
 For each data set, I will provide the output in this pdf and also in a `.csv` file. 
@@ -157,6 +161,18 @@ cohens_h = function( prop_1, prop_2, n1, n2, ci = 0.95 ){
     ci_diff = qnorm(1 - (1-ci) / 2) * se
     return( c( h = es*2, h_low = (es-ci_diff)*2, h_upp = (es+ci_diff)*2 ) )
 }
+
+# Vargha-Delaney;s A function
+
+# Using the Mann-Whitney U values reported on p. 517, I was able to calculate 
+ #the effect size with the Vargha-Delaney's A (using formula 7 from Ruscio, 2008).
+
+  # A = (n1n2-U)/(n1n2), where U = Mann-Whitney U value
+
+VD.A.sum <- function (U, n1, n2) {
+  A <- ((n1*n2-U)/(n1*n2)) 
+    print(round(A,2))
+  }
 
 ```
 
@@ -2591,34 +2607,87 @@ I then need to calculate the standard deviations. I think I can do that using
 info from Cochrane. [I think I'll need to do the same thing with Jeffs data]
   + I need to figure out what I can do re: calculating effect sizes for the data 
 that used non-parametric tests. The standard one is Vargha & Delaney's A, but I 
-need to figure out if I can calculate it from the summary stats. I imagine
-I can't precisely because these are non-parametric tests, so we need the data
-to actually calculate it. Possible approaches: 
+need to figure out if I can calculate it from the summary stats. Possible approaches: 
 
     + `effsize` needs raw data (https://rdrr.io/cran/effsize/man/VD.A.html)
     + `rcompanion` needs raw data (https://rcompanion.org/handbook/F_04.html
 
 *Solution*:
 
-  + Using the Mann-Whitney U values reported on p. 517, I was able to calculate 
-the effect size with the Vagrha-Delaney's A (using formula 7 from
-@ruscio_probability-based_2008).
+  + Using the Mann-Whitney U values reported on p. 517, I can calculate 
+the effect size with the Vargha-Delaney's A (using formula 7 from
+@ruscio_probability-based_2008). But, I cannot calculate confidence intervals
+without the original data.
 
-```{r bioulac_VR_play}
+```{r bioulac_A}
 
-# formula for A (from Ruscio & Li papers)
 
-  # A = (n1n2-U)/(n1n2), where U = Mann-Whitney U value
+df <- df_bio
 
-n1 <- 16
-n2 <- 20
-U <- 51
+# Calculate A and add it to the tibble
 
-A <- (n1*n2-U)/(n1*n2)
-
+df <- df %>% mutate (A =
+VD.A.sum(U = df$u, n1 = df$ctrl_n, n2 = df$adhd_n))
 
 ```
-how do I get confidence intervals?
+
+
+```{r bioulac_concatenate_table}
+
+# combine the d value with the upper and lower boundaries into a new column
+# effect size is Cohen's d
+df_bind$"Cohen's d" <- paste0(df_bind$d,
+                              " [",
+                              df_bind$lower.ci,
+                              ", ",
+                              df_bind$upper.ci, 
+                              "]")
+
+# combine the mean & SD for the two conditions in each comparison
+df_bind$m_sd_ctrl <- paste0(df_bind$ctrl_m, 
+                          " (", 
+                          df_bind$ctrl_sd, 
+                          ")")
+df_bind$m_sd_adhd <- paste0(df_bind$adhd_m, 
+                            " (", 
+                            df_bind$adhd_sd, 
+                            ")")
+
+```
+
+```{r bioulac_clean_dataframe}
+
+# remove the columns that are now redundant
+
+df_bio_final <- df_bind %>% 
+  select (-c(ctrl_m, ctrl_sd, adhd_m, adhd_sd, d, lower.ci, upper.ci, exact_p, 
+             original_F, original_p, `d comparison`))
+
+# rearrange the columns we are keeping
+df_bio_final <- df_bio_final %>% 
+  relocate (m_sd_ctrl, .after = ctrl_n) %>% 
+  relocate (m_sd_adhd, .after = adhd_n) %>% 
+  relocate (`Cohen's d`, .after = m_sd_adhd)
+
+```
+
+```{r bioulac_table,include=TRUE}
+
+landscape(knitr::kable(df_bio_final, 
+             caption = "Bioulac et al. (2012) Paper", 
+              align = 'lllccccccccl')) %>% 
+  column_spec(column = 1, width = "1.5cm") %>% 
+  column_spec(column = 8, width = "2cm") %>% 
+  column_spec(column = 12, width = "3cm") 
+
+```
+
+```{r bioulac_write_data}
+
+write_csv(df_pol_final, here::here("data_output", "bioulac_data_output.csv"))
+```
+
+
 
 \newpage
 # References
