@@ -280,7 +280,16 @@ partial eta-squared (np^2^): small = .01, medium = .06, large = .14 {for ANOVAs
 and MANOVAs}
 Squared canoninical correlation (r^2^): small = .01--.09, medium = .09--.25, 
 large > .25 {discriminant analyses} [We might not need this, depending on 
-the decisions around the Rodriguez paper.]
+the decisions around the Rodriguez paper.] \newline
+Vargha-Delaney's A {for Mann-Whitney U tests} 
+* It produces a value between 0 and 1. 
++ When is exactly 0.5, the two techniques achieve equal performance. 
++ When A is less than 0.5, the first technique is worse. 
++ When A is more than 0.5, the second technique is worse. 
+The closer to 0.5, the smaller the difference between the techniques; the farther from 
+0.5, the larger the difference. 
+http://doofussoftware.blogspot.com/2012/07/measuring-effect-size-with-vargha.html
+
 
 # Table 1 
 ## Hua et al paper
@@ -1775,11 +1784,11 @@ inter_eta <- F_to_eta2(f = 1.60, df = 4, df_error = 66, ci = .90)
 Two key findings emerged from the multivariate analysis:
 
 1. A significant effect of clinical status, V = .30, F(4,66) = 7.06, p < .001, 
-np^2^ = `r round_tidy(clin_eta$Eta_Sq_partial, 3)`, 90% CI [`r round(clin_eta$CI_low, 3)`, 
-`r round(clin_eta$CI_high, 3)`]). I used the `BSDA` R package 
-[@arnholt_bsda_2017] to conduct independent t-tests comparing the children 
-with ADHD  with the typically-developing children on errors of commission, errors 
-of omission, and total correct responses 
+np^2^ = `r round_tidy(clin_eta$Eta_Sq_partial, 3)`, 90% CI 
+[`r round(clin_eta$CI_low, 3)`, `r round(clin_eta$CI_high, 3)`]). 
+I used the `BSDA` R package [@arnholt_bsda_2017] to conduct independent 
+t-tests comparing the children with ADHD  with the typically-developing 
+children on errors of commission, errors of omission, and total correct responses 
 [**I cannot find the means for response time**]. I also used the `compute.es` R package 
 [@re_computees_2020] to calculate the effect size (Cohen's d) and the 95% confidence 
 intervals (CI) around this parameter. See Table \ref{tab:negut_table} for relevant
@@ -1990,9 +1999,10 @@ write_csv(df_sil_final, here::here("data_output", "negut_data_output.csv"))
 ## Pollak et al. (2009)
 
 Pollak et al used 3 types of CPT (within-subjects, counterbalanced): 
-* VR classroom with an embedded CPT (VR-CPT)
-* similar CPT (No VR-CPT)
-* TOVA on a flatscreen. 
+
+  + VR classroom with an embedded CPT (VR-CPT)
+  + similar CPT (No VR-CPT)
+  + TOVA on a flatscreen. 
 
 Sample: 37 boys (20 boys with ADHD & a control group of 17 boys).
 
@@ -2543,7 +2553,8 @@ I used the  `effectsize` package in R [@ben-shachar_effectsize_2020] to calculat
 partial eta-squared with 90% confidence intervals for both models.
 
   + The MANCOVA for VR (Aula Nesplora) included age as a covariate. The 
-  multivariate model was stastically significant (np^2^ = `r round(vr_eta$Eta_Sq_partial, 3)` 
+  multivariate model was stastically significant (np^2^ = 
+  `r round(vr_eta$Eta_Sq_partial, 3)` 
   90% CI [`r round(vr_eta$CI_low, 3)`, `r round(vr_eta$CI_high, 3)`]), with significant 
   univariate effects for all dependent varialbes (.057 $\geq$ np^2^s $\leq$ .228). 
 
@@ -2566,7 +2577,48 @@ classified more of the sample.
   
   + The discriminant function for TOVA correctly classified 33.70% of the sample. 
 
+## Bioulac et al. (2012) - in progress
 
+Sample: 36 children; 20 with ADHD and 16 in control group
+
+They used a within-subjects design so the physicians first assessed them with 
+the CPT and, after 10 min, the test of the Virtual Classroom. 
+
+*Actions*: 
+
+  + I need to pull the data from the two figures. The figure has the 95% CI, but 
+I then need to calculate the standard deviations. I think I can do that using 
+info from Cochrane. [I think I'll need to do the same thing with Jeffs data]
+  + I need to figure out what I can do re: calculating effect sizes for the data 
+that used non-parametric tests. The standard one is Vargha & Delaney's A, but I 
+need to figure out if I can calculate it from the summary stats. I imagine
+I can't precisely because these are non-parametric tests, so we need the data
+to actually calculate it. Possible approaches: 
+
+    + `effsize` needs raw data (https://rdrr.io/cran/effsize/man/VD.A.html)
+    + `rcompanion` needs raw data (https://rcompanion.org/handbook/F_04.html
+
+*Solution*:
+
+  + Using the Mann-Whitney U values reported on p. 517, I was able to calculate 
+the effect size with the Vagrha-Delaney's A (using formula 7 from
+@ruscio_probability-based_2008).
+
+```{r bioulac_VR_play}
+
+# formula for A (from Ruscio & Li papers)
+
+  # A = (n1n2-U)/(n1n2), where U = Mann-Whitney U value
+
+n1 <- 16
+n2 <- 20
+U <- 51
+
+A <- (n1*n2-U)/(n1*n2)
+
+
+```
+how do I get confidence intervals?
 
 \newpage
 # References
