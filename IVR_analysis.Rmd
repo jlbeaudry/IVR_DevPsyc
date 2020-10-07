@@ -143,12 +143,17 @@ df_pol <- read_csv (here::here("data_input", "pollak_data_input.csv")) %>%
 # Bioulac et al (2012)
 df_bio <- read_csv (here::here("data_input", "bioulac_data_input.csv")) %>% 
   select (-c(pages, section, paper, table))
+
+# Gilboa et al (2015)
+df_gil <- read_csv (here::here("data_input", "gilboa_data_input.csv")) %>% 
+  select (-c(pages, section, notes, paper, table))
+
 ```
 
 For each data set, I will provide the output in this pdf and also in a `.csv` file. 
 You can easily copy and paste the numbers from the `.csv` file into a word table.
 
-```{r functions}
+```{r, functions}
 
 # Cohen's h with confidence intervals
 # from: https://stats.stackexchange.com/questions/80082/confidence-intervals-for-cohens-h-effect-size/409927
@@ -177,7 +182,7 @@ VD.A.sum <- function (U, n1, n2) {
 ```
 
 
-```{r functions_I_can_delete, eval = FALSE}
+```{r, functions_I_can_delete, eval = FALSE}
 
 # I NEED TO CLEAN THE REST OF THIS UP!
 # pull out the relevant info
@@ -328,6 +333,7 @@ df <- df_hua %>%
 # CALCULATE THE EFFECT SIZE VALUES
 
 # 1 is ctrl group
+
 d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
           sd.1 = ctrl_sd, sd.2 = vr_sd, 
           n.1 = ctrl_n, n.2 = vr_n,
@@ -1455,7 +1461,7 @@ write_csv(df_sil_final, here::here("data_output", "sil_data_output.csv"))
 
 ## Dahlquist et al. (2010)
 
-They used one-way within-subjects ANOVA to compare the three conditions (baseline, 
+They used one-way within-subjects ANOVA to compare the three conditions (baseline,
 traditional distraction, VR distraction) on log 
 transformed pain tolerance scores. 
 
@@ -1619,7 +1625,8 @@ distraction) on pain tolerance scores (no transformation reported).
 Their ANOVA revealed main effects of experimental condition, F (2,78) = 7.84, 
 p < .001, f = .62, and a significant age by experimental condition interaction
 effect for pain tolerance, F (2,78) = 3.82, p < .05, f = .43. Both of these 
-are large effects (they did not report the confidence intervals around the f value.)
+are large effects (they did not report the confidence intervals around the f
+value.)
 
 *Decisions:* They didn't report the means for the experimental conditions, so I 
 can't *easily* report the means or effect size for that comparison. 
@@ -2006,7 +2013,7 @@ landscape(knitr::kable(df_negut_final,
 
 ```{r negut_write_data}
 
-write_csv(df_sil_final, here::here("data_output", "negut_data_output.csv"))
+write_csv(df_negut_final, here::here("data_output", "negut_data_output.csv"))
 ```
 
 
@@ -2593,7 +2600,7 @@ classified more of the sample.
   
   + The discriminant function for TOVA correctly classified 33.70% of the sample. 
 
-## Bioulac et al. (2012) - in progress
+## Bioulac et al. (2012)
 
 Sample: 36 children; 20 with ADHD and 16 in control group
 
@@ -2605,6 +2612,9 @@ the CPT and, after 10 min, the test of the Virtual Classroom.
   + I need to pull the data from the two figures. The figure has the 95% CI, but 
   I then need to calculate the standard deviations. I think I can do that using
   info from Cochrane. [I think I'll need to do the same thing with Jeffs data]
+  + They reported the intergroup comparison for the two tests, but they didn't
+  give enough data (i.e., no Mann-Whitney U test value) to allow me to calculate
+  effect sizes. 
   + I need to figure out what I can do re: calculating effect sizes for the data 
   that used non-parametric tests. The standard one is Vargha & Delaney's A, but I 
   need to figure out if I can calculate it from the summary stats. Possible 
@@ -2645,29 +2655,6 @@ VD.A.sum(U = df$u, n1 = df$ctrl_n, n2 = df$adhd_n))
 ```
 
 
-```{r bioulac_concatenate_table, eval = FALSE}
-
-# combine the d value with the upper and lower boundaries into a new column
-# effect size is Cohen's d
-df_bind$"Cohen's d" <- paste0(df_bind$d,
-                              " [",
-                              df_bind$lower.ci,
-                              ", ",
-                              df_bind$upper.ci, 
-                              "]")
-
-# combine the mean & SD for the two conditions in each comparison
-df_bind$m_sd_ctrl <- paste0(df_bind$ctrl_m, 
-                          " (", 
-                          df_bind$ctrl_sd, 
-                          ")")
-df_bind$m_sd_adhd <- paste0(df_bind$adhd_m, 
-                            " (", 
-                            df_bind$adhd_sd, 
-                            ")")
-
-```
-
 ```{r bioulac_clean_dataframe}
 
 # remove the columns that are now redundant
@@ -2677,6 +2664,7 @@ df_bio_final <- df %>%
 
 # rearrange the columns we are keeping
 df_bio_final <- df_bio_final %>% 
+  relocate (measure, .after = test) %>% 
   relocate (c(ctrl_n,adhd_n), .after = block) %>% 
   relocate (notes, .after = last_col())
 
@@ -2697,7 +2685,301 @@ knitr::kable(df_bio_final,
 write_csv(df_pol_final, here::here("data_output", "bioulac_data_output.csv"))
 ```
 
+## Gilboa et al. (2015)
+
+Sample: 41 children with ABI & 35 children without ABI
+
+Within-subjects design (although control kids did not complete the Test of 
+Everyday Attention for Children [TEA-Ch]). 
+
+Table 2 on page 5 has the key info, but the labels are very jumbled and unclear.
+
+We do not report the results of the TEA-Ch because only children with ABI 
+completed the test; thus, we cannot compare their performance against the control
+group of children without ABI. 
+
+They reported a number of correlations, so I added those to the text to show 
+the relationships between the three tests. We don't need a table to show those
+results. 
+
+They used univariate ANOVAs to compare the two groups on the various tests. The 
+degrees of freedom for the comparisons on the VC should be 1 and 75; the 
+degrees of freedom for the comparisons on the CPRS-R:S should be 1 and 73. In 
+Table II (p. 5), they report the F-statistics for the comparisons. They 
+corrected for multiple comparisons for the four subscales for the CPRS-R:S 
+(.05 / 4 = .0125). 
+
+```{r gilboa_d}
+
+df <- df_gil
+
+# CALCULATE THE EFFECT SIZE
+
+# we can calculate d for all tests simultaneously. 
+# ctrl group is 1st group 
+
+d1 <-
+  mes(
+    m.1 = ctrl_m,
+    m.2 = abi_m,
+    sd.1 = ctrl_sd,
+    sd.2 = abi_sd,
+    n.1 = ctrl_n,
+    n.2 = abi_n,
+    level = 95,
+    dig = 4,
+    verbose = TRUE,
+    id = 1,
+    data = df
+  )
+
+# add columns for the d-value & CI
+df_gil <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[,5],2), 
+                 lower.ci = round_tidy(d1[,7],2), 
+                 upper.ci = round_tidy(d1[,8],2))
+
+```
+
+```{r gilboa VC correct hits}
+
+# df for the VC comparisons should be (1,75)
+
+# select measure
+df <- df_gil %>% 
+  filter(measure == "total correct hits")
+
+# confirm the p-value for the comparison (group main effect)
+p <- pf(q = df$`original F`[1], df1 = 1, df2 = 75, lower.tail = FALSE)
+
+# add to tibble 
+df <- df %>% 
+  dplyr::mutate (`exact p` = round_tidy(p,4)) 
+
+# specific name for this analysis
+df_gil1 <- df 
+
+```
+
+```{r gilboa VC commission}
+
+# df for the VC comparisons should be (1,75)
+
+# select measure
+df <- df_gil %>% 
+  filter(measure == "errors of commission")
+
+# confirm the p-value for the comparison (group main effect)
+p <- pf(q = df$`original F`[1], df1 = 1, df2 = 75, lower.tail = FALSE)
+
+# add to tibble 
+df <- df %>% 
+  dplyr::mutate (`exact p` = round_tidy(p,4)) 
+
+# specific name for this analysis
+df_gil2 <- df 
+
+```
+
+```{r gilboa VC reaction time}
+
+# df for the VC comparisons should be (1,75)
+
+# select measure
+df <- df_gil %>% 
+  filter(measure == "reaction time")
+
+# confirm the p-value for the comparison (group main effect)
+p <- pf(q = df$`original F`[1], df1 = 1, df2 = 75, lower.tail = FALSE)
+
+# add to tibble 
+df <- df %>% 
+  dplyr::mutate (`exact p` = round_tidy(p,4)) 
+
+# specific name for this analysis
+df_gil3 <- df 
+
+```
+
+```{r gilboa VC head movement}
+
+# df for the VC comparisons should be (1,75)
+
+# select measure
+df <- df_gil %>% 
+  filter(measure == "head movement")
+
+# confirm the p-value for the comparison (group main effect)
+p <- pf(q = df$`original F`[1], df1 = 1, df2 = 75, lower.tail = FALSE)
+
+# add to tibble 
+df <- df %>% 
+  dplyr::mutate (`exact p` = round_tidy(p,4)) 
+
+# specific name for this analysis
+df_gil4 <- df 
+
+```
+
+```{r gilboa CPRS opposition}
+
+# df for the CPRS comparisons should be (1,73)
+
+# select measure
+df <- df_gil %>% 
+  filter(measure == "opposition")
+
+# confirm the p-value for the comparison (group main effect)
+p <- pf(q = df$`original F`[1], df1 = 1, df2 = 73, lower.tail = FALSE)
+
+# add to tibble 
+df <- df %>% 
+  dplyr::mutate (`exact p` = round_tidy(p,4)) 
+
+df$notes <- "corrected alpha is .0125"
+
+# specific name for this analysis
+df_gil5 <- df 
+
+```
+
+```{r gilboa CPRS inattention}
+
+# df for the CPRS comparisons should be (1,73)
+
+# select measure
+df <- df_gil %>% 
+  filter(measure == "inattention")
+
+# confirm the p-value for the comparison (group main effect)
+p <- pf(q = df$`original F`[1], df1 = 1, df2 = 73, lower.tail = FALSE)
+
+# add to tibble 
+df <- df %>% 
+  dplyr::mutate (`exact p` = round_tidy(p,4)) 
+
+df$notes <- "corrected alpha is .0125"
+
+# specific name for this analysis
+df_gil6 <- df 
+
+```
+
+```{r gilboa CPRS hyperactivity}
+
+# df for the CPRS comparisons should be (1,73)
+
+# select measure
+df <- df_gil %>% 
+  filter(measure == "hyperactivity")
+
+# confirm the p-value for the comparison (group main effect)
+p <- pf(q = df$`original F`[1], df1 = 1, df2 = 73, lower.tail = FALSE)
+
+# add to tibble 
+df <- df %>% 
+  dplyr::mutate (`exact p` = round_tidy(p,4)) 
+
+df$notes <- "corrected alpha is .0125"
+
+# specific name for this analysis
+df_gil7 <- df 
+
+```
+
+```{r gilboa CPRS ADHD}
+
+# df for the CPRS comparisons should be (1,73)
+
+# select measure
+df <- df_gil %>% 
+  filter(measure == "index ADHD")
+
+# confirm the p-value for the comparison (group main effect)
+p <- pf(q = df$`original F`[1], df1 = 1, df2 = 73, lower.tail = FALSE)
+
+# add to tibble 
+df <- df %>% 
+  dplyr::mutate (`exact p` = round_tidy(p,4)) 
+
+df$notes <- "corrected alpha is .0125; they appear to have rounded down; difference not actually significant"
+
+# specific name for this analysis
+df_gil8 <- df 
+
+```
+
+
+```{r gilboa_bind_tables}
+
+df_bind <- bind_rows(df_gil1, df_gil2, df_gil3, df_gil4, df_gil5, df_gil6, 
+                     df_gil7, df_gil8)
+```
+
+```{r gilboa_concatenate_table}
+
+# combine the d value with the upper and lower boundaries into a new column
+# effect size is Cohen's d
+df_bind$"Cohen's d" <- paste0(df_bind$d,
+                              " [",
+                              df_bind$lower.ci,
+                              ", ",
+                              df_bind$upper.ci, 
+                              "]")
+
+
+# combine the mean & SD for the two conditions in each comparison
+df_bind$ctrl_m_sd <- paste0(df_bind$ctrl_m, 
+                          " (", 
+                          df_bind$ctrl_sd, 
+                          ")")
+df_bind$abi_m_sd <- paste0(df_bind$abi_m, 
+                            " (", 
+                            df_bind$abi_sd, 
+                            ")")
+
+```
+
+```{r gilboa_clean_dataframe}
+
+# remove the columns that are now redundant
+
+df_gil_final <- df_bind %>% 
+  select (-c(ctrl_m, ctrl_sd, abi_m, abi_sd, d, lower.ci, upper.ci))
+
+# rearrange the columns we are keeping
+df_gil_final <- df_gil_final %>% 
+  relocate (measure, .after = test) %>% 
+  relocate (ctrl_m_sd, .after = measure) %>% 
+  relocate (ctrl_n, .after = ctrl_m_sd) %>% 
+  relocate (abi_m_sd, .after = ctrl_m_sd) %>% 
+  relocate (notes, .after = last_col())
+
+```
+
+```{r gil_table,include=TRUE}
+
+landscape(knitr::kable(df_gil_final, 
+             caption = "Gilboa et al. (2015) Paper", 
+              align = 'llccccccccl') %>% 
+  column_spec(column = 11, width = "2cm") %>% 
+   kable_styling(full_width = F, 
+                latex_options = "HOLD_position"))
+
+```
+
+```{r gil_write_data}
+
+write_csv(df_gil_final, here::here("data_output", "gil_data_output.csv"))
+```
+
+
 
 
 \newpage
+
+# Table 3
+
+## Ip et al. (2018)
+
 # References
