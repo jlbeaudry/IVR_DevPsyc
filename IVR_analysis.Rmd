@@ -148,6 +148,10 @@ df_bio <- read_csv (here::here("data_input", "bioulac_data_input.csv")) %>%
 df_gil <- read_csv (here::here("data_input", "gilboa_data_input.csv")) %>% 
   select (-c(pages, section, notes, paper, table))
 
+# Ip et al (2018)
+df_ip <- read_csv (here::here("data_input", "ip_data_input.csv")) %>% 
+  select (-c(pages, section, paper, table))
+
 ```
 
 For each data set, I will provide the output in this pdf and also in a `.csv` file. 
@@ -177,7 +181,20 @@ cohens_h = function( prop_1, prop_2, n1, n2, ci = 0.95 ){
 VD.A.sum <- function (U, n1, n2) {
   A <- ((n1*n2-U)/(n1*n2)) 
     print(round(A,2))
-  }
+}
+
+# Cohen's dav (average), but no confidence intervals
+# https://www.frontiersin.org/articles/10.3389/fpsyg.2013.00863/full#h8
+
+cohens_dav = function(m.1, m.2, sd.1, sd.2){
+    {mdiff = m.1 - m.2}
+    return( dav = mdiff/((sd.1+sd.2)/2) )
+}
+
+cohens_dav(m.1 = 18.9, 
+           m.2 = 20.2,
+           sd.1 = 3.57, 
+           sd.2 = 3.00)
 
 ```
 
@@ -294,21 +311,21 @@ mes(m.1 = vr_m, m.2 = ctrl_m, sd.1 = vr_sd, sd.2 = ctrl_sd, n.1 = vr_n,
 
 # Interpretation of effect sizes
 
-Cohen's f: small = .10, medium = .25, large = .40 {for ANOVAs} \newline
+Cohen's f: small = .10, medium = .25, large = .40 {for one-way ANOVAs} \newline
 Cohen's d: small = .20, medium = .50, large = .80 {for t-tests} \newline
 Cohen's h: small = .20, medium = .50, large = .80 {for proportions} \newline
 partial eta-squared (np^2^): small = .01, medium = .06, large = .14 {for ANOVAs 
-and MANOVAs}
+and MANOVAs} \newline
 Squared canoninical correlation (r^2^): small = .01--.09, medium = .09--.25, 
 large > .25 {discriminant analyses} [We might not need this, depending on 
 the decisions around the Rodriguez paper.] \newline
-Vargha-Delaney's A {for Mann-Whitney U tests} 
-* It produces a value between 0 and 1. 
-+ When is exactly 0.5, the two techniques achieve equal performance. 
-+ When A is less than 0.5, the first technique is worse. 
-+ When A is more than 0.5, the second technique is worse. 
-The closer to 0.5, the smaller the difference between the techniques; the farther from 
-0.5, the larger the difference. 
+Vargha-Delaney's A {for Mann-Whitney U tests} \newline
+  * It produces a value between 0 and 1.  
+    + When is exactly 0.5, the two techniques achieve equal performance.  
+    + When A is less than 0.5, the first technique is worse.  
+    + When A is more than 0.5, the second technique is worse.  
+  * The closer to 0.5, the smaller the difference between the techniques; the farther from
+ 0.5, the larger the difference.  
 http://doofussoftware.blogspot.com/2012/07/measuring-effect-size-with-vargha.html
 
 
@@ -1791,18 +1808,17 @@ typically-developing children [n = `r df_negut$td_n[1]`]), and one
 within-subjects factor: test modality 
 (with vs. without distractors). They ran MANCOVA with age and IQ as covariates. 
 I used the  R package `effectsize` [@ben-shachar_effectsize_2020] to calculate 
-partial eta-squared with 90% confidence intervals for these effects (but, I report
-their V, F, and p values). 
+partial eta squared (np^2^) with 90% confidence intervals for these effects 
+(but, I report their V, F, and p values). 
 
 
 ```{r negut_data}
 
-clin_eta <- F_to_eta2(f = 7.06, df = 4, df_error = 66, ci = .90)
+clin_eta <- F_to_eta2(f = 7.06, df = 4, df_error = 66, ci = .90) 
 
-inter_eta <- F_to_eta2(f = 1.60, df = 4, df_error = 66, ci = .90)
+inter_eta <- F_to_eta2(f = 1.60, df = 4, df_error = 66, ci = .90) 
 
 ```
-
 
 Two key findings emerged from the multivariate analysis:
 
@@ -1818,9 +1834,9 @@ intervals (CI) around this parameter. See Table \ref{tab:negut_table} for releva
 descriptive and inferential statistics. 
 
 2. No significant interaction between test condition and clinical status
-of the children, V = .08, F(4,66) = 1.60, p > .05, (np^2^ = 
-`r round(inter_eta$Eta_Sq_partial, 3)` 90% CI [`r round_tidy(inter_eta$CI_low, 3)`, 
-`r round(inter_eta$CI_high, 3)`]), which suggests that the children with ADHD 
+of the children, V = .08, F(4,66) = 1.60, p > .05, np^2^ = 
+`r round(inter_eta$Eta_Sq_partial, 3)`, 90% CI [`r round_tidy(inter_eta$CI_low, 3)`, 
+`r round(inter_eta$CI_high, 3)`], which suggests that the children with ADHD 
 and the typically-developing children's performance was similar regardless of 
 the type of test used. 
 
@@ -1974,11 +1990,11 @@ df_bind$"Cohen's d" <- paste0(df_bind$d,
 
 
 # combine the mean & SD for the two conditions in each comparison
-df_bind$m_sd_adhd <- paste0(df_bind$adhd_m, 
+df_bind$adhd_m_sd <- paste0(df_bind$adhd_m, 
                           " (", 
                           df_bind$adhd_sd, 
                           ")")
-df_bind$m_sd_td <- paste0(df_bind$td_m, 
+df_bind$td_m_sd <- paste0(df_bind$td_m, 
                             " (", 
                             df_bind$td_sd, 
                             ")")
@@ -1994,8 +2010,8 @@ df_negut_final <- df_bind %>%
 
 # rearrange the columns we are keeping
 df_negut_final <- df_negut_final %>% 
-  relocate (m_sd_adhd, .after = measure) %>% 
-  relocate (m_sd_td, .after = m_sd_adhd) %>% 
+  relocate (adhd_m_sd, .after = measure) %>% 
+  relocate (td_m_sd, .after = adhd_m_sd) %>% 
   relocate (notes, .after = last_col())
 
 ```
@@ -2498,11 +2514,11 @@ df_bind$"Cohen's d" <- paste0(df_bind$d,
                               "]")
 
 # combine the mean & SD for the two conditions in each comparison
-df_bind$m_sd_ctrl <- paste0(df_bind$ctrl_m, 
+df_bind$ctrl_m_sd <- paste0(df_bind$ctrl_m, 
                           " (", 
                           df_bind$ctrl_sd, 
                           ")")
-df_bind$m_sd_adhd <- paste0(df_bind$adhd_m, 
+df_bind$adhd_m_sd <- paste0(df_bind$adhd_m, 
                             " (", 
                             df_bind$adhd_sd, 
                             ")")
@@ -2519,9 +2535,9 @@ df_pol_final <- df_bind %>%
 
 # rearrange the columns we are keeping
 df_pol_final <- df_pol_final %>% 
-  relocate (m_sd_ctrl, .after = ctrl_n) %>% 
-  relocate (m_sd_adhd, .after = adhd_n) %>% 
-  relocate (`Cohen's d`, .after = m_sd_adhd)
+  relocate (ctrl_m_sd, .after = ctrl_n) %>% 
+  relocate (adhd_m_sd, .after = adhd_n) %>% 
+  relocate (`Cohen's d`, .after = adhd_m_sd)
 
 ```
 
@@ -2557,33 +2573,32 @@ I suggest that you should include the following in the text itself
 
 ```{r Rod check stats}
 
+# using partial eta squared because it's a MANCOVA
+
 #partial eta-squared for VR
 vr_eta <- F_to_eta2(f = 4.93, df = 24, df_error = 429, ci = .90)
 
-# Cohen's f for VR
-vr_f <- F_to_f(f = 4.93, df = 24, df_error = 429, ci = .95)
 
 #partial eta-squared for TOVA
-tova_eta <- F_to_eta2(f = 1.18, df = 24, df_error = 465, ci = .90)
+tova_eta <- F_to_eta2(f = 1.18, df = 24, df_error = 465, ci = .90) 
 
 ```
+
 
 1. They conducted two MANCOVAs (one for VR & one for TOVA) to examine differences 
 across the four groups (control & 3 ADHD presentation groups: Inattentive, 
 Impulsive and Hyperactivity, Combined) on the dependent variables (omissions, 
 commissions, response time, and variability) across the two halves of the tests. 
 I used the  `effectsize` package in R [@ben-shachar_effectsize_2020] to calculate 
-partial eta-squared with 90% confidence intervals for both models.
+partial eta squared (np^2^) for both models.
 
   + The MANCOVA for VR (Aula Nesplora) included age as a covariate. The 
   multivariate model was stastically significant (np^2^ = 
-  `r round(vr_eta$Eta_Sq_partial, 3)` 
-  90% CI [`r round(vr_eta$CI_low, 3)`, `r round(vr_eta$CI_high, 3)`]), with significant 
+  `r round(vr_eta$Eta_Sq_partial, 3)`, with significant 
   univariate effects for all dependent varialbes (.057 $\geq$ np^2^s $\leq$ .228). 
 
   + The MANCOVA for TOVA included IQ as a covariate. The multivariate 
-  model was not stastically significant (np^2^ = `r round(tova_eta$Eta_Sq_partial, 3)` 
-  90% CI [`r round(tova_eta$CI_low, 3)`, `r round(tova_eta$CI_high, 3)`]). 
+  model was not stastically significant (np^2^ = `r round(tova_eta$Eta_Sq_partial, 3)`). 
   
   + Taken together, these findings suggest that the Aula Nesplora was 
   able to discriminate between children with and without ADHD symptoms, whereas
@@ -2973,13 +2988,121 @@ landscape(knitr::kable(df_gil_final,
 write_csv(df_gil_final, here::here("data_output", "gil_data_output.csv"))
 ```
 
+# Table 3
+
+## Ip et al. (2018)
+
+Sample: 94 children with ASD diagnosis, but only 72 children ended up in the 
+final sample, age 7 to 10 years old. Children randomly assigned to VR-enabled
+training group (Group 1) & other assigned to control group (Group 2). 
+
+Design: B/w subject, but participants completed pre- and post-assessments. 
+
+Measures: 
+  + Paola reported Emotiona expression & regulation (PEP-3), social interaction 
+  (PEP-3), and emotion recognition (Faces test & Eyes test). They also measures
+  adaptive skills with five scales from the ABAS, but she didn't report that in 
+  the paper, so I've not included that in the table. 
+
+Statistics: 
+    + If we want to report confidence intervals around the effect size, we need
+    to recalculate the d-value. this Lakens paper (https://www.frontiersin.org/articles/10.3389/fpsyg.2013.00863/full#h8) suggests
+    that we should calculate Cohen's d~av~, which actually matches their calculation 
+    exactly. As such, we can just report their d values. We don't have confidence
+    intervals around the effect size. If we want the confidence intervals, then
+    I can use this to get it: https://github.com/rcalinjageman/esci/blob/master/R/estimateStandardizedMeanDifference.R &
+    https://thenewstatistics.com/itns/2020/07/04/3-easy-ways-to-obtain-cohens-d-and-its-ci/
+    
+In terms of what I need to do then, I think it's nothing. No new analyses to do,
+except the one test to compare the post-training in vr group to the post-training 
+in the control group (because there's a claim in our paper that there was a 
+significant difference, but no test to confirm). 
+
+I'll make the table though because I've already inputted the data. 
+```{r ip_affective}
+
+df <- df_ip 
+
+df <- df %>% 
+  filter (measure == "affective expressions")
+
+# RUN T-Test to confirm that the post-training means were significantly
+  # different between the VR training and control groups
+
+# x is vr group
+t_aff <- tsum.test(mean.x = df$post_m[1], s.x = df$post_sd[1], n.x = df$n[1], 
+          mean.y = df$post_m[2], s.y = df$post_sd[2], n.y = df$n[2],
+          alternative = "two.sided")
+
+d_aff <- cohens_dav(m.1 = df$post_m[1], 
+           m.2 = df$post_m[2], 
+           sd.1 = df$post_sd[1],
+           sd.2 = df$post_sd[2])
+
+```
+
+
+```{r ip_social}
+
+df <- df_ip 
+
+df <- df %>% 
+  filter (measure == "social reciprocity")
+
+# RUN T-Test to confirm that the post-training means were significantly
+  # different between the VR training and control groups
+
+# x is vr group
+t_soc <- tsum.test(mean.x = df$post_m[1], s.x = df$post_sd[1], n.x = df$n[1], 
+          mean.y = df$post_m[2], s.y = df$post_sd[2], n.y = df$n[2],
+          alternative = "two.sided")
+
+d_soc <- cohens_dav(m.1 = df$post_m[1], 
+           m.2 = df$post_m[2], 
+           sd.1 = df$post_sd[1],
+           sd.2 = df$post_sd[2])
+
+```
+
+To determine if the post-training scores in the two groups were significantly 
+different, I used the `BSDA` R package [@arnholt_bsda_2017] to conduct
+independent t-tests for the two measures (affectve expressions and social 
+interaction) that had significant interactions. 
+
+For affective expressions, the VR group's post-training score was significantly
+higher than the control group's post-training score, *t* = `r round(t_aff$statistic,3)`,
+*p* = `r round_tidy(t_aff$p.value,4)`, d~av~ = `r round(d_aff, 3)`. 
+
+For social reciprocity, the VR group's post-training score was also significantly
+higher than the control group's post-training score, *t* = `r round(t_soc$statistic,3)`,
+*p* = `r round_tidy(t_soc$p.value,4)`, d~av~ = 
+`r round(d_soc, 3)`. 
+
+
+
+```{r ip 2, eval=FALSE}
+
+# df for the VC comparisons should be (1,75)
+
+# select measure
+df <- df_gil %>% 
+  filter(measure == "total correct hits")
+
+# confirm the p-value for the comparison (group main effect)
+p <- pf(q = df$`original F`[1], df1 = 1, df2 = 75, lower.tail = FALSE)
+
+# add to tibble 
+df <- df %>% 
+  dplyr::mutate (`exact p` = round_tidy(p,4)) 
+
+# specific name for this analysis
+df_gil1 <- df 
+
+```
 
 
 
 \newpage
 
-# Table 3
-
-## Ip et al. (2018)
 
 # References
