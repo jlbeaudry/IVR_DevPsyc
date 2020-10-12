@@ -3078,26 +3078,46 @@ higher than the control group's post-training score, *t* = `r round(t_soc$statis
 *p* = `r round_tidy(t_soc$p.value,4)`, d~av~ = 
 `r round(d_soc, 3)`. 
 
+```{r ip_concatenate_table}
 
+# combine the mean & SD for the two scores 
+df_ip$pre_m_sd <- paste0(df_ip$pre_m, 
+                          " (", 
+                          df_ip$pre_sd, 
+                          ")")
+df_ip$post_m_sd <- paste0(df_ip$post_m, 
+                            " (", 
+                            df_ip$post_sd, 
+                            ")")
 
-```{r ip 2, eval=FALSE}
+```
 
-# df for the VC comparisons should be (1,75)
+```{r ip_clean_dataframe}
 
-# select measure
-df <- df_gil %>% 
-  filter(measure == "total correct hits")
+# remove the columns that are now redundant
 
-# confirm the p-value for the comparison (group main effect)
-p <- pf(q = df$`original F`[1], df1 = 1, df2 = 75, lower.tail = FALSE)
+df_ip_final <- df_ip %>% 
+  select (-c(pre_m, pre_sd, post_m, post_sd, notes))
 
-# add to tibble 
-df <- df %>% 
-  dplyr::mutate (`exact p` = round_tidy(p,4)) 
+# rearrange the columns we are keeping
+df_ip_final <- df_ip_final %>% 
+  relocate (pre_m_sd, .after = n) %>% 
+  relocate (post_m_sd, .after = pre_m_sd)
+```
 
-# specific name for this analysis
-df_gil1 <- df 
+```{r ip_table,include=TRUE}
 
+landscape(knitr::kable(df_ip_final, 
+             caption = "Ip et al. (2018) Paper", 
+              align = 'llcccccccc') %>% 
+   kable_styling(full_width = F, 
+                latex_options = "HOLD_position"))
+
+```
+
+```{r ip_write_data}
+
+write_csv(df_ip_final, here::here("data_output", "ip_data_output.csv"))
 ```
 
 
