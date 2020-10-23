@@ -117,10 +117,6 @@ styler_pdf <- function(dat) {
 df_hua <- read_csv (here::here("data_input", "hua_data_input.csv")) %>% 
   select(-c(pages, section, notes, paper, table))
 
-# Jeffs et al
-# this doesn't work, so don't load it now
-# df_jeffs <- read_csv (here::here("data_input", "jeffs_data_input.csv"))
-
 # Kipping et al
 df_kip <- read_csv (here::here("data_input", "kipping_data_input.csv")) %>% 
   select (-c(pages, section, notes, paper, table))
@@ -135,6 +131,10 @@ df_dahl <- read_csv (here::here("data_input", "dahlquist_2010_data_input.csv")) 
 
 # Dahlquist et al (2009)
 df_dahl_09 <- read_csv (here::here("data_input", "dahlquist_2009_data_input.csv")) %>% 
+  select (-c(pages, section, notes, paper, table))
+
+# Diaz-Orueta et al (2014)
+df_diaz <- read_csv (here::here("data_input", "diaz_data_input.csv")) %>% 
   select (-c(pages, section, notes, paper, table))
 
 # Negut et al (2016)
@@ -324,9 +324,9 @@ the Open Science Framework at:
 The effect sizes we report can be interpreted according to the following 
 standards [INCLUDE A REFERENCE -- COHEN 1988?]:
 
-  * Cohen's f for one-way ANOVAs: small = 0.10, medium = 0.25, large = 0.40
-  * Cohen's d for comparing two means: small = 0.20, medium = 0.50, large = 0.80 
-  * Cohen's h for proportions: small = 0.20, medium = 0.50, large = 0.80 
+  * Cohen's *f* for one-way ANOVAs: small = 0.10, medium = 0.25, large = 0.40
+  * Cohen's *d* for comparing two means: small = 0.20, medium = 0.50, large = 0.80 
+  * Cohen's *h* for proportions: small = 0.20, medium = 0.50, large = 0.80 
   * partial eta-squared (n~p~^2^) for ANOVAs and MANOVAs: small = .01, medium = 
   .06, large = .14
   * Vargha-Delaney's A for Mann-Whitney U tests produces a value between 0 and 1.  
@@ -337,28 +337,32 @@ standards [INCLUDE A REFERENCE -- COHEN 1988?]:
     
 http://doofussoftware.blogspot.com/2012/07/measuring-effect-size-with-vargha.html
 
-
+\newpage
 # IVET used as pain distraction for children (Table 1)
 ## Dahlquist et al. (2009)
 
-They had two age groups: younger (6-10 years) and older (11-14 years). 
+Dahlquist et al. (2009) ran a 2 (age: younger, older) x 3 (condition: baseline, 
+distraction-only, distraction+helmet[VR]) mixed-factorial ANOVA on participants' 
+pain tolerance scores (no transformation reported).
 
-They ran a 2 x 3 mixed factorial ANOVA to compare the two age groups and 
-the three experimental conditions (baseline, traditional distraction, VR 
-distraction) on pain tolerance scores (no transformation reported).
+Their ANOVA revealed a significant main effect of condition, *F* (2,78) = 7.84, 
+*p* < .001, *f* = .62, with a large effect size. They did not report the means 
+or any post hoc comparisons for this effect. 
 
-Their ANOVA revealed main effects of experimental condition, F (2,78) = 7.84, 
-p < .001, f = .62, and a significant age by experimental condition interaction
-effect for pain tolerance, F (2,78) = 3.82, p < .05, f = .43. Both of these 
-are large effects (they did not report the confidence intervals around the f
-value.)
+They also reported a significant Age X Condition interaction on pain tolerance, 
+*F* (2,78) = 3.82, *p* < .05, *f* = .43, with a large effect. The only post
+hoc comparison they reported (with enough detail for reanlysis) was comparing
+the pain tolerance scores of younger and older children in the the 
+distraction+helmet condition. 
 
-To compare the pain tolerance scores of younger and older children in the 
-distraction+helmet condition, I used the the `BSDA` R package 
-[@R-BSDA] to compute the t-test statistic based on the summary
-statistics reported in the paper. I also used the `compute.es` R package 
-[@R-compute.es] to calculate the effect size 
-(Cohen's d) and the 95% confidence intervals (CI) around this parameter.
+We used the `BSDA` R package [@R-BSDA] to compute the t-test statistic based on 
+the summary statistics reported in the paper, and we used the `compute.es` R package 
+[@R-compute.es] to calculate the effect size (Cohen's *d*) and the 95% confidence 
+intervals (CI) around this parameter.
+
+Within the distraction+helmet (VR) condition, older children showed significantly 
+higher pain tolerance (*M* = 70.08, *SD* = 71.22) than the younger children
+ (*M* = 31.74, *SD* = 40.36), *t* = 2.19, *p* = .034, *d* = 0.66 [0.08, 1.24].
 
 ```{r dahl_2009_pain_base_vs_distraction}
 
@@ -441,7 +445,7 @@ df_dahl_final <- df_dahl_final %>%
 
 ```
 
-```{r dahl_table,include=TRUE}
+```{r dahl_table,eval=FALSE}
 
 landscape(knitr::kable(df_dahl_final, 
              caption = "Dahl et al. (2009) Paper", 
@@ -459,24 +463,20 @@ landscape(knitr::kable(df_dahl_final,
 write_csv(df_dahl_final, here::here("data_output", "dahlquist_2009_data_output.csv"))
 ```
 
-THERE'S ONLY ONE ANALYSIS, SO I CAN PUT THAT IN A SENTENCE...
-
 
 ## Dahlquist et al. (2010)
 
-They used one-way within-subjects ANOVA to compare the three conditions (baseline,
-traditional distraction, VR distraction) on log 
-transformed pain tolerance scores. 
+Dahlquist et al. (2010) used one-way within-subjects ANOVA to compare the three 
+conditions (baseline, distraction-only, distraction+helmet [VR]) on log-transformed 
+pain tolerance scores. They reported that their ANOVA showed a significant main 
+effect of condition, *F*(2,98) = 20.45, *p* < .001, with a large effect size (*f*
+= 0.65). They did not report effect sizes for the follow-up paired-sample
+t-tests (with Bonferroni correction). 
 
-They reported a large effect size (f) of .65 from the ANOVA, 
-but they didn't report Cohen's d for the mean comparisons nor include the 
-confidence interval around the f value.
-
-I won't be able to recreate their analyses from the summary data because it's a 
-within-subjects design, so we should just report the t-values & p-values from 
-the paper (p. 622).  But, based on the summary statistics reported in the paper, 
-I have used the R package `effsize` [@R-effsize] to calculate the effect size 
-(Cohen's d) with confidence intervals for the three comparisons.
+We could not recreate their post hoc analyses from the summary data, so we report the 
+t-values & p-values from Dahlquist et al. (2010, p. 622). Then, we used the R `effsize` 
+package [@R-effsize] to calculate the associated effect sizes (Cohen's *d*) with 
+95% confidence intervals for the three comparisons.
 
 ```{r dahl_2010_pain_base_vs_distraction}
 
@@ -599,7 +599,7 @@ df_dahl_final <- df_dahl_final %>%
 
 ```
 
-```{r dahl_2010_table,include=TRUE}
+```{r dahl_2010_table,include=FALSE}
 
 knitr::kable(df_dahl_final, 
              caption = "Dahl et al. (2010) Paper", 
@@ -617,6 +617,14 @@ knitr::kable(df_dahl_final,
 write_csv(df_dahl_final, here::here("data_output", "dahlquist_2010_data_output.csv"))
 ```
 
+These posthoc tests showed that children's pain tolerance was significantly lower
+in the baseline condition (*M* = 1.25, *SD* = 0.23) than in the traditional 
+distraction condition (*M* = 1.45, *SD* = 0.33), *t*(49) = `r df_dahl_final[1,7]`,
+*p* `r df_dahl_final[1,8]`, *d* = `r df_dahl_final[1,9]`, and the VR distraction 
+condition (*M* = 1.44, *SD* = 0.38), *t*(49) = `r df_dahl_final[2,7]`, *p* 
+`r df_dahl_final[2,8]`, *d* = `r df_dahl_final[2,9]`. There was no significant
+difference between the two distraction conditions, *t*(49) = `r df_dahl_final[3,7]`,
+*p* `r df_dahl_final[3,8]`, *d* = `r df_dahl_final[3,9]`.
 
 
 ## Hua et al. (2015) 
@@ -1169,7 +1177,7 @@ t-tests (but not the associated t-values).
 
 For these measures, we used the R `BSDA` package [@R-BSDA] to calculate the t-values
 from the summary statistics and we used the R `compute.es` package [@R-compute.es]
-to compute effect sizes (Cohen's d) with 95% confidence intervals (in square brackets). 
+to compute effect sizes (Cohen's *d*) with 95% confidence intervals (in square brackets). 
 See Table 
 \ref{tab:kipping_table} for the summary and inferential statistics. Our calculated 
 p-values were slightly different than those reported in the original paper (for all 
@@ -1558,7 +1566,7 @@ adolescents in the SD group, 9 needed rescue doses (43%). The paper reports that
 they ran a chi-square test, which produced a significant result at *p* =
 .05.
 
-Wsing the base R stats package [@R-base], we tried to reproduce this analysis, but our 
+Using the base R stats package [@R-base], we tried to reproduce this analysis, but our 
 chi-square test revealed a non-significant difference, `r apa(chi)`. 
 A one-sided z-test of proportions produced a similar result to that of the original
 paper, z = `r round(sqrt(res1$statistic),2)`, p = `r round(res1$p.value, 3)`; however,
@@ -1636,18 +1644,17 @@ write_csv(df_kip_final, here::here("data_output", "kipping_data_output.csv"))
 ## Sil et al. (2012)
 
 Sil et al. (2012) used a one-way within-subjects ANOVA to compare the
-three conditions (baseline, traditional distraction, VR distraction) on log 
-transformed pain tolerance scores. This ANOVA showed a signi
+three conditions (baseline, traditional distraction, VR distraction) on 
+children's (*n* = 62) log-transformed pain tolerance scores. They reported that 
+their ANOVA showed a significant main effect of condition, 
+*F*(1,122) = 19.15, *p* < .001, with a large effect size (f) of 0.56. They did 
+not report effect sizes for the follow-up paired-sample
+t-tests (with Bonferroni correction). 
 
-They reported a large effect size (f) of .56 from the ANOVA, but they didn't 
-report Cohen's d for the mean comparisons nor include the confidence interval 
-around the f value.
-
-I couldn't recreate their analyses from the summary data because it's a 
-within-subjects design, so we should just report the t-values & p-values from 
-the paper (p. 6). But, based on the summary statistics reported in the paper, 
-I have used the R package `effsize` [@R-effsize] to calculate the effect size 
-(Cohen's d) with confidence intervals for the three comparisons.
+We could not recreate their analyses from the summary data, so we report the 
+t-values & p-values from Sil et al. (2012, p. 6). Then, we used the R `effsize` 
+package [@R-effsize] to calculate the associated effect sizes (Cohen's *d*) with 
+95% confidence intervals for the three comparisons.
 
 ```{r sil_pain_base_vs_trad}
 
@@ -1774,7 +1781,7 @@ df_sil_final <- df_sil_final %>%
 
 ```
 
-```{r sil_table,include=TRUE}
+```{r sil_table,include=TRUE, eval = FALSE}
 
 knitr::kable(df_sil_final, 
              caption = "Sil et al. (2012)", 
@@ -1790,27 +1797,121 @@ knitr::kable(df_sil_final,
 write_csv(df_sil_final, here::here("data_output", "sil_data_output.csv"))
 ```
 
+These posthoc tests showed that children's pain tolerance was significantly lower
+in the baseline condition (*M* = 1.37, *SD* = 0.28) than in the traditional 
+distraction condition (*M* = 1.57, *SD* = 0.45), *t*(61) = `r df_sil_final[1,7]`, 
+*p* `r df_sil_final[1,8]`, *d* = `r df_sil_final[1,9]`, and the VR distraction 
+condition (*M* = 1.56, *SD* = 0.44), *t*(61) = `r df_sil_final[2,7]`,
+*p* `r df_sil_final[2,8]`, *d* = `r df_sil_final[2,9]`. There was no significant 
+difference between the two distraction conditions, *t*(61) = `r df_sil_final[3,7]`, 
+*p* = .73, *d* = `r df_sil_final[3,9]`.
+
 
 # IVET used as a neuropsychological tool for children (Table 2)
-## Diaz-Orueta article 
+## Diaz-Orueta et al. (2014) 
 
-The convergent validity stats are presented in Table 3. There's no point in 
-pulling that data into R because no manipulation is necessary. 
-Paola, you can create a table with the info from Table 3 that you want to report?
+```{r Diaz notes, eval = FALSE}
+# The convergent validity stats are presented in Table 3. There's no point in 
+# pulling that data into R because no manipulation is necessary. 
+# Paola, you can create a table with the info from Table 3 that you want to report?
+# 
+# *Decision*: They also compare the test scores for those children in treatment and those 
+# not under treatment (Table 5). Do you want any of that data in a table? I can probably 
+# calculate r as an effect size (z value divided by the number of observations), 
+# but I'll need to figure out how to calculate the CIs. The `rcompanion` package
+# might be useful for this. But, I won't put any effort in this unless you want it.
+# I won't put any effort in this unless you want it. BUT, you’ll also have to 
+# decide *what* you want. They report about 20 different comparisons—--do you want 
+# them all? 
+# 
+# *ACTION*: INCLUDE LARGEST AND SMALLEST EFFECT SIZES FROM TABLE 5 & ALSO THE RANGE
+# OF CORRELATIONS FROM TABLE THREE IN THE TEXT. 
+# 
+# https://rcompanion.org/handbook/F_04.html
+```
 
-*Decision*: They also compare the test scores for those children in treatment and those 
-not under treatment (Table 5). Do you want any of that data in a table? I can probably 
-calculate r as an effect size (z value divided by the number of observations), 
-but I'll need to figure out how to calculate the CIs. The `rcompanion` package
-might be useful for this. But, I won't put any effort in this unless you want it.
-I won't put any effort in this unless you want it. BUT, you’ll also have to 
-decide *what* you want. They report about 20 different comparisons—--do you want 
-them all? 
+In our opinion, relatively little additional analysis of the findings of 
+Diaz-Orueta et al. (2014) was necessary. We include relevant statistical details
+about the convergent validity of the AULA Nesporala and Conners CPT in the 
+manuscript. The only additional analysis needed was to calculate the 
+effect size associated with the Mann-Whitney U analysis. We used the 
+Mann-Whitney U values reported on p. 338 to calculate Vargha-Delaney's A 
+(using formula 7 from Ruscio, 2008). Unfortunately, we could not calculate 
+confidence intervals without the original data. 
 
-*ACTION*: INCLUDE LARGEST AND SMALLEST EFFECT SIZES FROM TABLE 5 & ALSO THE RANGE
-OF CORRELATIONS FROM TABLE THREE IN THE TEXT. 
 
-https://rcompanion.org/handbook/F_04.html
+```{r diaz_A}
+
+
+df <- df_diaz
+
+# I included the top two values and the bottom two values, just to confirm which
+  # highest and lowest. 
+
+# Calculate A and add it to the tibble
+
+df <- df %>% mutate (A =
+VD.A.sum(U = df$`original u`, n1 = df$treat_n, n2 = df$no_treat_n))
+
+
+```
+
+```{r diaz_clean_dataframe}
+
+
+# combine the mean & SD for the two conditions in each comparison
+df$treat_m_sd <- paste0(df$treat_m, 
+                          " (", 
+                          df$treat_sd, 
+                          ")")
+df$no_treat_m_sd <- paste0(df$no_treat_m, 
+                            " (", 
+                            df$no_treat_sd, 
+                            ")")
+
+# remove the columns that are now redundant
+
+df_diaz_final <- df %>% 
+  select (-c(test, treat_m, treat_sd, no_treat_m, no_treat_sd))
+
+# rearrange the columns we are keeping
+df_diaz_final <- df_diaz_final %>% 
+  relocate (treat_m_sd, .after = treat_n) %>% 
+  relocate (no_treat_m_sd, .after = no_treat_n)
+
+```
+
+```{r diaz_table,include=TRUE}
+
+knitr::kable(df_diaz_final, 
+             caption = "Diaz-Orueta et al. (2014) Paper", 
+              align = 'lcccccccccc') %>% 
+     kable_styling(full_width = F, 
+                latex_options = "HOLD_position")
+
+```
+
+
+```{r diaz_write_data}
+
+write_csv(df_diaz_final, here::here("data_output", "diaz_data_output.csv"))
+```
+
+Given the large number of comparisons reported in the paper, we report only 
+the smallest and largest effect sizes between the AUAL scores comparing
+children undergoing treatment (*n* = 29) and those without treatment 
+(*n* = 28); all comparisons were significant. The smallest effect was found 
+for `r df_diaz_final[3,1]`. Children undergoing treatment 
+reponded faster, `r df_diaz_final[3,3]`, than those without treatment, 
+`r df_diaz_final[3,5]`, *U* = `r df_diaz_final[3,6]`, *z* = 
+`r df_diaz_final[3,7]`, *p* = `r df_diaz_final[3,8]`. The largest effect between 
+the AULA scores was for `r df_diaz_final[1,1]`. Children undergoing treatment 
+scored lower, `r df_diaz_final[1,3]`, than those without treatment, `r df_diaz_final[1,5]`, 
+*U* = `r df_diaz_final[1,6]`, *z* = `r df_diaz_final[1,7]`, 
+*p* = `r df_diaz_final[1,8]`.
+
+Readers are encouraged to refer to the original paper for further details about 
+the other measures. 
 
 ## Nolin et al. (2016)
 
@@ -1854,7 +1955,7 @@ I used the `BSDA` R package [@R-BSDA] to conduct independent
 t-tests comparing the children with ADHD  with the typically-developing 
 children on errors of commission, errors of omission, and total correct responses 
 [**I cannot find the means for response time**]. I also used the `compute.es` R package 
-[@R-compute.es] to calculate the effect size (Cohen's d) and the 95% confidence 
+[@R-compute.es] to calculate the effect size (Cohen's *d*) and the 95% confidence 
 intervals (CI) around this parameter. See Table \ref{tab:negut_table} for relevant
 descriptive and inferential statistics. 
 
@@ -2075,7 +2176,7 @@ report a mean of .29 and a standard deviation of 48 in the TOVA score for
 the control group. They must have missed the decimal place, so I've corrected it
 in my table. 
 
-Also, they report an "approximate Cohen's d values" with no explanation of why 
+Also, they report an "approximate Cohen's *d* values" with no explanation of why 
 they are approximate. Given that, I'm not concerned about the consistent, but
 minimal differences between the values they reported and those I calculated. 
 
@@ -2720,7 +2821,7 @@ knitr::kable(df_bio_final,
 
 ```{r bioulac_write_data}
 
-write_csv(df_pol_final, here::here("data_output", "bioulac_data_output.csv"))
+write_csv(df_bio_final, here::here("data_output", "bioulac_data_output.csv"))
 ```
 
 ## Gilboa et al. (2015)
