@@ -1,13 +1,15 @@
 ---
 title: "Immersive Virtual Reality Implementations in Developmental Psychology"
-author: "Araiza-Alba, Keane, Beaudry, Kaufman (Code by Jennifer Beaudry)"
+subtitle: "Supplmental Analyses"
+author: "Araiza-Alba, Keane, Beaudry, Kaufman"
 date: '`r format (Sys.time(), "%d %B %Y")`'
 output: 
   pdf_document:
         number_sections: true
         dev: cairo_pdf
+always_allow_html: false # true for word; false for pdf
 csl: apa-old-doi-prefix.csl
-bibliography: Beaudry_Library.bib
+bibliography: r-references.bib
 ---
 ```{r setup, include=FALSE}
 options(scipen = 999)
@@ -30,6 +32,7 @@ knitr::opts_chunk$set(
 )
 knitr::opts_knit$set(width = 75)
 
+
 ```
 
 ```{r library}
@@ -44,12 +47,14 @@ library(BSDA) # run t-test from summary data
 library(fmsb) # for odds ratio [currently not using because we are using Cohen's h]
 library(pwr) # for Cohen's h
 library(finalfit) # to keep trailing zeros
-library(purrrlyr) # keep if I'm using by_row
+# library(purrrlyr) # keep if I'm using by_row
 library(apa) # report apa style results in rmarkdown
 library(effsize) # Cohen's d for within subjects data
 library(kableExtra) # build tables
 library(effectsize) # partial eta2 from F stats
+library(papaja)
 
+r_refs("r-references.bib") # build R reference library for papaja
 
 # library(captioner) 
 # library(plyr)
@@ -154,8 +159,6 @@ df_ip <- read_csv (here::here("data_input", "ip_data_input.csv")) %>%
 
 ```
 
-For each data set, I will provide the output in this pdf and also in a `.csv` file. 
-You can easily copy and paste the numbers from the `.csv` file into a word table.
 
 ```{r, functions}
 
@@ -309,1119 +312,97 @@ mes(m.1 = vr_m, m.2 = ctrl_m, sd.1 = vr_sd, sd.2 = ctrl_sd, n.1 = vr_n,
 
 ```
 
-# Interpretation of effect sizes
+# Overview {-}
+We report the key findings from the papers we discussed in our manuscript. Many 
+of these papers did not report complete statistical analyses or effect sizes; 
+therefore, when possible, we calculated these using the information provided 
+in the original papers. The data and code for these analyses are available on 
+the Open Science Framework at: 
+**[INCLUDE LINK -- ANONYMISE IT FOR BLIND REVIEW].**
 
-Cohen's f: small = .10, medium = .25, large = .40 {for one-way ANOVAs} \newline
-Cohen's d: small = .20, medium = .50, large = .80 {for t-tests} \newline
-Cohen's h: small = .20, medium = .50, large = .80 {for proportions} \newline
-partial eta-squared (np^2^): small = .01, medium = .06, large = .14 {for ANOVAs 
-and MANOVAs} \newline
-Squared canoninical correlation (r^2^): small = .01--.09, medium = .09--.25, 
-large > .25 {discriminant analyses} [We might not need this, depending on 
-the decisions around the Rodriguez paper.] \newline
-Vargha-Delaney's A {for Mann-Whitney U tests} \newline
-  * It produces a value between 0 and 1.  
-    + When is exactly 0.5, the two techniques achieve equal performance.  
-    + When A is less than 0.5, the first technique is worse.  
-    + When A is more than 0.5, the second technique is worse.  
-  * The closer to 0.5, the smaller the difference between the techniques; the farther from
- 0.5, the larger the difference.  
+## Interpretation of effect sizes {-}
+The effect sizes we report can be interpreted according to the following 
+standards [INCLUDE A REFERENCE -- COHEN 1988?]:
+
+  * Cohen's f for one-way ANOVAs: small = 0.10, medium = 0.25, large = 0.40
+  * Cohen's d for comparing two means: small = 0.20, medium = 0.50, large = 0.80 
+  * Cohen's h for proportions: small = 0.20, medium = 0.50, large = 0.80 
+  * partial eta-squared (n~p~^2^) for ANOVAs and MANOVAs: small = .01, medium = 
+  .06, large = .14
+  * Vargha-Delaney's A for Mann-Whitney U tests produces a value between 0 and 1.  
+      - When A is exactly 0.5, the two techniques achieve equal performance,  
+      - When A is less than 0.5, the first technique is worse,  
+      - When A is more than 0.5, the second technique is worse.  
+    + The closer to 0.5, the smaller the difference between the techniques.  
+    
 http://doofussoftware.blogspot.com/2012/07/measuring-effect-size-with-vargha.html
 
 
-# Table 1 
-## Hua et al paper
-
-The paper did not report the statistics from their comparisons, other than the
-p-values. For each of the 10 tests, I used the summary statistics (means & standard 
-deviation) reported in the paper to compute the required values. 
-
-I conducted independent t-tests (I report the t-value and p-value) from 
-the `BSDA` R package [@arnholt_bsda_2017]. I also used the `compute.es` R package 
-[@re_computees_2020] to calculate the effect size (Cohen's d) and the 95% confidence 
-intervals (CI) around this parameter. Small, medium, and large effect sizes 
-correspond to d values of 0.2, 0.5, and 0.8, respectively (Cohen, 1988). 
-
-```{r Hua_pain_before}
-
-df <- df_hua %>% 
-  filter(measure == "pain_before")
-
-# CALCULATE THE EFFECT SIZE VALUES
-
-# 1 is ctrl group
-
-d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
-          sd.1 = ctrl_sd, sd.2 = vr_sd, 
-          n.1 = ctrl_n, n.2 = vr_n,
-          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
-
-
-# RUN T-Test
-# x is ctrl group
-t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
-          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
-          alternative = "two.sided")
-
-# add columns for the d-value & CI
-df <- df %>% 
-  dplyr::mutate (d = round_tidy(d1[1,5],2), 
-                 lower.ci = round_tidy(d1[1,7],2), 
-                 upper.ci = round_tidy(d1[1,8],2))
-
-# add columns for the t-value & p-value
-df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
-
-# compare the original p-value reported in the paper & the p-value we calculated
-df$original_p == df$`p-value`
-
-# specific name for this analysis
-df_hua1 <- df 
-```
-
-```{r Hua_pain_during}
-
-df <- df_hua %>% 
-  filter(measure == "pain_during")
-
-# CALCULATE THE EFFECT SIZE VALUES
-
-# ctrl as 1
-d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
-          sd.1 = ctrl_sd, sd.2 = vr_sd, 
-          n.1 = ctrl_n, n.2 = vr_n,
-          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
-
-
-# RUN T-Test
-# ctrl as x
-t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
-          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
-          alternative = "two.sided")
-
-# add columns for the d-value & CI
-df <- df %>% 
-  dplyr::mutate (d = round_tidy(d1[1,5],2), 
-                 lower.ci = round_tidy(d1[1,7],2), 
-                 upper.ci = round_tidy(d1[1,8],2))
-
-# add columns for the t-value & p-value
-df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
-
-# compare the original p-value reported in the paper & the p-value we calculated
-df$original_p == df$`p-value`
-
-# specific name for this analysis
-df_hua2 <- df 
-
-```
-
-```{r Hua_pain_after}
-
-df <- df_hua %>% 
-  filter(measure == "pain_after")
-
-# CALCULATE THE EFFECT SIZE VALUES
-
-# ctrl as 1
-d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
-          sd.1 = ctrl_sd, sd.2 = vr_sd, 
-          n.1 = ctrl_n, n.2 = vr_n,
-          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
-
-
-# RUN T-Test
-# ctrl as x
-t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
-          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
-          alternative = "two.sided")
-
-# add columns for the d-value & CI
-df <- df %>% 
-  dplyr::mutate (d = round_tidy(d1[1,5],2), 
-                 lower.ci = round_tidy(d1[1,7],2), 
-                 upper.ci = round_tidy(d1[1,8],2))
-
-# add columns for the t-value & p-value
-df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
-
-# note that the p-value is different
-df$notes <- "p-value in text is .034"
-
-# compare the original p-value reported in the paper & the p-value we calculated
-df$original_p == df$`p-value`
-
-# make a note if they are different
-df$notes <- "p-values differ, but conclusions unchanged"
-
-# specific name for this analysis
-df_hua3 <- df 
-
-```
-
-```{r Hua_pain_before_cg}
-
-df <- df_hua %>% 
-  filter(measure == "pain_before_cg")
-
-# CALCULATE THE EFFECT SIZE VALUES
-
-# ctrl as 1
-d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
-          sd.1 = ctrl_sd, sd.2 = vr_sd, 
-          n.1 = ctrl_n, n.2 = vr_n,
-          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
-
-
-# RUN T-Test
-# ctrl as x
-t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
-          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
-          alternative = "two.sided")
-
-# add columns for the d-value & CI
-df <- df %>% 
-  dplyr::mutate (d = round_tidy(d1[1,5],2), 
-                 lower.ci = round_tidy(d1[1,7],2), 
-                 upper.ci = round_tidy(d1[1,8],2))
-
-# add columns for the t-value & p-value
-df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
-
-# compare the original p-value reported in the paper & the p-value we calculated
-df$original_p == df$`p-value`
-
-# make a note if they are different
-df$notes <- "p-values differ, but conclusions unchanged"
-
-# specific name for this analysis
-df_hua4 <- df 
-
-```
-
-```{r Hua_pain_during_cg}
-
-df <- df_hua %>% 
-  filter(measure == "pain_during_cg")
-
-# CALCULATE THE EFFECT SIZE VALUES
-
-# ctrl as 1
-d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
-          sd.1 = ctrl_sd, sd.2 = vr_sd, 
-          n.1 = ctrl_n, n.2 = vr_n,
-          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
-
-
-# RUN T-Test
-# ctrl as x
-t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
-          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
-          alternative = "two.sided")
-
-# add columns for the d-value & CI
-df <- df %>% 
-  dplyr::mutate (d = round_tidy(d1[1,5],2), 
-                 lower.ci = round_tidy(d1[1,7],2), 
-                 upper.ci = round_tidy(d1[1,8],2))
-
-# add columns for the t-value & p-value
-df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
-
-# compare the original p-value reported in the paper & the p-value we calculated
-df$original_p == df$`p-value`
-
-# specific name for this analysis
-df_hua5 <- df 
-
-```
-
-```{r Hua_pain_after_cg}
-
-df <- df_hua %>% 
-  filter(measure == "pain_after_cg")
-
-# CALCULATE THE EFFECT SIZE VALUES
-
-# ctrl as 1
-d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
-          sd.1 = ctrl_sd, sd.2 = vr_sd, 
-          n.1 = ctrl_n, n.2 = vr_n,
-          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
-
-
-# RUN T-Test
-# ctrl as x
-t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
-          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
-          alternative = "two.sided")
-
-# add columns for the d-value & CI
-df <- df %>% 
-  dplyr::mutate (d = round_tidy(d1[1,5],2), 
-                 lower.ci = round_tidy(d1[1,7],2), 
-                 upper.ci = round_tidy(d1[1,8],2))
-# add columns for the t-value & p-value
-df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
-
-# compare the original p-value reported in the paper & the p-value we calculated
-df$original_p == df$`p-value`
-
-# specific name for this analysis
-df_hua6 <- df 
-
-```
-
-```{r Hua_distress_before}
-
-df <- df_hua %>% 
-  filter(measure == "distress_before")
-
-# CALCULATE THE EFFECT SIZE VALUES
-
-# ctrl as 1
-d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
-          sd.1 = ctrl_sd, sd.2 = vr_sd, 
-          n.1 = ctrl_n, n.2 = vr_n,
-          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
-
-
-# RUN T-Test
-# ctrl as x
-t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
-          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
-          alternative = "two.sided")
-
-# add columns for the d-value & CI
-df <- df %>% 
-  dplyr::mutate (d = round_tidy(d1[1,5],2), 
-                 lower.ci = round_tidy(d1[1,7],2), 
-                 upper.ci = round_tidy(d1[1,8],2))
-
-# add columns for the t-value & p-value
-df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
-
-# compare the original p-value reported in the paper & the p-value we calculated
-df$original_p == df$`p-value`
-
-# specific name for this analysis
-df_hua7 <- df 
-
-```
-
-```{r Hua_distress_during}
-
-df <- df_hua %>% 
-  filter(measure == "distress_during")
-
-# CALCULATE THE EFFECT SIZE VALUES
-
-# ctrl as 1
-d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
-          sd.1 = ctrl_sd, sd.2 = vr_sd, 
-          n.1 = ctrl_n, n.2 = vr_n,
-          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
-
-
-# RUN T-Test
-# ctrl as x
-t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
-          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
-          alternative = "two.sided")
-
-# add columns for the d-value & CI
-df <- df %>% 
-  dplyr::mutate (d = round_tidy(d1[1,5],2), 
-                 lower.ci = round_tidy(d1[1,7],2), 
-                 upper.ci = round_tidy(d1[1,8],2))
-
-# add columns for the t-value & p-value
-df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
-
-# compare the original p-value reported in the paper & the p-value we calculated
-df$original_p == df$`p-value`
-
-# specific name for this analysis
-df_hua8 <- df 
-
-```
-
-```{r Hua_distress_after}
-
-df <- df_hua %>% 
-  filter(measure == "distress_after")
-
-# CALCULATE THE EFFECT SIZE VALUES
-
-# ctrl as 1
-d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
-          sd.1 = ctrl_sd, sd.2 = vr_sd, 
-          n.1 = ctrl_n, n.2 = vr_n,
-          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
-
-
-# RUN T-Test
-# ctrl as x
-t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
-          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
-          alternative = "two.sided")
-
-# add columns for the d-value & CI
-df <- df %>% 
-  dplyr::mutate (d = round_tidy(d1[1,5],2), 
-                 lower.ci = round_tidy(d1[1,7],2), 
-                 upper.ci = round_tidy(d1[1,8],2))
-
-# add columns for the t-value & p-value
-df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
-
-# compare the original p-value reported in the paper & the p-value we calculated
-df$original_p == df$`p-value`
-
-# specific name for this analysis
-df_hua9 <- df 
-
-```
-
-```{r Hua_dressing_changes}
-
-df <- df_hua %>% 
-  filter(measure == "dressing_changes")
-
-# CALCULATE THE EFFECT SIZE VALUES
-
-# ctrl as 1
-d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
-          sd.1 = ctrl_sd, sd.2 = vr_sd, 
-          n.1 = ctrl_n, n.2 = vr_n,
-          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
-
-
-# RUN T-Test
-# ctrl as x
-t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
-          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
-          alternative = "two.sided")
-
-# add columns for the d-value & CI
-df <- df %>% 
-  dplyr::mutate (d = round_tidy(d1[1,5],2), 
-                 lower.ci = round_tidy(d1[1,7],2), 
-                 upper.ci = round_tidy(d1[1,8],2))
-
-# add columns for the t-value & p-value
-df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
-
-# compare the original p-value reported in the paper & the p-value we calculated
-df$original_p == df$`p-value`
-
-# specific name for this analysis
-df_hua10 <- df 
-
-```
-
-```{r Hua_bind_tables}
-
-df_bind <- bind_rows(df_hua1, df_hua2, df_hua3, df_hua4, df_hua5, df_hua6, 
-                     df_hua7, df_hua8, df_hua9, df_hua10)
-```
-
-
-```{r Hua_concatenate_table}
-
-# combine the d value with the upper and lower boundaries into a new column
-# effect size is Cohen's d
-df_bind$"Cohen's d" <- paste0(df_bind$d,
-                              " [",
-                              df_bind$lower.ci,
-                              ", ",
-                              df_bind$upper.ci, 
-                              "]")
-
-
-# combine the mean & SD for the two conditions
-df_bind$vr_m_sd <- paste0(df_bind$vr_m, 
-                          " (", 
-                          df_bind$vr_sd, 
-                          ")")
-df_bind$ctrl_m_sd <- paste0(df_bind$ctrl_m, 
-                            " (", 
-                            df_bind$ctrl_sd, 
-                            ")")
-
-```
-
-
-```{r Hua_clean_dataframe}
-
-# remove the columns that are now redundant
-
-df_hua_final <- df_bind %>% 
-  select (-c(d, lower.ci, upper.ci, ctrl_m, vr_m, ctrl_sd, vr_sd))
-
-# rearrange the columns we are keeping
-df_hua_final <- df_hua_final %>% 
-  relocate (vr_m_sd, .after = vr_n) %>% 
-  relocate (ctrl_m_sd, .after = ctrl_n) %>% 
-  relocate (original_p, .after = `p-value`) %>% 
-  relocate (notes, .after = last_col())
-
-```
-
-```{r Hua_table,include=TRUE}
-
-landscape(knitr::kable(df_hua_final, 
-                   caption = "Hua et al. Paper", 
-                   align = 'llccccccccl')) %>% 
-            column_spec(column = 11, width = "5cm")
-
-```
-
-```{r Hua_write_data}
-
-write_csv(df_hua_final, here::here("data_output", "hua_data_output.csv"))
-```
-
-## Jeffs et al paper - NEED TO DO
-
-This isn't done. I need to figure out a way to calculate the SDs. I
-have some potential solutions (links in code), but the best approach
-will be to get what I presume is the standard error from Figure 2 
-using the Enguage Digitizer Software (REF) and then calculate it from 
-that. The paper reports an effect size, but I don't know what the 
-reported measure of effect size is, so I need to confirm it with my 
-own analysis. I don't think I can or should report the t-test analysis
-because the illustrated results are based on estimates after
-controlling for age, sex, state anxiety, opiod analgesic use,
-treatment length, and pre-procedural pain. (see p 402).
-
-I also need to compare the pre- and post-procedural pain, but again, 
-this will be tricky because it's not clear whether that was based
-on the adjusted means (which I have) or the actual means (which I 
-don't have)...
-
-We might have to say that we just couldn't calculate it, but let's 
-see...
-
-```{r jeffs_figure_out_data, eval=FALSE}
-
-# need to calculate standard deviations
-
-# the sample size is small (<100), so we need to use the t-distribution to 
-  # calculate the SE value (https://www.medcalc.org/manual/t-distribution.php)
-
-# SD = sqrt(N) x (upper limit - lower limit)/(2 x SE value)
-
-SD_calc <- function(N, upper, lower, SE) {
-  SD <- (sqrt(N)) x (upper - lower)/(2 * SE)
-  print(SD)
-  }
-
-# VR
-N <- 8
-upper <- 
-
-
-```
-
-## Kipping et al paper
-
-For the continuous measures, they analysed mean change scores such that they
-subtracted the baseline measures from the removal and application scores for 
-the outcome variables (self-reported pain, self-reported nausea, nurses' report 
-of pain, caregivers' report of pain). For these measures, Table 
-\ref{tab:kipping_table} reports the t-tests that we ran on the
-summary stats and the computed effect sizes (Cohen's d). For these analyses, 
-as in Hua, we used the R packages `BSDA` [@arnholt_bsda_2017] and 
-`compute.es` [@re_computees_2020].
-
-```{r kipping_data_setup}
-
-# for some reason vr_m was parsed as a character, so change it to a number
-  # this will add NAs to the dataframe because some of the cells are empty. 
-  # So use supress warning 
-df_kip$vr_m <- suppressWarnings(as.numeric(df_kip$vr_m))
-
-```
-
-```{r kipping_self_pain_removal}
-
-df <- df_kip %>% 
-  filter(measure == "self_pain_removal")
-
-# CALCULATE THE EFFECT SIZE VALUES
-
-# 1 is ctrl group
-d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
-          sd.1 = ctrl_sd, sd.2 = vr_sd, 
-          n.1 = ctrl_n, n.2 = vr_n,
-          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
-
-
-# RUN T-Test
-# x is ctrl group
-t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
-          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n, var.equal = TRUE, 
-          alternative = "two.sided")
-
-# add columns for the d-value & CI
-df <- df %>% 
-  dplyr::mutate (d = round_tidy(d1[1,5],2), 
-                 lower.ci = round_tidy(d1[1,7],2), 
-                 upper.ci = round_tidy(d1[1,8],2))
-
-# add columns for the t-value & p-value
-df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
-
-# compare the original p-value reported in the paper & the p-value we calculated
-df$original_p == df$`p-value`
-
-# make a note if they are different
-df$notes <- "p-values differ, but conclusions unchanged"
-
-# specific name for this analysis
-df_kip1 <- df 
-```
-
-```{r kipping_self_pain_application}
-
-df <- df_kip %>% 
-  filter(measure == "self_pain_application")
-
-# CALCULATE THE EFFECT SIZE VALUES
-
-# 1 is ctrl group
-d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
-          sd.1 = ctrl_sd, sd.2 = vr_sd, 
-          n.1 = ctrl_n, n.2 = vr_n,
-          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
-
-# RUN T-Test
-# x is ctrl group
-t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
-          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
-          alternative = "two.sided", var.equal = TRUE)
-
-# add columns for the d-value & CI
-df <- df %>% 
-  dplyr::mutate (d = round_tidy(d1[1,5],2), 
-                 lower.ci = round_tidy(d1[1,7],2), 
-                 upper.ci = round_tidy(d1[1,8],2))
-
-# add columns for the t-value & p-value
-df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
-
-# compare the original p-value reported in the paper & the p-value we calculated
-df$original_p == df$`p-value`
-
-# make a note if they are different
-df$notes <- "p-values differ, but conclusions unchanged"
-
-# specific name for this analysis
-df_kip2 <- df 
-```
-
-
-```{r kipping_self_nausea_removal}
-
-df <- df_kip %>% 
-  filter(measure == "self_nausea_removal")
-
-# CALCULATE THE EFFECT SIZE VALUES
-
-# 1 is ctrl group
-d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
-          sd.1 = ctrl_sd, sd.2 = vr_sd, 
-          n.1 = ctrl_n, n.2 = vr_n,
-          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
-
-
-# RUN T-Test
-# x is ctrl group
-t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
-          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
-          alternative = "two.sided", var.equal = TRUE)
-
-# add columns for the d-value & CI
-df <- df %>% 
-  dplyr::mutate (d = round_tidy(d1[1,5],2), 
-                 lower.ci = round_tidy(d1[1,7],2), 
-                 upper.ci = round_tidy(d1[1,8],2))
-
-# add columns for the t-value & p-value
-df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
-
-# compare the original p-value reported in the paper & the p-value we calculated
-df$original_p == df$`p-value`
-
-# make a note if they are different
-df$notes <- "p-values differ, but conclusions unchanged"
-
-# specific name for this analysis
-df_kip3 <- df 
-```
-
-```{r kipping_self_nausea_application}
-
-df <- df_kip %>% 
-  filter(measure == "self_nausea_application")
-
-# CALCULATE THE EFFECT SIZE VALUES
-
-# 1 is ctrl group
-d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
-          sd.1 = ctrl_sd, sd.2 = vr_sd, 
-          n.1 = ctrl_n, n.2 = vr_n,
-          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
-
-# RUN T-Test
-# x is ctrl group
-t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
-          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
-          alternative = "two.sided", var.equal = TRUE)
-
-# add columns for the d-value & CI
-df <- df %>% 
-  dplyr::mutate (d = round_tidy(d1[1,5],2), 
-                 lower.ci = round_tidy(d1[1,7],2), 
-                 upper.ci = round_tidy(d1[1,8],2))
-
-# add columns for the t-value & p-value
-df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
-
-# compare the original p-value reported in the paper & the p-value we calculated
-df$original_p == df$`p-value`
-
-# make a note if they are different
-df$notes <- "p-values differ, but conclusions unchanged"
-
-# specific name for this analysis
-df_kip4 <- df 
-```
-
-```{r kipping_nurse_pain_removal}
-
-df <- df_kip %>% 
-  filter(measure == "nurse_pain_removal")
-
-# CALCULATE THE EFFECT SIZE VALUES
-
-# 1 is ctrl group
-d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
-          sd.1 = ctrl_sd, sd.2 = vr_sd, 
-          n.1 = ctrl_n, n.2 = vr_n,
-          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
-
-
-# RUN T-Test
-# x is ctrl group
-t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
-          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
-          alternative = "two.sided", var.equal = TRUE)
-
-# add columns for the d-value & CI
-df <- df %>% 
-  dplyr::mutate (d = round_tidy(d1[1,5],2), 
-                 lower.ci = round_tidy(d1[1,7],2), 
-                 upper.ci = round_tidy(d1[1,8],2))
-
-# add columns for the t-value & p-value
-df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
-
-# compare the original p-value reported in the paper & the p-value we calculated
-df$original_p == df$`p-value`
-
-# specific name for this analysis
-df_kip5 <- df 
-```
-
-```{r kipping_nurse_pain_application}
-
-df <- df_kip %>% 
-  filter(measure == "nurse_pain_application")
-
-# CALCULATE THE EFFECT SIZE VALUES
-
-# 1 is ctrl group
-d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
-          sd.1 = ctrl_sd, sd.2 = vr_sd, 
-          n.1 = ctrl_n, n.2 = vr_n,
-          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
-
-
-# RUN T-Test
-# x is ctrl group
-t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
-          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
-          alternative = "two.sided", var.equal = TRUE)
-
-# add columns for the d-value & CI
-df <- df %>% 
-  dplyr::mutate (d = round_tidy(d1[1,5],2), 
-                 lower.ci = round_tidy(d1[1,7],2), 
-                 upper.ci = round_tidy(d1[1,8],2))
-
-# add columns for the t-value & p-value
-df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
-
-# compare the original p-value reported in the paper & the p-value we calculated
-df$original_p == df$`p-value`
-
-# make a note if they are different
-df$notes <- "p-values differ, but conclusions unchanged"
-
-# specific name for this analysis
-df_kip6 <- df 
-```
-
-
-```{r kipping_care_pain_removal}
-
-df <- df_kip %>% 
-  filter(measure == "care_pain_removal")
-
-# CALCULATE THE EFFECT SIZE VALUES
-
-# 1 is ctrl group
-d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
-          sd.1 = ctrl_sd, sd.2 = vr_sd, 
-          n.1 = ctrl_n, n.2 = vr_n,
-          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
-
-
-# RUN T-Test
-# x is ctrl group
-t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
-          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
-          alternative = "two.sided", var.equal = TRUE)
-
-# add columns for the d-value & CI
-df <- df %>% 
-  dplyr::mutate (d = round_tidy(d1[1,5],2), 
-                 lower.ci = round_tidy(d1[1,7],2), 
-                 upper.ci = round_tidy(d1[1,8],2))
-
-# add columns for the t-value & p-value
-df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
-
-# compare the original p-value reported in the paper & the p-value we calculated
-df$original_p == df$`p-value`
-
-# make a note if they are different
-df$notes <- "p-values differ, but conclusions unchanged"
-
-# specific name for this analysis
-df_kip7 <- df 
-```
-
-```{r kipping_care_pain_application}
-
-df <- df_kip %>% 
-  filter(measure == "care_pain_application")
-
-# CALCULATE THE EFFECT SIZE VALUES
-
-# 1 is ctrl group
-d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
-          sd.1 = ctrl_sd, sd.2 = vr_sd, 
-          n.1 = ctrl_n, n.2 = vr_n,
-          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
-
-# RUN T-Test
-# x is ctrl group
-t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
-          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
-          alternative = "two.sided", var.equal = TRUE)
-
-# add columns for the d-value & CI
-df <- df %>% 
-  dplyr::mutate (d = round_tidy(d1[1,5],2), 
-                 lower.ci = round_tidy(d1[1,7],2), 
-                 upper.ci = round_tidy(d1[1,8],2))
-
-# add columns for the t-value & p-value
-df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
-
-# compare the original p-value reported in the paper & the p-value we calculated
-df$original_p == df$`p-value`
-
-# make a note if they are different
-df$notes <-"p-values differ, but conclusions unchanged"
-
-# specific name for this analysis
-df_kip8 <- df 
-```
-
-
-```{r kipping_rescue_doses}
-
-# select the relevant data
-df <- df_kip %>% 
-  filter(measure == "rescue_doses")
-
-# calculate number in each condition that did not get a rescue dose
-
-vr_no_dose <- df$vr_n-df$vr_dose_n
-ctrl_no_dose <- df$ctrl_n-df$ctrl_dose_n
-
-# build a dataframe with the relevant data
-
-obsfreq_or <- matrix (c(df$vr_dose_n, vr_no_dose, df$ctrl_dose_n, ctrl_no_dose), 
-                     nrow = 2, ncol = 2)
-
-obsfreq <- matrix (c(df$ctrl_dose_n, ctrl_no_dose, df$vr_dose_n, vr_no_dose), 
-                     nrow = 2, ncol = 2)
-
-# run the stats
-chi <- chisq.test(obsfreq)
-
-# run the z-test of proportions
-
-dose <- c(df$vr_dose_n,df$ctrl_dose_n)
-total <- c(df$vr_n, df$ctrl_n)
-
-# two-tailed z-test for proportions
-# same result as normal chi square, as expected
-res2 <- prop.test(x = dose, n = total, alternative = "two.sided")
-
-# a one-sided test gets us the same value as in the paper
-res1 <- prop.test(x = dose, n = total, alternative = "less")
-
-# calculate Cohen's h as effect size with CIs using cohens_h function
-
-prop_1 = (df$ctrl_dose_n/(df$ctrl_dose_n+ctrl_no_dose))
-prop_2 = (df$vr_dose_n/(df$vr_dose_n+vr_no_dose))
-n1 = df$ctrl_n
-n2 = df$vr_n
-
-h <- cohens_h(prop_1, prop_2, n1, n2)
-h <- round(h, 2)
-```
-
-Unlike the other measures, the rescue doses outcome was binary data. Of the 20 
-adolescents in the VR group, only 3 needed rescue doeses (15%). Of the 21 
-adolescents in the SD group, 9 needed rescue doses (43%). In the paper, they 
-reported running a chi-square test, which produced a significant result at p =
-.05.
-
-We tried to reproduce this analysis, but our chi-square test revealed a 
-non-significant difference, `r apa(chi)`. 
-A one-sided z-test of proportions produced a similar result to that of the original
-paper, z = `r round(sqrt(res1$statistic),2)`, p = `r round(res1$p.value, 3)`,
-although this p-value still exceeds the alpha level of .05.  Using
-the R `pwr` package [@champely_pwr_2020], we calculated Cohen's h, a measure
-of effect size for proportions that can be interpreted using the same rules of 
-thumb as Cohen's d for small, medium, and large differences (Cohen, 1988). This
-analysis revealed a medium-large effect size (h = `r h[1]` [`r h[2]`, 
-`r h[3]`]) with a large 95% confidence interval. Taken together, these 
-results suggest this finding might not be reliable. 
-
-```{r kipping_bind_tables}
-
-df_bind <- bind_rows(df_kip1, df_kip2, df_kip3, df_kip4, df_kip5, df_kip6, 
-                     df_kip7, df_kip8)
-```
-
-
-```{r kipping_concatenate_table}
-
-# combine the d value with the upper and lower boundaries into a new column
-# effect size is Cohen's d
-df_bind$"Cohen's d" <- paste0(df_bind$d,
-                              " [",
-                              df_bind$lower.ci,
-                              ", ",
-                              df_bind$upper.ci, 
-                              "]")
-
-
-# combine the mean & SD for the two conditions
-df_bind$vr_m_sd <- paste0(df_bind$vr_m, 
-                          " (", 
-                          df_bind$vr_sd, 
-                          ")")
-df_bind$ctrl_m_sd <- paste0(df_bind$ctrl_m, 
-                            " (", 
-                            df_bind$ctrl_sd, 
-                            ")")
-
-```
-
-
-```{r Kipping_clean_dataframe}
-
-# remove the columns that are now redundant
-
-df_kip_final <- df_bind %>% 
-  select (-c(d, lower.ci, upper.ci, ctrl_m, vr_m, ctrl_sd, vr_sd, 
-             ctrl_dose_n, vr_dose_n))
-
-# rearrange the columns we are keeping
-df_kip_final <- df_kip_final %>% 
-  relocate (vr_m_sd, .after = vr_n) %>% 
-  relocate (ctrl_m_sd, .after = ctrl_n) %>% 
-  relocate (original_p, .after = `p-value`) %>% 
-  relocate (notes, .after = last_col())
-
-```
-
-```{r kipping_table,include=TRUE}
-
-landscape(knitr::kable(df_kip_final, 
-                       caption = "Kipping et al. Paper", 
-                       align = 'llccccccccl')) %>% 
-            column_spec(column = 11, width = "3cm")
-
-```
-
-```{r kipping_write_data}
-
-write_csv(df_kip_final, here::here("data_output", "kipping_data_output.csv"))
-```
-
-## Sil et al
-
-They used a one-way within-subjects ANOVA to compare the
-three conditions (baseline, traditional distraction, VR distraction) on log 
-transformed pain tolerance scores.
-
-They reported a large effect size (f) of .56 from the ANOVA, but they didn't 
-report Cohen's d for the mean comparisons nor include the confidence interval 
-around the f value.
-
-I couldn't recreate their analyses from the summary data because it's a 
-within-subjects design, so we should just report the t-values & p-values from 
-the paper (p. 6). But, based on the summary statistics reported in the paper, 
-I have used the R package `effsize` 
-[@torchiano_effsize_2020] to calculate the effect size (Cohen's d) with 
-confidence intervals for the three comparisons.
-
-As discussed on Sept 22nd, we probably want to pull the `n` out of the table
-because it's a within-subjects design.
-
-```{r sil_pain_base_vs_trad}
-
-df <- df_sil
+# IVET used as pain distraction for children (Table 1)
+## Dahlquist et al. (2009)
+
+They had two age groups: younger (6-10 years) and older (11-14 years). 
+
+They ran a 2 x 3 mixed factorial ANOVA to compare the two age groups and 
+the three experimental conditions (baseline, traditional distraction, VR 
+distraction) on pain tolerance scores (no transformation reported).
+
+Their ANOVA revealed main effects of experimental condition, F (2,78) = 7.84, 
+p < .001, f = .62, and a significant age by experimental condition interaction
+effect for pain tolerance, F (2,78) = 3.82, p < .05, f = .43. Both of these 
+are large effects (they did not report the confidence intervals around the f
+value.)
+
+To compare the pain tolerance scores of younger and older children in the 
+distraction+helmet condition, I used the the `BSDA` R package 
+[@R-BSDA] to compute the t-test statistic based on the summary
+statistics reported in the paper. I also used the `compute.es` R package 
+[@R-compute.es] to calculate the effect size 
+(Cohen's d) and the 95% confidence intervals (CI) around this parameter.
+
+```{r dahl_2009_pain_base_vs_distraction}
+
+df <- df_dahl_09
 
 # select comparison
 df <- df %>% 
-  filter(comparison == "base vs. trad")
+  filter(comparison == "distraction+helmet: younger vs. older")
 
 # CALCULATE THE STATS
+
+# x is the older group
+t <- tsum.test(mean.x = df$m.2, s.x = df$sd.2, n.x = df$n.2, 
+          mean.y = df$m.1, s.y = df$sd.1, n.y = df$n.1,
+          alternative = "two.sided", var.equal = TRUE)
 
 # change the order of m1 and m2 so we get a positive d value
 
 d1 <- mes(m.1 = m.2, m.2 = m.1, sd.1 = sd.2, sd.2 = sd.1, 
           n.1 = n, n.2 = n, level = 95, dig = 4, verbose = TRUE, id=1, data=df)
 
-
 # add columns for the d-value & CI
 df <- df %>% 
   dplyr::mutate (d = round_tidy(d1[1,5],2), 
                  lower.ci = round_tidy(d1[1,7],2), 
                  upper.ci = round_tidy(d1[1,8],2))
 
-
-# specific name for this analysis
-df_sil1 <- df 
-
-```
-
-```{r sil_pain_base_vs_vr}
-
-df <- df_sil
-
-# select comparison
 df <- df %>% 
-  filter(comparison == "base vs. VR")
-
-# CALCULATE THE STATS
-
-# change the order of m1 and m2 so we get a positive d value
-
-d1 <- mes(m.1 = m.2, m.2 = m.1, sd.1 = sd.2, sd.2 = sd.1, 
-          n.1 = n, n.2 = n, level = 95, dig = 4, verbose = TRUE, id=1, data=df)
-
-
-# add columns for the d-value & CI
-df <- df %>% 
-  dplyr::mutate (d = round_tidy(d1[1,5],2), 
-                 lower.ci = round_tidy(d1[1,7],2), 
-                 upper.ci = round_tidy(d1[1,8],2))
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+              "p-value" = round_tidy(t$p.value, 3))
 
 
 # specific name for this analysis
-df_sil2 <- df 
+df_dahl1 <- df 
 
 ```
 
-```{r sil_pain_trad_vs_vr}
+```{r dahl_09_bind_tables}
 
-df <- df_sil
-
-# select comparison
-df <- df %>% 
-  filter(comparison == "trad vs VR")
-
-# CALCULATE THE STATS
-
-d1 <- mes(m.1 = m.1, m.2 = m.2, sd.1 = sd.1, sd.2 = sd.2, 
-          n.1 = n, n.2 = n, level = 95, dig = 4, verbose = TRUE, id=1, data=df)
-
-# add columns for the d-value & CI
-df <- df %>% 
-  dplyr::mutate (d = round_tidy(d1[1,5],2), 
-                 lower.ci = round_tidy(d1[1,7],2), 
-                 upper.ci = round_tidy(d1[1,8],2))
-
-
-# specific name for this analysis
-df_sil3 <- df 
-
+# I don't really need this, but keeping it in case we add additional comparisons
+df_bind <- bind_rows(df_dahl1)
 ```
 
-```{r sil_bind_tables}
-
-df_bind <- bind_rows(df_sil1, df_sil2, df_sil3)
-```
-
-```{r sil_concatenate_table}
+```{r dahl_09_concatenate_table}
 
 # combine the d value with the upper and lower boundaries into a new column
 # effect size is Cohen's d
@@ -1431,7 +412,6 @@ df_bind$"Cohen's d" <- paste0(df_bind$d,
                               ", ",
                               df_bind$upper.ci, 
                               "]")
-
 
 # combine the mean & SD for the two conditions in each comparison
 df_bind$m_sd_1 <- paste0(df_bind$m.1, 
@@ -1445,36 +425,42 @@ df_bind$m_sd_2 <- paste0(df_bind$m.2,
 
 ```
 
-```{r sil_clean_dataframe}
+```{r dahl_clean_dataframe}
 
 # remove the columns that are now redundant
 
-df_sil_final <- df_bind %>% 
-  select (-c(condition, mean, sd, m.1, sd.1, m.2, sd.2, d, lower.ci, upper.ci))
+df_dahl_final <- df_bind %>% 
+  select (-c(condition, mean, sd, m.1, sd.1, m.2, 
+             sd.2, d, lower.ci, upper.ci, n, `age group`))
 
 # rearrange the columns we are keeping
-df_sil_final <- df_sil_final %>% 
-  relocate (n, .after = comparison) %>% 
-  relocate (m_sd_1, .after = n) %>% 
-  relocate (m_sd_2, .after = m_sd_1)
+df_dahl_final <- df_dahl_final %>% 
+  relocate (m_sd_1, .after = n.1) %>% 
+  relocate (m_sd_2, .after = n.2) %>% 
+  relocate (original_p, .after = 'p-value')
 
 ```
 
-```{r sil_table,include=TRUE}
+```{r dahl_table,include=TRUE}
 
-knitr::kable(df_sil_final, 
-             caption = "Sil et al. Paper", 
-              align = 'lllcccccc') %>% 
+landscape(knitr::kable(df_dahl_final, 
+             caption = "Dahl et al. (2009) Paper", 
+              align = 'llllcccccccc')) %>% 
+  column_spec(column = 3, width = "3cm") %>% 
+  column_spec(column = 5, width = "1.5cm") %>% 
   column_spec(column = 7, width = "1.5cm") %>% 
    kable_styling(full_width = F, 
                 latex_options = "HOLD_position")
 
 ```
 
-```{r sil_write_data}
+```{r dahl_write_data}
 
-write_csv(df_sil_final, here::here("data_output", "sil_data_output.csv"))
+write_csv(df_dahl_final, here::here("data_output", "dahlquist_2009_data_output.csv"))
 ```
+
+THERE'S ONLY ONE ANALYSIS, SO I CAN PUT THAT IN A SENTENCE...
+
 
 ## Dahlquist et al. (2010)
 
@@ -1489,7 +475,7 @@ confidence interval around the f value.
 I won't be able to recreate their analyses from the summary data because it's a 
 within-subjects design, so we should just report the t-values & p-values from 
 the paper (p. 622).  But, based on the summary statistics reported in the paper, 
-I have used the R package `effsize` [@torchiano_effsize_2020] to calculate the effect size 
+I have used the R package `effsize` [@R-effsize] to calculate the effect size 
 (Cohen's d) with confidence intervals for the three comparisons.
 
 ```{r dahl_2010_pain_base_vs_distraction}
@@ -1631,61 +617,43 @@ knitr::kable(df_dahl_final,
 write_csv(df_dahl_final, here::here("data_output", "dahlquist_2010_data_output.csv"))
 ```
 
-## Dahlquist et al. (2009)
 
-They had two age groups: younger (6-10 years) and older (11-14 years). 
 
-They ran a 2 x 3 mixed factorial ANOVA to compare the two age groups and 
-the three experimental conditions (baseline, traditional distraction, VR 
-distraction) on pain tolerance scores (no transformation reported).
+## Hua et al. (2015) 
 
-Their ANOVA revealed main effects of experimental condition, F (2,78) = 7.84, 
-p < .001, f = .62, and a significant age by experimental condition interaction
-effect for pain tolerance, F (2,78) = 3.82, p < .05, f = .43. Both of these 
-are large effects (they did not report the confidence intervals around the f
-value.)
+Hua et al. (2015) reported only the p-values from their statistical comparisons 
+between the VR distraction and standard distraction groups on each of the 10 
+dependent variables. For each of these comparisons, we used the summary statistics 
+(means & standard deviations) reported in the paper to compute the inferential
+statistics and effect sizes. For two of these comparisons (noted in Table
+\ref{tab:Hua_table}), our calculations produced slightly different p-values 
+than those reported in the paper, but the conclusions were unchanged. 
 
-*Decisions:* They didn't report the means for the experimental conditions, so I 
-can't *easily* report the means or effect size for that comparison. 
-There's probably a way for me to figure it out, but I'm not sure how much you 
-care... Likewise, their significant comparisons were for younger vs older children
-in the baseline and VR conditions. Given that we don't care about age effects, 
-I've not reported the comparison of the baseline pain tolerance scores across
-the two age groups (but I can, if you want it). The pain tolerance scores of 
-the younger vs older children were not significantly different in the 
-distraction-only condition, so they didn't report the standard deviation around 
-the two means. If you want stats around that comparison, I can likely pull that '
-info from Figure 1 (p. 580), but how much do you care about it?
+Specifically, we conducted independent t-tests using the 
+the R `BSDA` package [@R-BSDA] and we used the R `compute.es` package 
+[@R-compute.es] to calculate the effect sizes and accompanying 95% confidence 
+intervals [reported in square brackets]. 
 
-*Action*: We decided that we don't need the stats for those comparisons. No 
-additional action required. 
+```{r Hua_pain_before}
 
-To compare the pain tolerance scores of younger and older children in the 
-distraction+helmet condition, I used the the `BSDA` R package 
-[@arnholt_bsda_2017] to compute the t-test statistic based on the summary
-statistics reported in the paper. I also used the `compute.es` R package 
-[@re_computees_2020] to calculate the effect size 
-(Cohen's d) and the 95% confidence intervals (CI) around this parameter.
+df <- df_hua %>% 
+  filter(measure_sf == "pain_before")
 
-```{r dahl_2009_pain_base_vs_distraction}
+# CALCULATE THE EFFECT SIZE VALUES
 
-df <- df_dahl_09
+# 1 is ctrl group
 
-# select comparison
-df <- df %>% 
-  filter(comparison == "distraction+helmet: younger vs. older")
+d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
+          sd.1 = ctrl_sd, sd.2 = vr_sd, 
+          n.1 = ctrl_n, n.2 = vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
 
-# CALCULATE THE STATS
 
-# x is the older group
-t <- tsum.test(mean.x = df$m.2, s.x = df$sd.2, n.x = df$n.2, 
-          mean.y = df$m.1, s.y = df$sd.1, n.y = df$n.1,
-          alternative = "two.sided", var.equal = TRUE)
-
-# change the order of m1 and m2 so we get a positive d value
-
-d1 <- mes(m.1 = m.2, m.2 = m.1, sd.1 = sd.2, sd.2 = sd.1, 
-          n.1 = n, n.2 = n, level = 95, dig = 4, verbose = TRUE, id=1, data=df)
+# RUN T-Test
+# x is ctrl group
+t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
+          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
+          alternative = "two.sided")
 
 # add columns for the d-value & CI
 df <- df %>% 
@@ -1693,23 +661,385 @@ df <- df %>%
                  lower.ci = round_tidy(d1[1,7],2), 
                  upper.ci = round_tidy(d1[1,8],2))
 
+# add columns for the t-value & p-value
 df <- df %>% 
   dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-              "p-value" = round_tidy(t$p.value, 3))
+                "p-value" = round_tidy(t$p.value, 3))
 
+# compare the original p-value reported in the paper & the p-value we calculated
+df$original_p == df$`p-value`
 
 # specific name for this analysis
-df_dahl1 <- df 
+df_hua1 <- df 
+```
+
+```{r Hua_pain_during}
+
+df <- df_hua %>% 
+  filter(measure_sf == "pain_during")
+
+# CALCULATE THE EFFECT SIZE VALUES
+
+# ctrl as 1
+d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
+          sd.1 = ctrl_sd, sd.2 = vr_sd, 
+          n.1 = ctrl_n, n.2 = vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
+
+
+# RUN T-Test
+# ctrl as x
+t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
+          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
+          alternative = "two.sided")
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# compare the original p-value reported in the paper & the p-value we calculated
+df$original_p == df$`p-value`
+
+# specific name for this analysis
+df_hua2 <- df 
 
 ```
 
-```{r dahl_09_bind_tables}
+```{r Hua_pain_after}
 
-# I don't really need this, but keeping it in case we add additional comparisons
-df_bind <- bind_rows(df_dahl1)
+df <- df_hua %>% 
+  filter(measure_sf == "pain_after")
+
+# CALCULATE THE EFFECT SIZE VALUES
+
+# ctrl as 1
+d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
+          sd.1 = ctrl_sd, sd.2 = vr_sd, 
+          n.1 = ctrl_n, n.2 = vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
+
+
+# RUN T-Test
+# ctrl as x
+t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
+          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
+          alternative = "two.sided")
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# note that the p-value is different
+df$notes <- "p-value in text is .034"
+
+# compare the original p-value reported in the paper & the p-value we calculated
+df$original_p == df$`p-value`
+
+# make a note if they are different
+df$notes <- "p-values differ, but conclusions unchanged"
+
+# specific name for this analysis
+df_hua3 <- df 
+
 ```
 
-```{r dahl_09_concatenate_table}
+```{r Hua_pain_before_cg}
+
+df <- df_hua %>% 
+  filter(measure_sf == "pain_before_cg")
+
+# CALCULATE THE EFFECT SIZE VALUES
+
+# ctrl as 1
+d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
+          sd.1 = ctrl_sd, sd.2 = vr_sd, 
+          n.1 = ctrl_n, n.2 = vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
+
+
+# RUN T-Test
+# ctrl as x
+t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
+          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
+          alternative = "two.sided")
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# compare the original p-value reported in the paper & the p-value we calculated
+df$original_p == df$`p-value`
+
+# make a note if they are different
+df$notes <- "p-values differ, but conclusions unchanged"
+
+# specific name for this analysis
+df_hua4 <- df 
+
+```
+
+```{r Hua_pain_during_cg}
+
+df <- df_hua %>% 
+  filter(measure_sf == "pain_during_cg")
+
+# CALCULATE THE EFFECT SIZE VALUES
+
+# ctrl as 1
+d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
+          sd.1 = ctrl_sd, sd.2 = vr_sd, 
+          n.1 = ctrl_n, n.2 = vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
+
+
+# RUN T-Test
+# ctrl as x
+t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
+          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
+          alternative = "two.sided")
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# compare the original p-value reported in the paper & the p-value we calculated
+df$original_p == df$`p-value`
+
+# specific name for this analysis
+df_hua5 <- df 
+
+```
+
+```{r Hua_pain_after_cg}
+
+df <- df_hua %>% 
+  filter(measure_sf == "pain_after_cg")
+
+# CALCULATE THE EFFECT SIZE VALUES
+
+# ctrl as 1
+d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
+          sd.1 = ctrl_sd, sd.2 = vr_sd, 
+          n.1 = ctrl_n, n.2 = vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
+
+
+# RUN T-Test
+# ctrl as x
+t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
+          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
+          alternative = "two.sided")
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# compare the original p-value reported in the paper & the p-value we calculated
+df$original_p == df$`p-value`
+
+# specific name for this analysis
+df_hua6 <- df 
+
+```
+
+```{r Hua_distress_before}
+
+df <- df_hua %>% 
+  filter(measure_sf == "distress_before")
+
+# CALCULATE THE EFFECT SIZE VALUES
+
+# ctrl as 1
+d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
+          sd.1 = ctrl_sd, sd.2 = vr_sd, 
+          n.1 = ctrl_n, n.2 = vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
+
+
+# RUN T-Test
+# ctrl as x
+t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
+          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
+          alternative = "two.sided")
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# compare the original p-value reported in the paper & the p-value we calculated
+df$original_p == df$`p-value`
+
+# specific name for this analysis
+df_hua7 <- df 
+
+```
+
+```{r Hua_distress_during}
+
+df <- df_hua %>% 
+  filter(measure_sf == "distress_during")
+
+# CALCULATE THE EFFECT SIZE VALUES
+
+# ctrl as 1
+d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
+          sd.1 = ctrl_sd, sd.2 = vr_sd, 
+          n.1 = ctrl_n, n.2 = vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
+
+
+# RUN T-Test
+# ctrl as x
+t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
+          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
+          alternative = "two.sided")
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# compare the original p-value reported in the paper & the p-value we calculated
+df$original_p == df$`p-value`
+
+# specific name for this analysis
+df_hua8 <- df 
+
+```
+
+```{r Hua_distress_after}
+
+df <- df_hua %>% 
+  filter(measure_sf == "distress_after")
+
+# CALCULATE THE EFFECT SIZE VALUES
+
+# ctrl as 1
+d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
+          sd.1 = ctrl_sd, sd.2 = vr_sd, 
+          n.1 = ctrl_n, n.2 = vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
+
+
+# RUN T-Test
+# ctrl as x
+t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
+          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
+          alternative = "two.sided")
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# compare the original p-value reported in the paper & the p-value we calculated
+df$original_p == df$`p-value`
+
+# specific name for this analysis
+df_hua9 <- df 
+
+```
+
+```{r Hua_dressing_changes}
+
+df <- df_hua %>% 
+  filter(measure_sf == "dressing_changes")
+
+# CALCULATE THE EFFECT SIZE VALUES
+
+# ctrl as 1
+d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
+          sd.1 = ctrl_sd, sd.2 = vr_sd, 
+          n.1 = ctrl_n, n.2 = vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
+
+
+# RUN T-Test
+# ctrl as x
+t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
+          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
+          alternative = "two.sided")
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# compare the original p-value reported in the paper & the p-value we calculated
+df$original_p == df$`p-value`
+
+# specific name for this analysis
+df_hua10 <- df 
+
+```
+
+```{r Hua_bind_tables}
+
+df_bind <- bind_rows(df_hua1, df_hua2, df_hua3, df_hua4, df_hua5, df_hua6, 
+                     df_hua7, df_hua8, df_hua9, df_hua10)
+```
+
+
+```{r Hua_concatenate_table}
 
 # combine the d value with the upper and lower boundaries into a new column
 # effect size is Cohen's d
@@ -1719,6 +1049,703 @@ df_bind$"Cohen's d" <- paste0(df_bind$d,
                               ", ",
                               df_bind$upper.ci, 
                               "]")
+
+
+# combine the mean & SD for the two conditions
+df_bind$vr_m_sd <- paste0(df_bind$vr_m, 
+                          " (", 
+                          df_bind$vr_sd, 
+                          ")")
+df_bind$ctrl_m_sd <- paste0(df_bind$ctrl_m, 
+                            " (", 
+                            df_bind$ctrl_sd, 
+                            ")")
+
+```
+
+
+```{r Hua_clean_dataframe}
+
+# remove the columns that are now redundant
+
+df_hua_final <- df_bind %>% 
+  select (-c(d, lower.ci, upper.ci, ctrl_m, vr_m, ctrl_sd, vr_sd, measure_sf, vr_n, 
+             ctrl_n, original_p))
+
+# rearrange the columns we are keeping
+df_hua_final <- df_hua_final %>% 
+  relocate (vr_m_sd, .after = scale) %>% 
+  relocate (ctrl_m_sd, .after = vr_m_sd) %>% 
+  relocate (notes, .after = last_col())
+
+```
+
+```{r Hua_table,include=TRUE}
+
+landscape(knitr::kable(df_hua_final, 
+                   caption = "Hua et al. (2015)", 
+                   align = 'llcccccl')) %>% 
+            column_spec(column = 1, width = "3cm") %>% 
+            column_spec(column = 8, width = "3cm") %>% 
+            add_footnote("Note: IVR group had 33 participants and the control group had 32 participants.", notation = "none")
+
+```
+
+```{r Hua_write_data}
+
+write_csv(df_hua_final, here::here("data_output", "hua_data_output.csv"))
+```
+
+
+## Jeffs et al. (2014) 
+
+```{r jeffs_notes, eval=FALSE}
+# These are just my notes in case I need to review our decisions for this paper.
+
+# We decided not to try to analyse this one. I would need to figure out a way to 
+# calculate the SDs. I have some potential solutions (links in code), but the best
+# approach will be to get what I presume is the standard error from Figure 2 
+# using the Enguage Digitizer Software (REF) and then calculate it from 
+# that. The paper reports an effect size, but I don't know what the 
+# reported measure of effect size is, so I need to confirm it with my 
+# own analysis. I don't think I can or should report the t-test analysis
+# because they estimated the means after controlling for so many variables.
+
+# I also need to compare the pre- and post-procedural pain, but again, 
+# this will be tricky because it's not clear whether that was based
+# on the adjusted means (which I have) or the actual means (which I 
+# don't have)...
+
+# We might have to say that we just couldn't calculate it, but let's 
+# see...
+```
+
+The findings supporting our descriptive summary are availabe on page 402 of 
+Jeffs et al. (2014). To compare the procedural pain reported by participants in the 
+three groups, they used a linear regression model that adjusted for age, sex, 
+state anxiety, opiod analgesic use, treatment length, and pre-procedural pain. From 
+this model, they estimated participants' procedural pain scores. 
+
+We were unable to reproduce these analyses because the paper
+did not include the relevant details. Specifically, we could not compare the three
+groups in their procedural pain scores because, although Jeffs et al. (2014) 
+reported the estimated means, they did not report a measure of variance or indicate 
+what the error bars in Figure 2 represent. 
+
+Jeffs et al. (2015) did report effect sizes comparing the groups (ranging from 
+0.535 to 1.25); however, they did not specify the measure of effect size and, thus,
+we cannot interpret the size of these effects. 
+
+
+```{r jeffs_figure_out_data, eval=FALSE}
+
+# need to calculate standard deviations
+
+# the sample size is small (<100), so we need to use the t-distribution to 
+  # calculate the SE value (https://www.medcalc.org/manual/t-distribution.php)
+
+# SD = sqrt(N) x (upper limit - lower limit)/(2 x SE value)
+
+SD_calc <- function(N, upper, lower, SE) {
+  SD <- (sqrt(N)) x (upper - lower)/(2 * SE)
+  print(SD)
+  }
+
+# VR
+N <- 8
+upper <- 
+
+
+```
+
+## Kipping et al. (2012)
+
+For the continuous measures, they analysed mean change scores by
+subtracting the baseline measures from the removal and application scores for 
+the outcome variables (self-reported pain, self-reported nausea, nurses' pain 
+ratings, caregivers' pain ratings). For these analyses, they reported the means 
+and standard deviations, as well as the p-values for the independent sample 
+t-tests (but not the associated t-values). 
+
+For these measures, we used the R `BSDA` package [@R-BSDA] to calculate the t-values
+from the summary statistics and we used the R `compute.es` package [@R-compute.es]
+to compute effect sizes (Cohen's d) with 95% confidence intervals (in square brackets). 
+See Table 
+\ref{tab:kipping_table} for the summary and inferential statistics. Our calculated 
+p-values were slightly different than those reported in the original paper (for all 
+but one analyses: nurses' pain ratings during removal), but the 
+conclusions were the same. 
+
+```{r kipping_data_setup}
+
+# for some reason vr_m was parsed as a character, so change it to a number
+  # this will add NAs to the dataframe because some of the cells are empty. 
+  # So use supress warning 
+df_kip$vr_m <- suppressWarnings(as.numeric(df_kip$vr_m))
+
+```
+
+```{r kipping_self_pain_removal}
+
+df <- df_kip %>% 
+  filter(measure == "self-reported pain (removal)")
+
+# CALCULATE THE EFFECT SIZE VALUES
+
+# 1 is ctrl group
+d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
+          sd.1 = ctrl_sd, sd.2 = vr_sd, 
+          n.1 = ctrl_n, n.2 = vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
+
+
+# RUN T-Test
+# x is ctrl group
+t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
+          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n, var.equal = TRUE, 
+          alternative = "two.sided")
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value (df = 39)" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# compare the original p-value reported in the paper & the p-value we calculated
+df$original_p == df$`p-value`
+
+# make a note if they are different
+df$notes <- "p-values differ, but conclusions unchanged"
+
+# specific name for this analysis
+df_kip1 <- df 
+```
+
+```{r kipping_self_pain_application}
+
+df <- df_kip %>% 
+  filter(measure == "self-reported pain (application)")
+
+# CALCULATE THE EFFECT SIZE VALUES
+
+# 1 is ctrl group
+d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
+          sd.1 = ctrl_sd, sd.2 = vr_sd, 
+          n.1 = ctrl_n, n.2 = vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
+
+# RUN T-Test
+# x is ctrl group
+t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
+          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
+          alternative = "two.sided", var.equal = TRUE)
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value (df = 39)" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# compare the original p-value reported in the paper & the p-value we calculated
+df$original_p == df$`p-value`
+
+# make a note if they are different
+df$notes <- "p-values differ, but conclusions unchanged"
+
+# specific name for this analysis
+df_kip2 <- df 
+```
+
+
+```{r kipping_self_nausea_removal}
+
+df <- df_kip %>% 
+  filter(measure == "self-reported nausea (removal)")
+
+# CALCULATE THE EFFECT SIZE VALUES
+
+# 1 is ctrl group
+d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
+          sd.1 = ctrl_sd, sd.2 = vr_sd, 
+          n.1 = ctrl_n, n.2 = vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
+
+
+# RUN T-Test
+# x is ctrl group
+t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
+          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
+          alternative = "two.sided", var.equal = TRUE)
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value (df = 39)" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# compare the original p-value reported in the paper & the p-value we calculated
+df$original_p == df$`p-value`
+
+# make a note if they are different
+df$notes <- "p-values differ, but conclusions unchanged"
+
+# specific name for this analysis
+df_kip3 <- df 
+```
+
+```{r kipping_self_nausea_application}
+
+df <- df_kip %>% 
+  filter(measure == "self-reported nausea (application)")
+
+# CALCULATE THE EFFECT SIZE VALUES
+
+# 1 is ctrl group
+d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
+          sd.1 = ctrl_sd, sd.2 = vr_sd, 
+          n.1 = ctrl_n, n.2 = vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
+
+# RUN T-Test
+# x is ctrl group
+t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
+          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
+          alternative = "two.sided", var.equal = TRUE)
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# compare the original p-value reported in the paper & the p-value we calculated
+df$original_p == df$`p-value`
+
+# make a note if they are different
+df$notes <- "p-values differ, but conclusions unchanged"
+
+# specific name for this analysis
+df_kip4 <- df 
+```
+
+```{r kipping_nurse_pain_removal}
+
+df <- df_kip %>% 
+  filter(measure == "nurses' pain ratings (removal)")
+
+# CALCULATE THE EFFECT SIZE VALUES
+
+# 1 is ctrl group
+d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
+          sd.1 = ctrl_sd, sd.2 = vr_sd, 
+          n.1 = ctrl_n, n.2 = vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
+
+
+# RUN T-Test
+# x is ctrl group
+t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
+          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
+          alternative = "two.sided", var.equal = TRUE)
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value (df = 39)" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# compare the original p-value reported in the paper & the p-value we calculated
+df$original_p == df$`p-value`
+
+# specific name for this analysis
+df_kip5 <- df 
+```
+
+```{r kipping_nurse_pain_application}
+
+df <- df_kip %>% 
+  filter(measure == "nurses' pain ratings (application)")
+
+# CALCULATE THE EFFECT SIZE VALUES
+
+# 1 is ctrl group
+d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
+          sd.1 = ctrl_sd, sd.2 = vr_sd, 
+          n.1 = ctrl_n, n.2 = vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
+
+
+# RUN T-Test
+# x is ctrl group
+t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
+          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
+          alternative = "two.sided", var.equal = TRUE)
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value (df = 39)" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# compare the original p-value reported in the paper & the p-value we calculated
+df$original_p == df$`p-value`
+
+# make a note if they are different
+df$notes <- "p-values differ, but conclusions unchanged"
+
+# specific name for this analysis
+df_kip6 <- df 
+```
+
+
+```{r kipping_care_pain_removal}
+
+df <- df_kip %>% 
+  filter(measure == "caregivers' pain ratings (removal)")
+
+# CALCULATE THE EFFECT SIZE VALUES
+
+# 1 is ctrl group
+d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
+          sd.1 = ctrl_sd, sd.2 = vr_sd, 
+          n.1 = ctrl_n, n.2 = vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
+
+
+# RUN T-Test
+# x is ctrl group
+t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
+          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
+          alternative = "two.sided", var.equal = TRUE)
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value (df = 39)" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# compare the original p-value reported in the paper & the p-value we calculated
+df$original_p == df$`p-value`
+
+# make a note if they are different
+df$notes <- "p-values differ, but conclusions unchanged"
+
+# specific name for this analysis
+df_kip7 <- df 
+```
+
+```{r kipping_care_pain_application}
+
+df <- df_kip %>% 
+  filter(measure == "caregivers' pain ratings (application)")
+
+# CALCULATE THE EFFECT SIZE VALUES
+
+# 1 is ctrl group
+d1 <- mes(m.1 = ctrl_m, m.2 = vr_m, 
+          sd.1 = ctrl_sd, sd.2 = vr_sd, 
+          n.1 = ctrl_n, n.2 = vr_n,
+          level = 95, dig = 4, verbose = TRUE, id=1, data=df)
+
+# RUN T-Test
+# x is ctrl group
+t <- tsum.test(mean.x = df$ctrl_m, s.x = df$ctrl_sd, n.x = df$ctrl_n, 
+          mean.y = df$vr_m, s.y = df$vr_sd, n.y = df$vr_n,
+          alternative = "two.sided", var.equal = TRUE)
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
+
+# add columns for the t-value & p-value
+df <- df %>% 
+  dplyr::mutate("t-value (df = 39)" = round_tidy(t$statistic, 2),
+                "p-value" = round_tidy(t$p.value, 3))
+
+# compare the original p-value reported in the paper & the p-value we calculated
+df$original_p == df$`p-value`
+
+# make a note if they are different
+df$notes <-"p-values differ, but conclusions unchanged"
+
+# specific name for this analysis
+df_kip8 <- df 
+```
+
+
+```{r kipping_rescue_doses}
+
+# select the relevant data
+df <- df_kip %>% 
+  filter(measure == "rescue_doses")
+
+# calculate number in each condition that did not get a rescue dose
+
+vr_no_dose <- df$vr_n-df$vr_dose_n
+ctrl_no_dose <- df$ctrl_n-df$ctrl_dose_n
+
+# build a dataframe with the relevant data
+
+obsfreq <- matrix (c(df$ctrl_dose_n, ctrl_no_dose, df$vr_dose_n, vr_no_dose), 
+                     nrow = 2, ncol = 2)
+
+# run the stats
+chi <- chisq.test(obsfreq)
+
+# run the z-test of proportions
+
+dose <- c(df$vr_dose_n,df$ctrl_dose_n)
+total <- c(df$vr_n, df$ctrl_n)
+
+# two-tailed z-test for proportions
+# same result as normal chi square, as expected
+res2 <- prop.test(x = dose, n = total, alternative = "two.sided")
+
+# a one-sided test gets us the same value as in the paper
+res1 <- prop.test(x = dose, n = total, alternative = "less")
+
+# calculate Cohen's h as effect size with CIs using cohens_h function
+
+prop_1 = (df$ctrl_dose_n/(df$ctrl_dose_n+ctrl_no_dose))
+prop_2 = (df$vr_dose_n/(df$vr_dose_n+vr_no_dose))
+n1 = df$ctrl_n
+n2 = df$vr_n
+
+h <- cohens_h(prop_1, prop_2, n1, n2)
+h <- round(h, 2)
+```
+
+Unlike the other measures, the rescue doses outcome was binary data. Of the 20 
+adolescents in the VR group, only 3 needed rescue doeses (15%). Of the 21 
+adolescents in the SD group, 9 needed rescue doses (43%). The paper reports that 
+they ran a chi-square test, which produced a significant result at *p* =
+.05.
+
+Wsing the base R stats package [@R-base], we tried to reproduce this analysis, but our 
+chi-square test revealed a non-significant difference, `r apa(chi)`. 
+A one-sided z-test of proportions produced a similar result to that of the original
+paper, z = `r round(sqrt(res1$statistic),2)`, p = `r round(res1$p.value, 3)`; however,
+it is worth noting that this p-value still exceeded the alpha level of .05.  Using
+the R `pwr` package [@R-pwr], we calculated Cohen's h, a measure
+of effect size for proportions. This analysis revealed a medium-large effect 
+size (h = `r h[1]` [`r h[2]`, `r h[3]`]) with a large 95% confidence interval. 
+Taken together, these results suggest this finding might not be reliable. 
+
+```{r kipping_bind_tables}
+
+df_bind <- bind_rows(df_kip1, df_kip2, df_kip3, df_kip4, df_kip5, df_kip6, 
+                     df_kip7, df_kip8)
+```
+
+
+```{r kipping_concatenate_table}
+
+# combine the d value with the upper and lower boundaries into a new column
+# effect size is Cohen's d
+df_bind$"Cohen's d" <- paste0(df_bind$d,
+                              " [",
+                              df_bind$lower.ci,
+                              ", ",
+                              df_bind$upper.ci, 
+                              "]")
+
+
+# combine the mean & SD for the two conditions
+df_bind$vr_m_sd <- paste0(df_bind$vr_m, 
+                          " (", 
+                          df_bind$vr_sd, 
+                          ")")
+df_bind$ctrl_m_sd <- paste0(df_bind$ctrl_m, 
+                            " (", 
+                            df_bind$ctrl_sd, 
+                            ")")
+
+```
+
+
+```{r Kipping_clean_dataframe}
+
+# remove the columns that are now redundant
+
+df_kip_final <- df_bind %>% 
+  select (-c(d, lower.ci, upper.ci, ctrl_m, vr_m, ctrl_sd, vr_sd, 
+             ctrl_dose_n, vr_dose_n, vr_n, ctrl_n, original_p))
+
+# rearrange the columns we are keeping
+df_kip_final <- df_kip_final %>% 
+  relocate (vr_m_sd, .after = scale) %>% 
+  relocate (ctrl_m_sd, .after = vr_m_sd) %>% 
+  relocate (notes, .after = last_col())
+
+```
+
+```{r kipping_table,include=TRUE}
+
+landscape(knitr::kable(df_kip_final, 
+                       caption = "Kipping et al. (2012)", 
+                       align = 'llcccccl')) %>% 
+            column_spec(column = 1, width = "2.5cm") %>% 
+            column_spec(column = 5, width = "1.5cm") %>% 
+            column_spec(column = 9, width = "3cm") %>% 
+    add_footnote("Note: IVR group had 20 participants and the standard distraction group had 21 participants.", notation = "none")
+
+```
+
+```{r kipping_write_data}
+
+write_csv(df_kip_final, here::here("data_output", "kipping_data_output.csv"))
+```
+
+## Sil et al. (2012)
+
+Sil et al. (2012) used a one-way within-subjects ANOVA to compare the
+three conditions (baseline, traditional distraction, VR distraction) on log 
+transformed pain tolerance scores. This ANOVA showed a signi
+
+They reported a large effect size (f) of .56 from the ANOVA, but they didn't 
+report Cohen's d for the mean comparisons nor include the confidence interval 
+around the f value.
+
+I couldn't recreate their analyses from the summary data because it's a 
+within-subjects design, so we should just report the t-values & p-values from 
+the paper (p. 6). But, based on the summary statistics reported in the paper, 
+I have used the R package `effsize` [@R-effsize] to calculate the effect size 
+(Cohen's d) with confidence intervals for the three comparisons.
+
+```{r sil_pain_base_vs_trad}
+
+df <- df_sil
+
+# select comparison
+df <- df %>% 
+  filter(comparison == "base vs. trad")
+
+# CALCULATE THE STATS
+
+# change the order of m1 and m2 so we get a positive d value
+
+d1 <- mes(m.1 = m.2, m.2 = m.1, sd.1 = sd.2, sd.2 = sd.1, 
+          n.1 = n, n.2 = n, level = 95, dig = 4, verbose = TRUE, id=1, data=df)
+
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
+
+
+# specific name for this analysis
+df_sil1 <- df 
+
+```
+
+```{r sil_pain_base_vs_vr}
+
+df <- df_sil
+
+# select comparison
+df <- df %>% 
+  filter(comparison == "base vs. VR")
+
+# CALCULATE THE STATS
+
+# change the order of m1 and m2 so we get a positive d value
+
+d1 <- mes(m.1 = m.2, m.2 = m.1, sd.1 = sd.2, sd.2 = sd.1, 
+          n.1 = n, n.2 = n, level = 95, dig = 4, verbose = TRUE, id=1, data=df)
+
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
+
+
+# specific name for this analysis
+df_sil2 <- df 
+
+```
+
+```{r sil_pain_trad_vs_vr}
+
+df <- df_sil
+
+# select comparison
+df <- df %>% 
+  filter(comparison == "trad vs VR")
+
+# CALCULATE THE STATS
+
+d1 <- mes(m.1 = m.1, m.2 = m.2, sd.1 = sd.1, sd.2 = sd.2, 
+          n.1 = n, n.2 = n, level = 95, dig = 4, verbose = TRUE, id=1, data=df)
+
+# add columns for the d-value & CI
+df <- df %>% 
+  dplyr::mutate (d = round_tidy(d1[1,5],2), 
+                 lower.ci = round_tidy(d1[1,7],2), 
+                 upper.ci = round_tidy(d1[1,8],2))
+
+
+# specific name for this analysis
+df_sil3 <- df 
+
+```
+
+```{r sil_bind_tables}
+
+df_bind <- bind_rows(df_sil1, df_sil2, df_sil3)
+```
+
+```{r sil_concatenate_table}
+
+# combine the d value with the upper and lower boundaries into a new column
+# effect size is Cohen's d
+df_bind$"Cohen's d" <- paste0(df_bind$d,
+                              " [",
+                              df_bind$lower.ci,
+                              ", ",
+                              df_bind$upper.ci, 
+                              "]")
+
 
 # combine the mean & SD for the two conditions in each comparison
 df_bind$m_sd_1 <- paste0(df_bind$m.1, 
@@ -1732,44 +1759,42 @@ df_bind$m_sd_2 <- paste0(df_bind$m.2,
 
 ```
 
-```{r dahl_clean_dataframe}
+```{r sil_clean_dataframe}
 
 # remove the columns that are now redundant
 
-df_dahl_final <- df_bind %>% 
-  select (-c(condition, mean, sd, m.1, sd.1, m.2, 
-             sd.2, d, lower.ci, upper.ci, n, `age group`))
+df_sil_final <- df_bind %>% 
+  select (-c(condition, mean, sd, m.1, sd.1, m.2, sd.2, d, lower.ci, upper.ci))
 
 # rearrange the columns we are keeping
-df_dahl_final <- df_dahl_final %>% 
-  relocate (m_sd_1, .after = n.1) %>% 
-  relocate (m_sd_2, .after = n.2) %>% 
-  relocate (original_p, .after = 'p-value')
+df_sil_final <- df_sil_final %>% 
+  relocate (n, .after = comparison) %>% 
+  relocate (m_sd_1, .after = n) %>% 
+  relocate (m_sd_2, .after = m_sd_1)
 
 ```
 
-```{r dahl_table,include=TRUE}
+```{r sil_table,include=TRUE}
 
-landscape(knitr::kable(df_dahl_final, 
-             caption = "Dahl et al. (2009) Paper", 
-              align = 'llllcccccccc')) %>% 
-  column_spec(column = 3, width = "3cm") %>% 
-  column_spec(column = 5, width = "1.5cm") %>% 
+knitr::kable(df_sil_final, 
+             caption = "Sil et al. (2012)", 
+              align = 'lllcccccc') %>% 
   column_spec(column = 7, width = "1.5cm") %>% 
    kable_styling(full_width = F, 
                 latex_options = "HOLD_position")
 
 ```
 
-```{r dahl_write_data}
+```{r sil_write_data}
 
-write_csv(df_dahl_final, here::here("data_output", "dahlquist_2009_data_output.csv"))
+write_csv(df_sil_final, here::here("data_output", "sil_data_output.csv"))
 ```
 
-# Table 2
+
+# IVET used as a neuropsychological tool for children (Table 2)
 ## Diaz-Orueta article 
 
-The convergent validity stats are presented in Table 3.There's no point in 
+The convergent validity stats are presented in Table 3. There's no point in 
 pulling that data into R because no manipulation is necessary. 
 Paola, you can create a table with the info from Table 3 that you want to report?
 
@@ -1782,8 +1807,8 @@ I won't put any effort in this unless you want it. BUT, you’ll also have to
 decide *what* you want. They report about 20 different comparisons—--do you want 
 them all? 
 
-*ACTION*: We decided not to report any of the stats from Table 5. Paola will 
-pull the data from Table 3 re: the correlations between the two measures. 
+*ACTION*: INCLUDE LARGEST AND SMALLEST EFFECT SIZES FROM TABLE 5 & ALSO THE RANGE
+OF CORRELATIONS FROM TABLE THREE IN THE TEXT. 
 
 https://rcompanion.org/handbook/F_04.html
 
@@ -1807,8 +1832,8 @@ condition (VC assessment vs. traditional CPT) and clinical status
 typically-developing children [n = `r df_negut$td_n[1]`]), and one 
 within-subjects factor: test modality 
 (with vs. without distractors). They ran MANCOVA with age and IQ as covariates. 
-I used the  R package `effectsize` [@ben-shachar_effectsize_2020] to calculate 
-partial eta squared (np^2^) with 90% confidence intervals for these effects 
+I used the  R package `effectsize` [@R-effectsize] to calculate 
+partial eta squared (n~p~^2^) with 90% confidence intervals for these effects 
 (but, I report their V, F, and p values). 
 
 
@@ -1823,18 +1848,18 @@ inter_eta <- F_to_eta2(f = 1.60, df = 4, df_error = 66, ci = .90)
 Two key findings emerged from the multivariate analysis:
 
 1. A significant effect of clinical status, V = .30, F(4,66) = 7.06, p < .001, 
-np^2^ = `r round_tidy(clin_eta$Eta_Sq_partial, 3)`, 90% CI 
+n~p~^2^ = `r round_tidy(clin_eta$Eta_Sq_partial, 3)`, 90% CI 
 [`r round(clin_eta$CI_low, 3)`, `r round(clin_eta$CI_high, 3)`]). 
-I used the `BSDA` R package [@arnholt_bsda_2017] to conduct independent 
+I used the `BSDA` R package [@R-BSDA] to conduct independent 
 t-tests comparing the children with ADHD  with the typically-developing 
 children on errors of commission, errors of omission, and total correct responses 
 [**I cannot find the means for response time**]. I also used the `compute.es` R package 
-[@re_computees_2020] to calculate the effect size (Cohen's d) and the 95% confidence 
+[@R-compute.es] to calculate the effect size (Cohen's d) and the 95% confidence 
 intervals (CI) around this parameter. See Table \ref{tab:negut_table} for relevant
 descriptive and inferential statistics. 
 
 2. No significant interaction between test condition and clinical status
-of the children, V = .08, F(4,66) = 1.60, p > .05, np^2^ = 
+of the children, V = .08, F(4,66) = 1.60, p > .05, n~p~^2^ = 
 `r round(inter_eta$Eta_Sq_partial, 3)`, 90% CI [`r round_tidy(inter_eta$CI_low, 3)`, 
 `r round(inter_eta$CI_high, 3)`], which suggests that the children with ADHD 
 and the typically-developing children's performance was similar regardless of 
@@ -2039,9 +2064,9 @@ write_csv(df_negut_final, here::here("data_output", "negut_data_output.csv"))
 
 Pollak et al used 3 types of CPT (within-subjects, counterbalanced): 
 
-  + VR classroom with an embedded CPT (VR-CPT)
-  + similar CPT (No VR-CPT)
-  + TOVA on a flatscreen. 
+    + VR classroom with an embedded CPT (VR-CPT)
+    + similar CPT (No VR-CPT)
+    + TOVA on a flatscreen. 
 
 Sample: 37 boys (20 boys with ADHD & a control group of 17 boys).
 
@@ -2560,16 +2585,10 @@ write_csv(df_pol_final, here::here("data_output", "pollak_data_output.csv"))
 
 ## Rodriguez et al. (2018)
 
-All comparisons include effect sizes, so Paola can simply include the information
-that she wants to mention. 
-
-No manipulation in R is necessary, though you will have to give some thought to 
-what you want to include. We can't do a direct comparison of means across the 
-VR (Aula Nesplora) test and the TOVA test because the values are interpreted 
-differently (high scores on VR are indicitative of defict; high scores on the 
-TOVA are indicative of good executive functioning). Based on your write up, 
-I suggest that you should include the following in the text itself 
-(or something along these lines): 
+We cannot do a direct comparison of means across the VR (AULA Nesplora) test and 
+the TOVA test because the values are interpreted differently (high scores on VR 
+are indicative of deficit; high scores on the TOVA are indicative of good 
+executive functioning).
 
 ```{r Rod check stats}
 
@@ -2582,38 +2601,43 @@ vr_eta <- F_to_eta2(f = 4.93, df = 24, df_error = 429, ci = .90)
 #partial eta-squared for TOVA
 tova_eta <- F_to_eta2(f = 1.18, df = 24, df_error = 465, ci = .90) 
 
+# I can't do anything with the canonical correlations from their paper because
+  # they only repor the significant values.
 ```
+We report two key analyses (with additional information abut effect sizes) that 
+supports their conclusions:
 
+1. Rodriguez et al. conducted two MANCOVAs (one for VR & one for TOVA) to 
+examine differences across the four groups (control & 3 ADHD presentation groups: 
+Inattentive, Impulsive and Hyperactivity, Combined) on the dependent variables 
+(omissions, commissions, response time, and variability) across the two halves 
+of the tests. We report these analyses here to supplement the information in 
+the manuscript, with the n~p~^2^ as the measure of the effect size. 
 
-1. They conducted two MANCOVAs (one for VR & one for TOVA) to examine differences 
-across the four groups (control & 3 ADHD presentation groups: Inattentive, 
-Impulsive and Hyperactivity, Combined) on the dependent variables (omissions, 
-commissions, response time, and variability) across the two halves of the tests. 
-I used the  `effectsize` package in R [@ben-shachar_effectsize_2020] to calculate 
-partial eta squared (np^2^) for both models.
+  + The MANCOVA for VR, with age as a covariate, was statistically significant,
+  $\lambda$ = .506, *F* (24,429) = 4.93, *p* = .001, n~p~^2^ = 
+  `r round(vr_eta$Eta_Sq_partial, 3)`, with significant univariate effects for 
+  all dependent variables (.057 $\geq$ n~p~^2^s $\leq$ .228). 
 
-  + The MANCOVA for VR (Aula Nesplora) included age as a covariate. The 
-  multivariate model was stastically significant (np^2^ = 
-  `r round(vr_eta$Eta_Sq_partial, 3)`, with significant 
-  univariate effects for all dependent varialbes (.057 $\geq$ np^2^s $\leq$ .228). 
+  + The MANCOVA for TOVA, with IQ as a covariate, was not stastically significant,
+  $\lambda$ = .050, *F* (24,465) = 1.18, *p* = .249, n~p~^2^ = 
+  `r round(tova_eta$Eta_Sq_partial, 3)`. 
 
-  + The MANCOVA for TOVA included IQ as a covariate. The multivariate 
-  model was not stastically significant (np^2^ = `r round(tova_eta$Eta_Sq_partial, 3)`). 
-  
-  + Taken together, these findings suggest that the Aula Nesplora was 
-  able to discriminate between children with and without ADHD symptoms, whereas
-  the TOVA was not able to discriminate between the two groups. 
-
-2. Rodrigues et al also explored whether the dependent variables (omissions, 
+2. Rodriguez et al. also explored whether the dependent variables (omissions, 
 commissions, response time, and variability; split by test half) provided by the 
 two tests could correctly predict group membership. Both analyses were
 significant, but the function with the variables from the VR test correctly
 classified more of the sample. 
 
-  + The discriminant function for the VR test (Aula Nesplora) correctly 
-  classified 56.60% of the sample. 
+  + The discriminant function for the VR test correctly classified 56.60% of the 
+  sample. 
   
   + The discriminant function for TOVA correctly classified 33.70% of the sample. 
+
+  Taken together, these findings suggest that the AULA Nesplora was 
+  able to discriminate between children with and without ADHD symptoms, whereas
+  the TOVA was not able to discriminate between children with and without 
+  ADHD symptoms. 
 
 ## Bioulac et al. (2012)
 
@@ -2641,10 +2665,9 @@ the CPT and, after 10 min, the test of the Virtual Classroom.
 
 *Solution*:
 
-  + Using the Mann-Whitney U values reported on p. 517, I can calculate 
-  the effect size with the Vargha-Delaney's A (using formula 7 from
-  @ruscio_probability-based_2008). But, I cannot calculate confidence intervals
-  without the original data.
+  + Using the Mann-Whitney U values reported on p. 517, we calculated 
+  the effect size with the Vargha-Delaney's A (using formula 7 from Ruscio, 2008). 
+  But, we could not calculate confidence intervals without the original data.
 
 *Action*:
 
@@ -2988,7 +3011,7 @@ landscape(knitr::kable(df_gil_final,
 write_csv(df_gil_final, here::here("data_output", "gil_data_output.csv"))
 ```
 
-# Table 3
+# IVET used as a social-skills training tool for children with autism spectrum disorder (Table 3)
 
 ## Ip et al. (2018)
 
@@ -2999,7 +3022,7 @@ training group (Group 1) & other assigned to control group (Group 2).
 Design: B/w subject, but participants completed pre- and post-assessments. 
 
 Measures: 
-  + Paola reported Emotiona expression & regulation (PEP-3), social interaction 
+  + Paola reported Emotional expression & regulation (PEP-3), social interaction 
   (PEP-3), and emotion recognition (Faces test & Eyes test). They also measures
   adaptive skills with five scales from the ABAS, but she didn't report that in 
   the paper, so I've not included that in the table. 
@@ -3065,7 +3088,7 @@ d_soc <- cohens_dav(m.1 = df$post_m[1],
 ```
 
 To determine if the post-training scores in the two groups were significantly 
-different, I used the `BSDA` R package [@arnholt_bsda_2017] to conduct
+different, I used the `BSDA` R package [@R-BSDA] to conduct
 independent t-tests for the two measures (affectve expressions and social 
 interaction) that had significant interactions. 
 
@@ -3120,9 +3143,16 @@ landscape(knitr::kable(df_ip_final,
 write_csv(df_ip_final, here::here("data_output", "ip_data_output.csv"))
 ```
 
+## Lorenzo et al. (2016)
+
 
 
 \newpage
+# Reproducible Code Statement  
+I used `r cite_r("r-references.bib")` for all analyses.
 
-
+\newpage
 # References
+Ruscio, J. (2008). A probability-based measure of effect size: Robustness to base rates and other factors. Psychological Methods, 13(1), 19–30. https://doi.org/10.1037/1082-989X.13.1.19
+
+# R package References
