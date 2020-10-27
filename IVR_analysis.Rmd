@@ -1915,15 +1915,23 @@ the other measures.
 
 ## Nolin et al. (2016)
 
-They want to report the correlations between the two measures as an
-indication of convergent validity. There's no point in pulling that data into
-R because no manipulation is necessary. Paola, you can create a table with the 
-info from Table 1 (first three columns: correct response, commission, reaction
-time). I suggest revising it a little so that ClinicaVR is on the row above the three 
-measures, rather than in the same row (like Table 3 in Diaz-Orueta). 
+In our opinion, relatively little additional analysis of the findings of 
+Nolin et al. (2016) was necessary. We include relevant statistical details
+about the convergent validity of the ClinicaVR and VIGIL-CPT, as well as 
+the test--retest reliability of the ClinicaVR in the manuscript.
 
-*ACTION*: Paola will pull the data from Table 1 re: the correlations between the 
-two measures. 
+```{r nolin notes}
+# They want to report the correlations between the two measures as an
+# indication of convergent validity. There's no point in pulling that data into
+# R because no manipulation is necessary. Paola, you can create a table with the 
+# info from Table 1 (first three columns: correct response, commission, reaction
+# time). I suggest revising it a little so that ClinicaVR is on the row above the three 
+# measures, rather than in the same row (like Table 3 in Diaz-Orueta). 
+# 
+# *ACTION*: Paola will pull the data from Table 1 re: the correlations between the 
+# two measures. 
+```
+
 
 ## Negut et al. (2016)
 
@@ -1931,11 +1939,16 @@ They used a mixed factorial design with two between-subject factors: test
 condition (VC assessment vs. traditional CPT) and clinical status 
 (children with ADHD [n = `r df_negut$adhd_n[1]`] vs. 
 typically-developing children [n = `r df_negut$td_n[1]`]), and one 
-within-subjects factor: test modality 
-(with vs. without distractors). They ran MANCOVA with age and IQ as covariates. 
-I used the  R package `effectsize` [@R-effectsize] to calculate 
-partial eta squared (n~p~^2^) with 90% confidence intervals for these effects 
-(but, I report their V, F, and p values). 
+within-subjects factor: test modality (with vs. without distractors). 
+They ran a MANCOVA with age and IQ as covariates.
+We report their V, F, and p-values for the MANCOVA results, but we then used
+the  R package `effectsize` [@R-effectsize] to calculate partial eta squared
+(n~p~^2^) with 90% confidence intervals for these effects. 
+
+We used the `BSDA` R package [@R-BSDA] to conduct post hoc follow-up tests and
+the `compute.es` R package [@R-compute.es] to calculate the effect size 
+(Cohen's *d*) with  the 95% confidence intervals (CI). See Table
+\ref{tab:negut_table} for relevant descriptive and inferential statistics.
 
 
 ```{r negut_data}
@@ -1951,13 +1964,10 @@ Two key findings emerged from the multivariate analysis:
 1. A significant effect of clinical status, V = .30, F(4,66) = 7.06, p < .001, 
 n~p~^2^ = `r round_tidy(clin_eta$Eta_Sq_partial, 3)`, 90% CI 
 [`r round(clin_eta$CI_low, 3)`, `r round(clin_eta$CI_high, 3)`]). 
-I used the `BSDA` R package [@R-BSDA] to conduct independent 
-t-tests comparing the children with ADHD  with the typically-developing 
-children on errors of commission, errors of omission, and total correct responses 
-[**I cannot find the means for response time**]. I also used the `compute.es` R package 
-[@R-compute.es] to calculate the effect size (Cohen's *d*) and the 95% confidence 
-intervals (CI) around this parameter. See Table \ref{tab:negut_table} for relevant
-descriptive and inferential statistics. 
+ COME BACK TO THIS 
+ to conduct independent t-tests comparing the children with ADHD  with the
+typically-developing children on errors of commission, errors of omission, and total correct responses 
+[**I cannot find the means for response time**].
 
 2. No significant interaction between test condition and clinical status
 of the children, V = .08, F(4,66) = 1.60, p > .05, n~p~^2^ = 
