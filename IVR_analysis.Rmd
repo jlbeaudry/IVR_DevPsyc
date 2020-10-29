@@ -1063,11 +1063,11 @@ df_bind$"Cohen's d" <- paste0(df_bind$d,
 
 
 # combine the mean & SD for the two conditions
-df_bind$vr_m_sd <- paste0(df_bind$vr_m, 
+df_bind$`VR Distraction` <- paste0(df_bind$vr_m, 
                           " (", 
                           df_bind$vr_sd, 
                           ")")
-df_bind$ctrl_m_sd <- paste0(df_bind$ctrl_m, 
+df_bind$`Standard Distraction` <- paste0(df_bind$ctrl_m, 
                             " (", 
                             df_bind$ctrl_sd, 
                             ")")
@@ -1085,8 +1085,8 @@ df_hua_final <- df_bind %>%
 
 # rearrange the columns we are keeping
 df_hua_final <- df_hua_final %>% 
-  relocate (vr_m_sd, .after = scale) %>% 
-  relocate (ctrl_m_sd, .after = vr_m_sd) %>% 
+  relocate (`VR Distraction`, .after = scale) %>% 
+  relocate (`Standard Distraction`, .after = `VR Distraction`) %>% 
   relocate (notes, .after = last_col())
 
 ```
@@ -1097,8 +1097,10 @@ landscape(knitr::kable(df_hua_final,
                    caption = "Hua et al. (2015)", 
                    align = 'llcccccl')) %>% 
             column_spec(column = 1, width = "3cm") %>% 
+            column_spec(column = 3, width = "2.5cm") %>% 
+            column_spec(column = 4, width = "2.5cm") %>% 
             column_spec(column = 8, width = "3cm") %>% 
-            add_footnote("Note: IVR group had 33 participants and the control group had 32 participants.", notation = "none")
+            add_footnote("Note: IVR group had 33 participants and the control group had 32 participants; we report means (with standard deviations).", threeparttable = TRUE, notation = "none")
 
 ```
 
@@ -2980,45 +2982,51 @@ write_csv(df_bio_final_2, here::here("data_output", "bioulac_data_output_2.csv")
 
 ## Gilboa et al. (2015)
 
-Sample: 41 children with ABI & 35 children without ABI
+```{r gilboa notes, eval=FALSE}
+# Sample: 41 children with ABI & 35 children without ABI
 
-Within-subjects design (although control kids did not complete the Test of 
-Everyday Attention for Children [TEA-Ch]). 
+# Within-subjects design (although control kids did not complete the Test of 
+# Everyday Attention for Children [TEA-Ch]). 
 
-Table 2 on page 5 has the key info, but the labels are very jumbled and unclear.
+# They reported a number of correlations, so I added those to the text to show 
+# the relationships between the three tests. We don't need a table to show those
+# results. 
 
-We do not report the results of the TEA-Ch because only children with ABI 
-completed the test; thus, we cannot compare their performance against the control
-group of children without ABI. 
+# The degrees of freedom for the ANOVAs on the VC should 
+# be 1 and 75; the degrees of freedom for the comparisons on the CPRS-R:S should be 1 and 73.
+```
 
-They reported a number of correlations, so I added those to the text to show 
-the relationships between the three tests. We don't need a table to show those
-results. 
+Gilboa et al. (2015) had participants with an acquired brain injury (ABI; *n* = 41)
+and those without an ABI (*n* = 35). Participants completed the TEA-Ch 
+(completed only by those with ABI) and the Virtual Classroom assessment, and 
+their parents completed the CPRS-R:S. We do not report the results of the TEA-Ch
+because only children with ABI completed the test; thus, we cannot compare their 
+performance against the control group of children without ABI. 
 
-They used univariate ANOVAs to compare the two groups on the various tests. The 
-degrees of freedom for the comparisons on the VC should be 1 and 75; the 
-degrees of freedom for the comparisons on the CPRS-R:S should be 1 and 73. In 
-Table II (p. 5), they report the F-statistics for the comparisons. They 
-corrected for multiple comparisons for the four subscales for the CPRS-R:S 
-(.05 / 4 = .0125). 
+Gilboa et al. (2015) used univariate ANOVAs to compare the two groups on the 
+measures from the VC and CPRS-R:S tests. We used report their F values for the 
+ANOVA results (from p. 5), but we used the base R stats package [@R-base] to recalculate 
+the p-values and the R package {effectsize} [@R-effectsize] to calculate Cohen's
+*d* with 95% confidence intervals. We followed their decision to corect
+for multiple comparisons (.05 / 4 = .0125). 
 
 ```{r gilboa_d}
 
-df <- df_gil
+df <- df_gil 
 
 # CALCULATE THE EFFECT SIZE
 
 # we can calculate d for all tests simultaneously. 
-# ctrl group is 1st group 
+# abi group is 1st group 
 
 d1 <-
   mes(
-    m.1 = ctrl_m,
-    m.2 = abi_m,
-    sd.1 = ctrl_sd,
-    sd.2 = abi_sd,
-    n.1 = ctrl_n,
-    n.2 = abi_n,
+    m.1 = abi_m,
+    m.2 = ctrl_m,
+    sd.1 = abi_sd,
+    sd.2 = ctrl_sd,
+    n.1 = abi_n,
+    n.2 = ctrl_n,
     level = 95,
     dig = 4,
     verbose = TRUE,
@@ -3031,6 +3039,12 @@ df_gil <- df %>%
   dplyr::mutate (d = round_tidy(d1[,5],2), 
                  lower.ci = round_tidy(d1[,7],2), 
                  upper.ci = round_tidy(d1[,8],2))
+
+# make these values numeric so we can bind them later
+df_gil$d <- as.numeric(df_gil$d)
+df_gil$upper.ci <- as.numeric(df_gil$upper.ci)
+df_gil$lower.ci <- as.numeric(df_gil$lower.ci)
+
 
 ```
 
@@ -3051,6 +3065,11 @@ df <- df %>%
 
 # specific name for this analysis
 df_gil1 <- df 
+
+# change the direction of the d-values for this one analysis
+df_gil1$d <- abs(df$d)
+df_gil1$upper.ci <- abs(df$lower.ci)
+df_gil1$lower.ci <- abs(df$upper.ci)
 
 ```
 
@@ -3129,8 +3148,6 @@ p <- pf(q = df$`original F`[1], df1 = 1, df2 = 73, lower.tail = FALSE)
 df <- df %>% 
   dplyr::mutate (`exact p` = round_tidy(p,4)) 
 
-df$notes <- "corrected alpha is .0125"
-
 # specific name for this analysis
 df_gil5 <- df 
 
@@ -3150,8 +3167,6 @@ p <- pf(q = df$`original F`[1], df1 = 1, df2 = 73, lower.tail = FALSE)
 # add to tibble 
 df <- df %>% 
   dplyr::mutate (`exact p` = round_tidy(p,4)) 
-
-df$notes <- "corrected alpha is .0125"
 
 # specific name for this analysis
 df_gil6 <- df 
@@ -3173,7 +3188,6 @@ p <- pf(q = df$`original F`[1], df1 = 1, df2 = 73, lower.tail = FALSE)
 df <- df %>% 
   dplyr::mutate (`exact p` = round_tidy(p,4)) 
 
-df$notes <- "corrected alpha is .0125"
 
 # specific name for this analysis
 df_gil7 <- df 
@@ -3195,7 +3209,7 @@ p <- pf(q = df$`original F`[1], df1 = 1, df2 = 73, lower.tail = FALSE)
 df <- df %>% 
   dplyr::mutate (`exact p` = round_tidy(p,4)) 
 
-df$notes <- "corrected alpha is .0125; they appear to have rounded down; difference not actually significant"
+df$notes <- "reported as significant at .01 in paper, but it is not significant based on our computed p-values"
 
 # specific name for this analysis
 df_gil8 <- df 
@@ -3238,13 +3252,13 @@ df_bind$abi_m_sd <- paste0(df_bind$abi_m,
 # remove the columns that are now redundant
 
 df_gil_final <- df_bind %>% 
-  select (-c(ctrl_m, ctrl_sd, abi_m, abi_sd, d, lower.ci, upper.ci))
+  select (-c(ctrl_m, ctrl_sd, abi_m, abi_sd, d, lower.ci, upper.ci, 
+             ctrl_n, abi_n, `original p`))
 
 # rearrange the columns we are keeping
 df_gil_final <- df_gil_final %>% 
   relocate (measure, .after = test) %>% 
   relocate (ctrl_m_sd, .after = measure) %>% 
-  relocate (ctrl_n, .after = ctrl_m_sd) %>% 
   relocate (abi_m_sd, .after = ctrl_m_sd) %>% 
   relocate (notes, .after = last_col())
 
@@ -3253,11 +3267,13 @@ df_gil_final <- df_gil_final %>%
 ```{r gil_table,include=TRUE}
 
 landscape(knitr::kable(df_gil_final, 
-             caption = "Gilboa et al. (2015) Paper", 
-              align = 'llccccccccl') %>% 
-  column_spec(column = 11, width = "2cm") %>% 
+             caption = "Gilboa et al. (2015)", 
+              align = 'llcccccl') %>% 
+  column_spec(column = 8, width = "2cm") %>% 
    kable_styling(full_width = F, 
-                latex_options = "HOLD_position"))
+                latex_options = "HOLD_position")) %>% 
+  add_footnote("Note: For the VC test, ABI *n* = 41 and controls *n* = 35. One participant in each group did not complete the CPRS-R:S test. As such, the error degrees of freedom was 75 for the VC measures and 73 for the CPRS-R:S measures. Corrected alpha is .0125.", 
+               threeparttable = TRUE, notation = "none")
 
 ```
 
