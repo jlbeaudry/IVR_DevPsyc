@@ -2790,10 +2790,11 @@ write_csv(df_pol_final, here::here("data_output", "pollak_data_output.csv"))
 
 ## Rodriguez et al. (2018)
 
-We cannot do a direct comparison of means across the VR (AULA Nesplora) test and 
-the TOVA test because the values are interpreted differently (high scores on VR 
-are indicative of deficit; high scores on the TOVA are indicative of good 
-executive functioning).
+Participants (control: *n* = 101; ADHD: *n* = 237) were randomly assigned to
+complete either completed the AULA Nesplora (VR) test or the TOVA test. We cannot 
+directly compare the means across the two tests because the values are 
+interpreted differently (high scores on VR are indicative of deficit; 
+high scores on the TOVA are indicative of good executive functioning).
 
 ```{r Rod check stats}
 
@@ -2807,20 +2808,21 @@ vr_eta <- F_to_eta2(f = 4.93, df = 24, df_error = 429, ci = .90)
 tova_eta <- F_to_eta2(f = 1.18, df = 24, df_error = 465, ci = .90) 
 
 # I can't do anything with the canonical correlations from their paper because
-  # they only repor the significant values.
+  # they only report the significant values.
 ```
-We report two key analyses (with additional information abut effect sizes) that 
-supports their conclusions:
+Rodriguez et al. (2018) report two key analyses that relevant to our manuscript:
 
-1. Rodriguez et al. conducted two MANCOVAs (one for VR & one for TOVA) to 
+1. They conducted two MANCOVAs (one for VR & one for TOVA) to 
 examine differences across the four groups (control & 3 ADHD presentation groups: 
 Inattentive, Impulsive and Hyperactivity, Combined) on the dependent variables 
 (omissions, commissions, response time, and variability) across the two halves 
-of the tests. We report these analyses here to supplement the information in 
-the manuscript, with the n~p~^2^ as the measure of the effect size. 
+of the tests. We report their lambdas, F-values, and p-values to supplement the
+information in the manuscript, and we used the R package `effectsize`
+[@R-effectsize] to calculate partial eta squared (n~p~^2^) with 90% confidence 
+intervals for these effects. 
 
   + The MANCOVA for VR, with age as a covariate, was statistically significant,
-  $\lambda$ = .506, *F* (24,429) = 4.93, *p* = .001, n~p~^2^ = 
+  $\lambda$ = .506, *F* (24,429) = 4.93, *p* < .001, n~p~^2^ = 
   `r round(vr_eta$Eta_Sq_partial, 3)`, with significant univariate effects for 
   all dependent variables (.057 $\geq$ n~p~^2^s $\leq$ .228). 
 
@@ -2828,21 +2830,15 @@ the manuscript, with the n~p~^2^ as the measure of the effect size.
   $\lambda$ = .050, *F* (24,465) = 1.18, *p* = .249, n~p~^2^ = 
   `r round(tova_eta$Eta_Sq_partial, 3)`. 
 
-2. Rodriguez et al. also explored whether the dependent variables (omissions, 
+2. Rodriguez et al. (2018) also explored whether the dependent variables (omissions, 
 commissions, response time, and variability; split by test half) provided by the 
 two tests could correctly predict group membership. Both analyses were
-significant, but the function with the variables from the VR test correctly
-classified more of the sample. 
+significant, but the discriminant function for the VR test correctly
+classified more of the sample (56.60%) than the function for the TOVA (33.70%). 
 
-  + The discriminant function for the VR test correctly classified 56.60% of the 
-  sample. 
-  
-  + The discriminant function for TOVA correctly classified 33.70% of the sample. 
-
-  Taken together, these findings suggest that the AULA Nesplora was 
-  able to discriminate between children with and without ADHD symptoms, whereas
-  the TOVA was not able to discriminate between children with and without 
-  ADHD symptoms. 
+Taken together, these findings suggest that the AULA Nesplora was able to 
+discriminate between children with and without ADHD symptoms, whereas the 
+TOVA was not able to discriminate between the two groups. 
 
 ## Bioulac et al. (2012)
 
