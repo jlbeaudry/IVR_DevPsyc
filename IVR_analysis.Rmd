@@ -323,7 +323,8 @@ of these papers did not report complete statistical analyses or effect sizes;
 therefore, when possible, we calculated these using the information provided 
 in the original papers. The data and code for these analyses are available on 
 the Open Science Framework at: 
-**[[INCLUDE LINK -- ANONYMISE IT FOR BLIND REVIEW]].**
+https://osf.io/f96hc/?view_only=2b4de23c4edc4a60b5de607e6e57f24f
+
 
 ## Interpretation of effect sizes {-}
 The effect sizes we report can be interpreted according to the following 
@@ -1058,11 +1059,11 @@ df_bind$"Cohen's d [CI]" <- paste0(df_bind$d,
 
 
 # combine the mean & SD for the two conditions
-df_bind$`VR Distraction M(SD)` <- paste0(df_bind$vr_m, 
+df_bind$`VR Distraction M (SD)` <- paste0(df_bind$vr_m, 
                           " (", 
                           df_bind$vr_sd, 
                           ")")
-df_bind$`Standard Distraction M(SD)` <- paste0(df_bind$ctrl_m, 
+df_bind$`Standard Distraction M (SD)` <- paste0(df_bind$ctrl_m, 
                             " (", 
                             df_bind$ctrl_sd, 
                             ")")
@@ -1080,8 +1081,8 @@ df_hua_final <- df_bind %>%
 
 # rearrange the columns we are keeping
 df_hua_final <- df_hua_final %>% 
-  relocate (`VR Distraction M(SD)`, .after = scale) %>% 
-  relocate (`Standard Distraction M(SD)`, .after = `VR Distraction M(SD)`) %>% 
+  relocate (`VR Distraction M (SD)`, .after = scale) %>% 
+  relocate (`Standard Distraction M (SD)`, .after = `VR Distraction M (SD)`) %>% 
   relocate (notes, .after = last_col())
 
 ```
@@ -1186,7 +1187,7 @@ from the summary statistics and we used the R package {compute.es}
 [@R-compute.es] to compute effect sizes (Cohen's *d*) with 95% confidence intervals 
 [in square brackets].See Table \ref{tab:kipping_table} for the summary and 
 inferential statistics. Our calculated p-values were slightly different than those
-reported in the original paper (for all but one analyses: nurses' pain ratings 
+reported in the original paper (for all but one analysis: nurses' pain ratings 
 during removal), but the conclusions were the same. 
 
 ```{r kipping_data_setup}
@@ -1348,7 +1349,7 @@ df <- df %>%
 
 # add columns for the t-value & p-value
 df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
+  dplyr::mutate("t-value (df = 39)" = round_tidy(t$statistic, 2),
                 "p-value" = round_tidy(t$p.value, 3))
 
 # compare the original p-value reported in the paper & the p-value we calculated
@@ -1571,10 +1572,10 @@ adolescents in the SD group, 9 needed rescue doses (43%). The paper reports that
 they ran a chi-square test, which produced a significant result at *p* =
 .05.
 
-Using the base R stats package [@R-base], we tried to reproduce this analysis, but our 
+Using the base R package {stats} [@R-base], we tried to reproduce this analysis, but our 
 chi-square test revealed a non-significant difference, `r apa(chi)`. 
 A one-sided z-test of proportions produced a similar result to that of the original
-paper, z = `r round(sqrt(res1$statistic),2)`,*p* = `r round(res1$p.value, 3)`; however,
+paper, z = `r round(sqrt(res1$statistic),2)`, *p* = `r round(res1$p.value, 3)`; however,
 it is worth noting that this p-value still exceeded the alpha level of .05.  Using
 the R package {pwr} [@R-pwr], we calculated Cohen's h, a measure
 of effect size for proportions. This analysis revealed a medium-large effect 
@@ -1601,11 +1602,11 @@ df_bind$"Cohen's d" <- paste0(df_bind$d,
 
 
 # combine the mean & SD for the two conditions
-df_bind$`IVR Distraction M(SD)` <- paste0(df_bind$vr_m, 
+df_bind$`IVR Distraction M (SD)` <- paste0(df_bind$vr_m, 
                           " (", 
                           df_bind$vr_sd, 
                           ")")
-df_bind$`Standard Distraction M(SD)`<- paste0(df_bind$ctrl_m, 
+df_bind$`Standard Distraction M (SD)`<- paste0(df_bind$ctrl_m, 
                             " (", 
                             df_bind$ctrl_sd, 
                             ")")
@@ -1623,8 +1624,8 @@ df_kip_final <- df_bind %>%
 
 # rearrange the columns we are keeping
 df_kip_final <- df_kip_final %>% 
-  relocate (`IVR Distraction M(SD)`, .after = scale) %>% 
-  relocate (`Standard Distraction M(SD)`, .after = `IVR Distraction M(SD)`) %>% 
+  relocate (`IVR Distraction M (SD)`, .after = scale) %>% 
+  relocate (`Standard Distraction M (SD)`, .after = `IVR Distraction M (SD)`) %>% 
   relocate (notes, .after = last_col())
 
 ```
@@ -1633,7 +1634,7 @@ df_kip_final <- df_kip_final %>%
 
 landscape(knitr::kable(df_kip_final, 
                        caption = "Kipping et al. (2012)", 
-                       align = 'llcccccl')) %>% 
+                       align = 'llccccl')) %>% 
             column_spec(column = 1, width = "2.5cm") %>% 
             column_spec(column = 3, width = "2.7cm") %>% 
             column_spec(column = 4, width = "2.7cm") %>% 
@@ -1654,7 +1655,7 @@ Sil et al. (2012) used a one-way within-subjects ANOVA to compare the
 three conditions (baseline, traditional distraction, VR distraction) on 
 children's (*n* = 62) log-transformed pain tolerance scores. They reported that 
 their ANOVA showed a significant main effect of condition, 
-*F*(1,122) = 19.15, *p* < .001, with a large effect size (f) of 0.56. They did 
+*F*(1,122) = 19.15, *p* < .001, with a large effect size (*f*) of 0.56. They did 
 not report effect sizes for the follow-up paired-sample
 t-tests (with Bonferroni correction). 
 
@@ -1805,7 +1806,7 @@ knitr::kable(df_sil_final,
 write_csv(df_sil_final, here::here("data_output", "sil_data_output.csv"))
 ```
 
-These posthoc tests showed that children's pain tolerance was significantly lower
+The posthoc tests showed that children's pain tolerance was significantly lower
 in the baseline condition (*M* = 1.37, *SD* = 0.28) than in the traditional 
 distraction condition (*M* = 1.57, *SD* = 0.45), *t*(61) = `r df_sil_final[1,7]`, 
 *p* `r df_sil_final[1,8]`, *d* = `r df_sil_final[1,9]`, and the VR distraction 
@@ -1839,13 +1840,13 @@ difference between the two distraction conditions, *t*(61) = `r df_sil_final[3,7
 ```
 
 In our opinion, relatively little additional analysis of the findings of 
-Diaz-Orueta et al. (2014) was necessary. We include relevant statistical details
+Diaz-Orueta et al. (2014) was necessary because they reported their analyses in 
+appropriate detail. We include relevant statistical details
 about the convergent validity of the AULA Nesporala and Conners CPT in our 
 manuscript. The only additional analysis needed was to calculate the 
 effect size associated with the Mann-Whitney U analyses reported on p. 338 of their
-paper. We calculated Vargha-Delaney's A (using formula 7 from Ruscio, 2008) and 
-report these values in Table \ref{tab:diaz_table}. Unfortunately, we could not 
-calculate confidence intervals without the raw data. 
+paper. We calculated Vargha-Delaney's A (using formula 7 from Ruscio, 2008). 
+Unfortunately, we could not calculate confidence intervals without the raw data. 
 
 
 ```{r diaz_A}
@@ -1889,7 +1890,8 @@ df_diaz_final <- df_diaz_final %>%
 
 ```
 
-```{r diaz_table,include=TRUE}
+```{r diaz_table,eval=FALSE}
+# we don't actually need the table
 
 landscape(knitr::kable(df_diaz_final, 
              caption = "Diaz-Orueta et al. (2014)", 
@@ -1906,17 +1908,18 @@ write_csv(df_diaz_final, here::here("data_output", "diaz_data_output.csv"))
 ```
 
 Given the large number of comparisons reported in the paper, we report only 
-the smallest and largest effect sizes between the AUAL scores comparing
+the smallest and largest effect sizes between the AULA scores comparing
 children undergoing treatment (*n* = 29) and those without treatment 
 (*n* = 28); all comparisons were significant. The smallest effect was found 
 for `r df_diaz_final[3,1]`. Children undergoing treatment 
 reponded faster, *M* = `r df_diaz_final[3,3]`, than those without treatment, 
 *M* = `r df_diaz_final[3,5]`, *U* = `r df_diaz_final[3,6]`, *z* = 
-`r df_diaz_final[3,7]`, *p* = `r df_diaz_final[3,8]`. The largest effect between 
-the AULA scores was for `r df_diaz_final[1,1]`. Children undergoing treatment 
-scored lower, *M* = `r df_diaz_final[1,3]`, than those without treatment,
-*M* = `r df_diaz_final[1,5]`, *U* = `r df_diaz_final[1,6]`, 
-*z* = `r df_diaz_final[1,7]`, *p* = `r df_diaz_final[1,8]`.
+`r df_diaz_final[3,7]`, *p* = `r df_diaz_final[3,8]`, A = `r df_diaz_final[3,9]`.
+The largest effect between the AULA scores was for `r df_diaz_final[1,1]`. 
+Children undergoing treatment scored lower, *M* = `r df_diaz_final[1,3]`, 
+than those without treatment, *M* = `r df_diaz_final[1,5]`, 
+*U* = `r df_diaz_final[1,6]`, *z* = `r df_diaz_final[1,7]`, 
+*p* = `r df_diaz_final[1,8]`, A = `r df_diaz_final[1,9]`.
 
 Readers are encouraged to refer to the original paper for further details about 
 the other measures. 
@@ -1945,10 +1948,10 @@ the test--retest reliability of the ClinicaVR in our manuscript.
 
 They used a mixed factorial design with two between-subject factors: test
 condition (VC assessment vs. traditional CPT) and clinical status 
-(children with ADHD [n = `r df_negut$adhd_n[1]`] vs. 
-typically-developing children [n = `r df_negut$td_n[1]`]), and one 
+(children with ADHD [*n* = `r df_negut$adhd_n[1]`] vs. 
+typically-developing children [*n* = `r df_negut$td_n[1]`]), and one 
 within-subjects factor: test modality (with vs. without distractors). 
-They ran a MANCOVA with age and IQ as covariates. We report their V, F, and 
+They ran a MANCOVA with age and IQ as covariates. We report their V-, F-, and 
 p-values for the MANCOVA results, but we also used
 the R package {effectsize} [@R-effectsize] to calculate partial eta squared
 (n~p~^2^) with 90% confidence intervals for these effects. 
@@ -2244,7 +2247,7 @@ They reported a significant Test X Group interaction on response time,
 *F*(2,68) = 3.8, *p* = `r round(rt_int_p, 2)`, n~p~^2^ = 
 `r round_tidy(rt_int_eta$Eta_Sq_partial, 3)`, 90% CI 
 [`r round(rt_int_eta$CI_low, 3)`, `r round(rt_int_eta$CI_high, 3)`], and errors of 
-omission, *F*(2,68) = 9.9,*p* = `r round_tidy(om_int_p, 3)`, n~p~^2^ = 
+omission, *F*(2,68) = 9.9, *p* = `r round_tidy(om_int_p, 3)`, n~p~^2^ = 
 `r round_tidy(om_int_eta$Eta_Sq_partial, 3)`, 90% CI 
 [`r round(om_int_eta$CI_low, 3)`, `r round(om_int_eta$CI_high, 3)`]. They did not
 find significant effects on variability of response time and errors of 
@@ -2308,16 +2311,16 @@ com_eta <- F_to_eta2(f = df$`original_F`[1], df = 1, df_error = 34, ci = .90)
 
 
 In addition to the significant interaction effects, group had a significant 
-main effect on all four measures: reaction time, *F*(1,34) = 4.6,*p* = 
+main effect on all four measures: reaction time, *F*(1,34) = 4.6, *p* = 
 `r round(rt_p, 2)`, n~p~^2^ = `r round_tidy(rt_eta$Eta_Sq_partial, 3)`, 90% CI 
 [`r round(rt_eta$CI_low, 3)`, `r round(rt_eta$CI_high, 3)`]; variability of 
-reaction time, *F*(1,34) = 5.6,*p* = `r round(vrt_p, 2)`, n~p~^2^ = 
+reaction time, *F*(1,34) = 5.6, *p* = `r round(vrt_p, 2)`, n~p~^2^ = 
 `r round_tidy(vrt_eta$Eta_Sq_partial, 3)`, 90% CI 
 [`r round(vrt_eta$CI_low, 3)`, `r round(vrt_eta$CI_high, 3)`]; errors of 
-omission, *F*(1,34) = 28.8,*p* = `r round_tidy(om_p, 2)`, n~p~^2^ = 
+omission, *F*(1,34) = 28.8, *p* = `r round_tidy(om_p, 2)`, n~p~^2^ = 
 `r round_tidy(om_eta$Eta_Sq_partial, 3)`, 90% CI 
 [`r round(om_eta$CI_low, 3)`, `r round(om_eta$CI_high, 3)`]; and errors of 
-commission, *F*(1,34) = 16.0,*p* = `r round_tidy(com_p, 2)`, n~p~^2^ = 
+commission, *F*(1,34) = 16.0, *p* = `r round_tidy(com_p, 2)`, n~p~^2^ = 
 `r round_tidy(com_eta$Eta_Sq_partial, 3)`, 90% CI 
 [`r round(com_eta$CI_low, 3)`, `r round(com_eta$CI_high, 3)`].
 
@@ -3444,7 +3447,8 @@ df_ip_final <- df_ip_final %>%
 knitr::kable(df_ip_final, 
              caption = "Ip et al. (2018)", 
               align = 'llcccccccc') %>% 
-  add_footnote("Note: Control group: *n* = 36; Experimental group: *n* = 36") %>% 
+  add_footnote("Note: Control group: *n* = 36; Experimental group: *n* = 36", 
+               notation = "none") %>% 
    kable_styling(full_width = F, 
                 latex_options = "HOLD_position") %>% 
   landscape()
@@ -3469,7 +3473,8 @@ The summary statistics that were presented in the paper were not statistically
 analysed, as far as we could tell. As such, we used the R package {BSDA} [@R-BSDA] 
 to conduct independent t-tests comparing the two groups and the R package 
 {compute.es} [@R-compute.es] to calculate the effect sizes (Cohen's *d*) and 
-ccompanying 95% confidence intervals [reported in square brackets]. 
+ccompanying 95% confidence intervals [reported in square brackets]. See
+\ref{tab:lor_table}.
 
 ```{r lorenzo_d}
 
@@ -3639,11 +3644,11 @@ df_bind$"Cohen's d [CI]" <- paste0(df_bind$d,
 
 
 # combine the mean & SD for the two conditions
-df_bind$`Experimental group M(SD)` <- paste0(df_bind$exp_m, 
+df_bind$`Experimental group M (SD)` <- paste0(df_bind$exp_m, 
                           " (", 
                           df_bind$exp_sd, 
                           ")")
-df_bind$`Control group M(SD)` <- paste0(df_bind$ctrl_m, 
+df_bind$`Control group M (SD)` <- paste0(df_bind$ctrl_m, 
                             " (", 
                             df_bind$ctrl_sd, 
                             ")")
@@ -3661,8 +3666,8 @@ df_lor_final <- df_bind %>%
 
 # rearrange the columns we are keeping
 df_lor_final <- df_lor_final %>% 
-  relocate (`Experimental group M(SD)`, .after = session) %>% 
-  relocate (`Control group M(SD)`, .after = `Experimental group M(SD)`) %>% 
+  relocate (`Experimental group M (SD)`, .after = session) %>% 
+  relocate (`Control group M (SD)`, .after = `Experimental group M (SD)`) %>% 
   relocate (`Cohen's d [CI]`, .after = last_col())
 
 ```
@@ -3676,7 +3681,10 @@ knitr::kable(df_lor_final,
             column_spec(column = 3, width = "2.8cm") %>% 
             column_spec(column = 4, width = "2.7cm") %>% 
             column_spec(column = 7, width = "3cm") %>% 
-            add_footnote("Note: Both groups had 20 participants", threeparttable = TRUE, notation = "none") %>% 
+            add_footnote("Note: Both groups had 20 participants", threeparttable = TRUE, 
+                         notation = "none") %>% 
+   kable_styling(full_width = F, 
+                latex_options = "HOLD_position") %>%
   landscape()
 
 ```
