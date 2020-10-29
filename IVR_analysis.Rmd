@@ -1569,7 +1569,7 @@ they ran a chi-square test, which produced a significant result at *p* =
 Using the base R stats package [@R-base], we tried to reproduce this analysis, but our 
 chi-square test revealed a non-significant difference, `r apa(chi)`. 
 A one-sided z-test of proportions produced a similar result to that of the original
-paper, z = `r round(sqrt(res1$statistic),2)`, p = `r round(res1$p.value, 3)`; however,
+paper, z = `r round(sqrt(res1$statistic),2)`,*p* = `r round(res1$p.value, 3)`; however,
 it is worth noting that this p-value still exceeded the alpha level of .05.  Using
 the R `pwr` package [@R-pwr], we calculated Cohen's h, a measure
 of effect size for proportions. This analysis revealed a medium-large effect 
@@ -1883,11 +1883,11 @@ df_diaz_final <- df_diaz_final %>%
 
 ```{r diaz_table,include=TRUE}
 
-knitr::kable(df_diaz_final, 
-             caption = "Diaz-Orueta et al. (2014) Paper", 
+landscape(knitr::kable(df_diaz_final, 
+             caption = "Diaz-Orueta et al. (2014)", 
               align = 'lcccccccccc') %>% 
      kable_styling(full_width = F, 
-                latex_options = "HOLD_position")
+                latex_options = "HOLD_position"))
 
 ```
 
@@ -1940,15 +1940,19 @@ condition (VC assessment vs. traditional CPT) and clinical status
 (children with ADHD [n = `r df_negut$adhd_n[1]`] vs. 
 typically-developing children [n = `r df_negut$td_n[1]`]), and one 
 within-subjects factor: test modality (with vs. without distractors). 
-They ran a MANCOVA with age and IQ as covariates.
-We report their V, F, and p-values for the MANCOVA results, but we then used
+They ran a MANCOVA with age and IQ as covariates. We report their V, F, and 
+p-values for the MANCOVA results, but we then used
 the  R package `effectsize` [@R-effectsize] to calculate partial eta squared
 (n~p~^2^) with 90% confidence intervals for these effects. 
 
-We used the `BSDA` R package [@R-BSDA] to conduct post hoc follow-up tests and
-the `compute.es` R package [@R-compute.es] to calculate the effect size 
-(Cohen's *d*) with  the 95% confidence intervals (CI). See Table
-\ref{tab:negut_table} for relevant descriptive and inferential statistics.
+We also used the `BSDA` R package [@R-BSDA] to recalculate the post hoc follow-up 
+tests and the `compute.es` R package [@R-compute.es] to compute the effect size 
+(Cohen's *d*) with 95% confidence intervals (CI). See Table
+\ref{tab:negut_table} for relevant descriptive and inferential statistics for the
+post hoc tests for commission errors, omission errors, and total correct 
+responses. We do not report the post hoc test for the response time variable 
+because were unable to obtain the relevant summary statistics from the original 
+paper. 
 
 
 ```{r negut_data}
@@ -1959,21 +1963,19 @@ inter_eta <- F_to_eta2(f = 1.60, df = 4, df_error = 66, ci = .90)
 
 ```
 
-Two key findings emerged from the multivariate analysis:
+For our purposes, two key findings emerged from their multivariate analysis:
 
-1. A significant effect of clinical status, V = .30, F(4,66) = 7.06, p < .001, 
-n~p~^2^ = `r round_tidy(clin_eta$Eta_Sq_partial, 3)`, 90% CI 
+1. A significant effect of clinical status showing that typically-developing 
+children performed better than children with an ADHD diagnosis, V = .30, *F*(4,66) 
+= 7.06, p < .001, n~p~^2^ = `r round_tidy(clin_eta$Eta_Sq_partial, 3)`, 90% CI 
 [`r round(clin_eta$CI_low, 3)`, `r round(clin_eta$CI_high, 3)`]). 
- COME BACK TO THIS 
- to conduct independent t-tests comparing the children with ADHD  with the
-typically-developing children on errors of commission, errors of omission, and total correct responses 
-[**I cannot find the means for response time**].
+
 
 2. No significant interaction between test condition and clinical status
-of the children, V = .08, F(4,66) = 1.60, p > .05, n~p~^2^ = 
+of the children, V = .08, *F*(4,66) = 1.60, p > .05, n~p~^2^ = 
 `r round(inter_eta$Eta_Sq_partial, 3)`, 90% CI [`r round_tidy(inter_eta$CI_low, 3)`, 
 `r round(inter_eta$CI_high, 3)`], which suggests that the children with ADHD 
-and the typically-developing children's performance was similar regardless of 
+and the typically-developing children performed similarly regardless of 
 the type of test used. 
 
 ```{r negut_commission}
@@ -2169,41 +2171,152 @@ write_csv(df_negut_final, here::here("data_output", "negut_data_output.csv"))
 ```
 
 
-
-
 ## Pollak et al. (2009)
 
-Pollak et al used 3 types of CPT (within-subjects, counterbalanced): 
+```{r pollak notes, eval=FALSE}
+# Pollak et al used 3 types of CPT (within-subjects, counterbalanced): 
+# 
+#     + VR classroom with an embedded CPT (VR-CPT)
+#     + similar CPT (No VR-CPT)
+#     + TOVA on a flatscreen. 
+# 
+# Sample: 37 boys (20 boys with ADHD & a control group of 17 boys).
 
-    + VR classroom with an embedded CPT (VR-CPT)
-    + similar CPT (No VR-CPT)
-    + TOVA on a flatscreen. 
+```
 
-Sample: 37 boys (20 boys with ADHD & a control group of 17 boys).
 
-*Note*: They have a typo in Table 1. For the Errors of Omission measure, they 
-report a mean of .29 and a standard deviation of 48 in the TOVA score for 
-the control group. They must have missed the decimal place, so I've corrected it
-in my table. 
+Pollak et al. (2009) conducted 3 (Test: TOVA, No VR-CPT, VR-CPT) x 
+2 (Group: ADHD vs. control) mixed-factorial ANOVAs on each of the DVs: reaction 
+time, variability of reaction time, errors of omission, errors of commission. We 
+report their F values for the ANOVA results, but we used the base R stats 
+package [@R-base] to recalculate the p-values and the R package `effectsize`
+[@R-effectsize] to calculate partial eta squared (n~p~^2^) with 90% confidence 
+intervals for these effects. 
 
-Also, they report an "approximate Cohen's *d* values" with no explanation of why 
-they are approximate. Given that, I'm not concerned about the consistent, but
-minimal differences between the values they reported and those I calculated. 
+We also used the `BSDA` R package [@R-BSDA] to compute the post hoc follow-up 
+tests and the `compute.es` R package [@R-compute.es] to compute the effect size 
+(Cohen's *d*) with 95% confidence intervals. See Table
+\ref{tab:pollak_table} for relevant descriptive and inferential statistics 
+for the post hoc tests comparing the groups (ADHD vs. control) on each of the tests.
+
+
+*Note 1*: Pollak et al. (2009) report "approximate Cohen's *d* values" with 
+no further explanation. Given the lack of additional information, we are not 
+concerned about the consistent, but minimal, differences between our 
+computed values and those they reported.
+
+*Note 2*: We believe their Table 1 has a typo (p. 5). For the control group's 
+TOVA score on the errors of omission measure, they report a mean of .29 and a 
+standard deviation of 48. We presume they missed the decimal place in the 
+standard deviation value, so we have corrected it in our table. However, 
+despite computing a smaller *d* value for this comparison than that reported 
+in the original paper (*d* = 1.01 vs. 1.32, respectively), our conclusion was 
+different than theirs. Specifically, we found a significant difference between 
+the two groups on errors of omission in the TOVA condition, but they reported 
+(in text) that this difference was not significant. As such, future research 
+is needed to shed light on this result. 
+
+
+```{r pollak_eta_interaction}
+
+# For test x group interactions 
+
+rt_int_eta <- F_to_eta2(f = 3.8, df = 2, df_error = 68, ci = .90) 
+rt_int_p <- pf(q = 3.8, df1 = 2, df2 = 68, lower.tail = FALSE) 
+
+om_int_eta <- F_to_eta2(f = 9.9, df = 2, df_error = 68, ci = .90) 
+om_int_p <- pf(q = 9.9, df1 = 2, df2 = 68, lower.tail = FALSE) 
+
+```
+
+They reported a significant Test x Group interaction on response time, 
+*F*(2,68) = 3.8, *p* = `r round(rt_int_p, 2)`, n~p~^2^ = 
+`r round_tidy(rt_int_eta$Eta_Sq_partial, 3)`, 90% CI 
+[`r round(rt_int_eta$CI_low, 3)`, `r round(rt_int_eta$CI_high, 3)`], and errors of 
+omission, *F*(2,68) = 9.9,*p* = `r round_tidy(om_int_p, 3)`, n~p~^2^ = 
+`r round_tidy(om_int_eta$Eta_Sq_partial, 3)`, 90% CI 
+[`r round(om_int_eta$CI_low, 3)`, `r round(om_int_eta$CI_high, 3)`]. They did not
+find significant effects on variability of response time and errors of 
+commission, but did not report the associated statistics for these results. 
+
+```{r pollak eta group effect}
+df <- df_pol
+
+# For group interaction effects on each measure
+
+#   REACTION TIME
+# select measure
+df <- df_pol %>% 
+  filter(measure == "reaction time")
+
+# confirm the p-value for the comparison 
+rt_p <- pf(q = df$`original_F`[1], df1 = 1, df2 = 34, lower.tail = FALSE)
+
+# calculate the eta
+rt_eta <- F_to_eta2(f = df$`original_F`[1], df = 1, df_error = 34, ci = .90) 
+
+#   VARIABILITY OF REACTION TIME
+# select measure
+df <- df_pol %>% 
+  filter(measure == "variability of reaction time")
+
+# confirm the p-value for the comparison 
+vrt_p <- pf(q = df$`original_F`[1], df1 = 1, df2 = 34, lower.tail = FALSE)
+
+# calculate the eta
+vrt_eta <- F_to_eta2(f = df$`original_F`[1], df = 1, df_error = 34, ci = .90)
+
+# add to tibble [i don't think i need this]
+# df <- df %>% 
+#   dplyr::mutate (`exact_p` = round_tidy(p,2)) 
+
+#   ERRORS OF OMISSION
+# select measure
+df <- df_pol %>% 
+  filter(measure == "errors of omission")
+
+# confirm the p-value for the comparison 
+om_p <- pf(q = df$`original_F`[1], df1 = 1, df2 = 34, lower.tail = FALSE)
+
+# calculate the eta
+om_eta <- F_to_eta2(f = df$`original_F`[1], df = 1, df_error = 34, ci = .90)
+
+#   ERRORS OF COMMISSION
+# select measure
+df <- df_pol %>% 
+  filter(measure == "errors of commission")
+
+# confirm the p-value for the comparison 
+com_p <- pf(q = df$`original_F`[1], df1 = 1, df2 = 34, lower.tail = FALSE)
+
+# calculate the eta
+com_eta <- F_to_eta2(f = df$`original_F`[1], df = 1, df_error = 34, ci = .90)
+
+```
+ 
+
+
+In addition to the significant interaction effects, group had a significant 
+main effect on all four measures: reaction time, *F*(1,34) = 4.6,*p* = 
+`r round(rt_p, 2)`, n~p~^2^ = `r round_tidy(rt_eta$Eta_Sq_partial, 3)`, 90% CI 
+[`r round(rt_eta$CI_low, 3)`, `r round(rt_eta$CI_high, 3)`]; variability of 
+reaction time, *F*(1,34) = 5.6,*p* = `r round(vrt_p, 2)`, n~p~^2^ = 
+`r round_tidy(vrt_eta$Eta_Sq_partial, 3)`, 90% CI 
+[`r round(vrt_eta$CI_low, 3)`, `r round(vrt_eta$CI_high, 3)`]; errors of 
+omission, *F*(1,34) = 28.8,*p* = `r round_tidy(om_p, 2)`, n~p~^2^ = 
+`r round_tidy(om_eta$Eta_Sq_partial, 3)`, 90% CI 
+[`r round(om_eta$CI_low, 3)`, `r round(om_eta$CI_high, 3)`]; and errors of 
+commission, *F*(1,34) = 16.0,*p* = `r round_tidy(com_p, 2)`, n~p~^2^ = 
+`r round_tidy(com_eta$Eta_Sq_partial, 3)`, 90% CI 
+[`r round(com_eta$CI_low, 3)`, `r round(com_eta$CI_high, 3)`].
+
 
 ```{r pollak_response_time_d}
-
 df <- df_pol
 
 # select measure
 df <- df %>% 
   filter(measure == "reaction time")
-
-# confirm the p-value for the comparison (group main effect)
-p <- pf(q = df$`original_F`[1], df1 = 1, df2 = 34, lower.tail = FALSE)
-
-# add to tibble 
-df <- df %>% 
-  dplyr::mutate (`exact_p` = round_tidy(p,2)) 
 
 # CALCULATE THE EFFECT SIZE
 
@@ -2304,13 +2417,6 @@ df <- df_pol
 # select measure
 df <- df %>% 
   filter(measure == "variability of reaction time")
-
-# confirm the p-value for the comparison (group main effect)
-p <- pf(q = df$`original_F`[1], df1 = 1, df2 = 34, lower.tail = FALSE)
-
-# add to tibble 
-df <- df %>% 
-  dplyr::mutate (`exact_p` = round_tidy(p,2)) 
 
 # CALCULATE THE EFFECT SIZE
 
@@ -2413,13 +2519,6 @@ df <- df_pol
 df <- df %>% 
   filter(measure == "errors of omission")
 
-# confirm the p-value for the comparison (group main effect)
-p <- pf(q = df$`original_F`[1], df1 = 1, df2 = 34, lower.tail = FALSE)
-
-# add to tibble 
-df <- df %>% 
-  dplyr::mutate (`exact_p` = round_tidy(p,2)) 
-
 # CALCULATE THE EFFECT SIZE
 
 # we can calculate d for each of the three test types simultaneously. 
@@ -2520,13 +2619,6 @@ df <- df_pol
 # select measure
 df <- df %>% 
   filter(measure == "errors of commission")
-
-# confirm the p-value for the comparison (group main effect)
-p <- pf(q = df$`original_F`[1], df1 = 1, df2 = 34, lower.tail = FALSE)
-
-# add to tibble 
-df <- df %>% 
-  dplyr::mutate (`exact_p` = round_tidy(p,2)) 
 
 # CALCULATE THE EFFECT SIZE
 
@@ -2666,13 +2758,14 @@ df_bind$adhd_m_sd <- paste0(df_bind$adhd_m,
 # remove the columns that are now redundant
 
 df_pol_final <- df_bind %>% 
-  select (-c(ctrl_m, ctrl_sd, adhd_m, adhd_sd, d, lower.ci, upper.ci, exact_p, 
-             original_F, original_p, `d comparison`))
+  select (-c(ctrl_m, ctrl_sd, adhd_m, adhd_sd, d, lower.ci, upper.ci, 
+             original_F, original_p, `d comparison`, ctrl_n, adhd_n, 
+             scale))
 
 # rearrange the columns we are keeping
 df_pol_final <- df_pol_final %>% 
-  relocate (ctrl_m_sd, .after = ctrl_n) %>% 
-  relocate (adhd_m_sd, .after = adhd_n) %>% 
+  relocate (ctrl_m_sd, .after = `test type`) %>% 
+  relocate (adhd_m_sd, .after = ctrl_m_sd) %>% 
   relocate (`Cohen's d`, .after = adhd_m_sd)
 
 ```
@@ -2681,10 +2774,11 @@ df_pol_final <- df_pol_final %>%
 
 landscape(knitr::kable(df_pol_final, 
              caption = "Pollak et al. (2009) Paper", 
-              align = 'lllccccccccl')) %>% 
-  column_spec(column = 1, width = "1.5cm") %>% 
-  column_spec(column = 8, width = "2cm") %>% 
-  column_spec(column = 12, width = "3cm") 
+              align = 'llccccccl')) %>% 
+  column_spec(column = 1, width = "2cm") %>% 
+  column_spec(column = 5, width = "2cm") %>% 
+  column_spec(column = 9, width = "3cm") %>% 
+  add_footnote("Note: ADHD group: *n* = 20; control group: *n* = 17", notation = "none")
 
 ```
 
@@ -2788,7 +2882,7 @@ the CPT and, after 10 min, the test of the Virtual Classroom.
     + According to the paper, the deteroriation of performance for children 
     with ADHD across the blocks was significant for the Virtual Classroom test, 
     chi-square(df = 4) = 25,299, p <.001, but not for the CPT test, 
-    chi-square(df = 5) = 10,145, p = .07. 
+    chi-square(df = 5) = 10,145, *p* = .07. 
 
 ```{r bioulac_A}
 
