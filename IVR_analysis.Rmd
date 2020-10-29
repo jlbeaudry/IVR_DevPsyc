@@ -115,7 +115,7 @@ styler_pdf <- function(dat) {
 
 # Hua et al
 df_hua <- read_csv (here::here("data_input", "hua_data_input.csv")) %>% 
-  select(-c(pages, section, notes, paper, table))
+  select (-c(pages, section, notes, paper, table))
 
 # Kipping et al
 df_kip <- read_csv (here::here("data_input", "kipping_data_input.csv")) %>% 
@@ -341,7 +341,7 @@ http://doofussoftware.blogspot.com/2012/07/measuring-effect-size-with-vargha.htm
 # IVET used as pain distraction for children (Table 1)
 ## Dahlquist et al. (2009)
 
-Dahlquist et al. (2009) ran a 2 (age: younger, older) x 3 (condition: baseline, 
+Dahlquist et al. (2009) ran a 2 (Age: younger, older) X 3 (Condition: baseline, 
 distraction-only, distraction+helmet[VR]) mixed-factorial ANOVA on participants' 
 pain tolerance scores (no transformation reported).
 
@@ -355,8 +355,8 @@ hoc comparison they reported (with enough detail for reanlysis) was comparing
 the pain tolerance scores of younger and older children in the the 
 distraction+helmet condition. 
 
-We used the `BSDA` R package [@R-BSDA] to compute the t-test statistic based on 
-the summary statistics reported in the paper, and we used the `compute.es` R package 
+We used the R package {BSDA} [@R-BSDA] to compute the t-test statistic based on 
+the summary statistics reported in the paper, and we used the R package {compute.es} 
 [@R-compute.es] to calculate the effect size (Cohen's *d*) and the 95% confidence 
 intervals (CI) around this parameter.
 
@@ -474,9 +474,12 @@ effect of condition, *F*(2,98) = 20.45, *p* < .001, with a large effect size (*f
 t-tests (with Bonferroni correction). 
 
 We could not recreate their post hoc analyses from the summary data, so we report the 
-t-values & p-values from Dahlquist et al. (2010, p. 622). Then, we used the R `effsize` 
-package [@R-effsize] to calculate the associated effect sizes (Cohen's *d*) with 
+t-values & p-values from Dahlquist et al. (2010, p. 622). Then, we used the R package
+{compute.es} [@R-compute.es] to calculate the associated effect sizes (Cohen's *d*) with 
 95% confidence intervals for the three comparisons.
+
+[[originally i said i used effsize (which I use for within subjects data, 
+but the code is actually effectsize....come back to this!]]
 
 ```{r dahl_2010_pain_base_vs_distraction}
 
@@ -602,7 +605,7 @@ df_dahl_final <- df_dahl_final %>%
 ```{r dahl_2010_table,include=FALSE}
 
 knitr::kable(df_dahl_final, 
-             caption = "Dahl et al. (2010) Paper", 
+             caption = "Dahlquist et al. (2010)", 
               align = 'lllcccccc') %>% 
   column_spec(column = 7, width = "1.5cm") %>% 
   column_spec(column = 3, width = "3cm") %>% 
@@ -637,10 +640,10 @@ statistics and effect sizes. For two of these comparisons (noted in Table
 \ref{tab:Hua_table}), our calculations produced slightly different p-values 
 than those reported in the paper, but the conclusions were unchanged. 
 
-Specifically, we conducted independent t-tests using the 
-the R `BSDA` package [@R-BSDA] and we used the R `compute.es` package 
-[@R-compute.es] to calculate the effect sizes and accompanying 95% confidence 
-intervals [reported in square brackets]. 
+Specifically, we used the R package {BSDA} [@R-BSDA] to conduct
+independent t-tests and the R package {compute.es} [@R-compute.es] to calculate 
+the effect sizes (Cohen's *d*) and accompanying 95% confidence intervals 
+[reported in square brackets]. 
 
 ```{r Hua_pain_before}
 
@@ -1175,14 +1178,13 @@ ratings, caregivers' pain ratings). For these analyses, they reported the means
 and standard deviations, as well as the p-values for the independent sample 
 t-tests (but not the associated t-values). 
 
-For these measures, we used the R `BSDA` package [@R-BSDA] to calculate the t-values
-from the summary statistics and we used the R `compute.es` package [@R-compute.es]
-to compute effect sizes (Cohen's *d*) with 95% confidence intervals (in square brackets). 
-See Table 
-\ref{tab:kipping_table} for the summary and inferential statistics. Our calculated 
-p-values were slightly different than those reported in the original paper (for all 
-but one analyses: nurses' pain ratings during removal), but the 
-conclusions were the same. 
+For these measures, we used the R package {BSDA} [@R-BSDA] to calculate the t-values
+from the summary statistics and we used the R package {compute.es} 
+[@R-compute.es] to compute effect sizes (Cohen's *d*) with 95% confidence intervals 
+[in square brackets].See Table \ref{tab:kipping_table} for the summary and 
+inferential statistics. Our calculated p-values were slightly different than those
+reported in the original paper (for all but one analyses: nurses' pain ratings 
+during removal), but the conclusions were the same. 
 
 ```{r kipping_data_setup}
 
@@ -1656,6 +1658,8 @@ t-values & p-values from Sil et al. (2012, p. 6). Then, we used the R `effsize`
 package [@R-effsize] to calculate the associated effect sizes (Cohen's *d*) with 
 95% confidence intervals for the three comparisons.
 
+[[check this package!]]
+
 ```{r sil_pain_base_vs_trad}
 
 df <- df_sil
@@ -1942,13 +1946,13 @@ typically-developing children [n = `r df_negut$td_n[1]`]), and one
 within-subjects factor: test modality (with vs. without distractors). 
 They ran a MANCOVA with age and IQ as covariates. We report their V, F, and 
 p-values for the MANCOVA results, but we then used
-the  R package `effectsize` [@R-effectsize] to calculate partial eta squared
+the  R package {effectsize} [@R-effectsize] to calculate partial eta squared
 (n~p~^2^) with 90% confidence intervals for these effects. 
 
-We also used the `BSDA` R package [@R-BSDA] to recalculate the post hoc follow-up 
-tests and the `compute.es` R package [@R-compute.es] to compute the effect size 
-(Cohen's *d*) with 95% confidence intervals (CI). See Table
-\ref{tab:negut_table} for relevant descriptive and inferential statistics for the
+We also used the R package {BSDA} [@R-BSDA] to recalculate the post hoc follow-up 
+tests and the R package {compute.es} [@R-compute.es] to compute the effect size 
+(Cohen's *d*) with 95% confidence intervals (CI). See Table \ref{tab:negut_table} 
+for relevant descriptive and inferential statistics for the
 post hoc tests for commission errors, omission errors, and total correct 
 responses. We do not report the post hoc test for the response time variable 
 because were unable to obtain the relevant summary statistics from the original 
@@ -2157,7 +2161,7 @@ df_negut_final <- df_negut_final %>%
 ```{r negut_table,include=TRUE}
 
 landscape(knitr::kable(df_negut_final, 
-             caption = "Negut et al. (2016) Paper", 
+             caption = "Negut et al. (2016)", 
               align = 'lcccccccl') %>% 
   column_spec(column = 9, width = "2cm") %>% 
    kable_styling(full_width = F, 
@@ -2185,16 +2189,16 @@ write_csv(df_negut_final, here::here("data_output", "negut_data_output.csv"))
 ```
 
 
-Pollak et al. (2009) conducted 3 (Test: TOVA, No VR-CPT, VR-CPT) x 
+Pollak et al. (2009) conducted 3 (Test: TOVA, No VR-CPT, VR-CPT) X 
 2 (Group: ADHD vs. control) mixed-factorial ANOVAs on each of the DVs: reaction 
 time, variability of reaction time, errors of omission, errors of commission. We 
 report their F values for the ANOVA results, but we used the base R stats 
-package [@R-base] to recalculate the p-values and the R package `effectsize`
+package [@R-base] to recalculate the p-values and the R package {effectsize}
 [@R-effectsize] to calculate partial eta squared (n~p~^2^) with 90% confidence 
 intervals for these effects. 
 
-We also used the `BSDA` R package [@R-BSDA] to compute the post hoc follow-up 
-tests and the `compute.es` R package [@R-compute.es] to compute the effect size 
+We also used the R package {BSDA} [@R-BSDA] to compute the post hoc follow-up 
+tests and the R package {compute.es} [@R-compute.es] to compute the effect size 
 (Cohen's *d*) with 95% confidence intervals. See Table
 \ref{tab:pollak_table} for relevant descriptive and inferential statistics 
 for the post hoc tests comparing the groups (ADHD vs. control) on each of the tests.
@@ -2229,7 +2233,7 @@ om_int_p <- pf(q = 9.9, df1 = 2, df2 = 68, lower.tail = FALSE)
 
 ```
 
-They reported a significant Test x Group interaction on response time, 
+They reported a significant Test X Group interaction on response time, 
 *F*(2,68) = 3.8, *p* = `r round(rt_int_p, 2)`, n~p~^2^ = 
 `r round_tidy(rt_int_eta$Eta_Sq_partial, 3)`, 90% CI 
 [`r round(rt_int_eta$CI_low, 3)`, `r round(rt_int_eta$CI_high, 3)`], and errors of 
@@ -2817,8 +2821,8 @@ examine differences across the four groups (control & 3 ADHD presentation groups
 Inattentive, Impulsive and Hyperactivity, Combined) on the dependent variables 
 (omissions, commissions, response time, and variability) across the two halves 
 of the tests. We report their lambdas, F-values, and p-values to supplement the
-information in the manuscript, and we used the R package `effectsize`
-[@R-effectsize] to calculate partial eta squared (n~p~^2^) with 90% confidence 
+information in the manuscript, and we used the R package {effectsize} [@R-effectsize]
+to calculate partial eta squared (n~p~^2^) with 90% confidence 
 intervals for these effects. 
 
   + The MANCOVA for VR, with age as a covariate, was statistically significant,
@@ -2842,86 +2846,136 @@ TOVA was not able to discriminate between the two groups.
 
 ## Bioulac et al. (2012)
 
-Sample: 36 children; 20 with ADHD and 16 in control group
+```{r bioulac notes, eval = FALSE}
 
-They used a within-subjects design so the physicians first assessed them with 
-the CPT and, after 10 min, the test of the Virtual Classroom. 
+# Sample: 36 children; 20 with ADHD and 16 in control group
+# 
+# They used a within-subjects design so the physicians first assessed them with 
+# the CPT and, after 10 min, the test of the Virtual Classroom. 
+# 
+# *Issues*: 
+# 
+#   + I need to pull the data from the two figures. The figure has the 95% CI, but 
+#   I then need to calculate the standard deviations. I think I can do that using
+#   info from Cochrane. [I think I'll need to do the same thing with Jeffs data]
+#   + They reported the intergroup comparison for the two tests, but they didn't
+#   give enough data (i.e., no Mann-Whitney U test value) to allow me to calculate
+#   effect sizes. 
+#   + I need to figure out what I can do re: calculating effect sizes for the data 
+#   that used non-parametric tests. The standard one is Vargha & Delaney's A, but I 
+#   need to figure out if I can calculate it from the summary stats. Possible 
+#   approaches: 
+# 
+#     + `effsize` needs raw data (https://rdrr.io/cran/effsize/man/VD.A.html)
+#     + `rcompanion` needs raw data (https://rcompanion.org/handbook/F_04.html
 
-*Issues*: 
+```
 
-  + I need to pull the data from the two figures. The figure has the 95% CI, but 
-  I then need to calculate the standard deviations. I think I can do that using
-  info from Cochrane. [I think I'll need to do the same thing with Jeffs data]
-  + They reported the intergroup comparison for the two tests, but they didn't
-  give enough data (i.e., no Mann-Whitney U test value) to allow me to calculate
-  effect sizes. 
-  + I need to figure out what I can do re: calculating effect sizes for the data 
-  that used non-parametric tests. The standard one is Vargha & Delaney's A, but I 
-  need to figure out if I can calculate it from the summary stats. Possible 
-  approaches: 
+Bioulac et al. (2012) used a 2 (Group: ADHD vs. control) X 2 (Test: VR classroom vs. 
+CPT) mixed-factorial design, with type of test manipulated within subjects. 
 
-    + `effsize` needs raw data (https://rdrr.io/cran/effsize/man/VD.A.html)
-    + `rcompanion` needs raw data (https://rcompanion.org/handbook/F_04.html
+They used non-parametric tests (namely, Mann-Whitney U tests) to compare the two 
+groups' performance on each test. They did not report enough data to allow us to 
+compute an effect size measure for this comparison. As such, we provide only 
+the summary statistics reported in the original paper (see Table 
+\ref{tab:bioulac_table_1}). 
 
-
-*Solution*:
-
-  + Using the Mann-Whitney U values reported on p. 517, we calculated 
-  the effect size with the Vargha-Delaney's A (using formula 7 from Ruscio, 2008). 
-  But, we could not calculate confidence intervals without the original data.
-
-*Action*:
-
-  + With regard to the block comparisons, there is no obvious effect size for 
-  that data, so we should just include some text re: the reported stats from the 
-  paper. Something along the lines of: 
-    + According to the paper, the deteroriation of performance for children 
-    with ADHD across the blocks was significant for the Virtual Classroom test, 
-    chi-square(df = 4) = 25,299, p <.001, but not for the CPT test, 
-    chi-square(df = 5) = 10,145, *p* = .07. 
-
-```{r bioulac_A}
+According to Bioulac et al. (2012), the deteroriation of performance across
+blocks---measured by correct hits---for children with ADHD  was significant 
+for the Virtual Classroom test, chi-square(df = 4) = 25,299, *p* <.001, but 
+not for the CPT test, chi-square(df = 5) = 10,145, *p* = .07. For each test, 
+they reported Mann-Whitney U values comparing the correct hits
+of the two groups in each block (with the exception of Blocks 1 and 2 for the 
+CPT test). To compute an effect size for these comparisons, we used the 
+reported Mann-Whitney U values (p. 517--518) to compute Vargha-Delaney's A 
+(using formula 7 from Ruscio, 2008). Unfortunately, we could not
+calculate confidence intervals around this effect size without the raw data. Table 
+\ref{tab:bioulac_table_2} provides the Mann-Whitney U values and associated p-values 
+reported in the original paper and our computed A values. 
 
 
-df <- df_bio
+```{r bioulac_concatenate_1}
+
+# load the relevant data (none of the block details)
+df <- df_bio %>% 
+  filter(block == "0")
+
+# combine the mean & SD for the two conditions in each comparison
+df$ctrl_m_sd <- paste0(df$ctrl_m, 
+                          " (", 
+                          df$ctrl_sd, 
+                          ")")
+df$adhd_m_sd <- paste0(df$adhd_m, 
+                            " (", 
+                            df$adhd_sd, 
+                            ")")
+
+df_bio_final_1 <- df %>% 
+  select (-c(block, U, ctrl_n, adhd_n, notes, 
+             ctrl_m, ctrl_sd, adhd_m, adhd_sd))
+
+# rearrange the columns we are keeping
+df_bio_final_1 <- df_bio_final_1 %>% 
+  relocate (`p-value`, .after = last_col()) %>% 
+  relocate (test, .before = measure)
+```
+
+
+```{r bioulac_table_1,include=TRUE}
+
+knitr::kable(df_bio_final_1, 
+             caption = "Bioulac et al. (2012) Group Comparisons for Each Test", 
+              align = 'llccc') %>% 
+     kable_styling(full_width = F, 
+                latex_options = "HOLD_position") %>% 
+  add_footnote("Note: Control: *n* = 16; ADHD: *n* = 20", notation = "none")
+
+```
+
+```{r bioulac_A_blocks}
+
+
+df <- df_bio %>% 
+  filter(block >= "1")
 
 # Calculate A and add it to the tibble
 
 df <- df %>% mutate (A =
-VD.A.sum(U = df$u, n1 = df$ctrl_n, n2 = df$adhd_n))
+VD.A.sum(U = df$U, n1 = df$ctrl_n, n2 = df$adhd_n))
 
 
 ```
 
 
-```{r bioulac_clean_dataframe}
+```{r bioulac_clean_dataframe_2}
 
 # remove the columns that are now redundant
 
-df_bio_final <- df %>% 
-  select (-c(ctrl_m, ctrl_sd, adhd_m, adhd_sd))
+df_bio_final_2 <- df %>% 
+  select (-c(ctrl_m, ctrl_sd, adhd_m, adhd_sd, ctrl_n, adhd_n))
 
 # rearrange the columns we are keeping
-df_bio_final <- df_bio_final %>% 
+df_bio_final_2 <- df_bio_final_2 %>% 
   relocate (measure, .after = test) %>% 
-  relocate (c(ctrl_n,adhd_n), .after = block) %>% 
   relocate (notes, .after = last_col())
 
 ```
 
-```{r bioulac_table,include=TRUE}
+```{r bioulac_table_2,include=TRUE}
 
-knitr::kable(df_bio_final, 
-             caption = "Bioulac et al. (2012) Paper", 
-              align = 'llccccccl') %>% 
+knitr::kable(df_bio_final_2, 
+             caption = "Bioulac et al. (2012) Correct Hits Across Blocks", 
+              align = 'llccccl') %>% 
      kable_styling(full_width = F, 
-                latex_options = "HOLD_position")
+                latex_options = "HOLD_position") %>% 
+  add_footnote("Note: Control: *n* = 16; ADHD: *n* = 20", notation = "none")
 
 ```
 
 ```{r bioulac_write_data}
 
-write_csv(df_bio_final, here::here("data_output", "bioulac_data_output.csv"))
+write_csv(df_bio_final_1, here::here("data_output", "bioulac_data_output_1.csv"))
+write_csv(df_bio_final_2, here::here("data_output", "bioulac_data_output_2.csv"))
 ```
 
 ## Gilboa et al. (2015)
@@ -3289,7 +3343,7 @@ d_soc <- cohens_dav(m.1 = df$post_m[1],
 ```
 
 To determine if the post-training scores in the two groups were significantly 
-different, I used the `BSDA` R package [@R-BSDA] to conduct
+different, I used the R package {BSDA}  [@R-BSDA] to conduct
 independent t-tests for the two measures (affectve expressions and social 
 interaction) that had significant interactions. 
 
