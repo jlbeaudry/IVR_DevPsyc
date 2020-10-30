@@ -381,8 +381,8 @@ df <- df %>%
                  upper.ci = round_tidy(d1[1,8],2))
 
 df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-              "p-value" = round_tidy(t$p.value, 3))
+  dplyr::mutate("*t*-value" = round_tidy(t$statistic, 2),
+              "*p*-value" = round_tidy(t$p.value, 3))
 
 
 # specific name for this analysis
@@ -425,7 +425,7 @@ df_dahl_final_09 <- df_dahl_09 %>%
 df_dahl_final_09 <- df_dahl_final_09 %>% 
   relocate (m_sd_1, .after = n.1) %>% 
   relocate (m_sd_2, .after = n.2) %>% 
-  relocate (original_p, .after = 'p-value')
+  relocate (original_p, .after = '*p*-value')
 
 ```
 
@@ -458,7 +458,7 @@ effect of condition, *F*(2,98) = 20.45, *p* < .001, with a large effect size (*f
 *t*-tests (with Bonferroni correction). 
 
 We could not recreate their post hoc analyses from the summary data, so we report the 
-t-values & p-values from Dahlquist et al. (2010, p. 622). Then, we used the R package
+*t*-values & *p*-values from Dahlquist et al. (2010, p. 622). Then, we used the R package
 {compute.es} [@R-compute.es] to calculate the associated effect sizes (Cohen's *d*) with 
 95% confidence intervals for the three comparisons.
 
@@ -614,12 +614,12 @@ difference between the two distraction conditions, *t*(49) = `r df_dahl_final[3,
 
 ## Hua et al. (2015) 
 
-Hua et al. (2015) reported only the p-values from their statistical comparisons 
+Hua et al. (2015) reported only the *p*-values from their statistical comparisons 
 between the VR distraction and standard distraction groups on each of the 10 
 dependent variables. For each of these comparisons, we used the summary statistics 
 (means & standard deviations) reported in the paper to compute the inferential
 statistics and effect sizes. For two of these comparisons (noted in Table
-\ref{tab:Hua_table}), our calculations produced slightly different p-values 
+\ref{tab:Hua_table}), our calculations produced slightly different *p*-values 
 than those reported in the paper, but the conclusions were unchanged. 
 
 Specifically, we used the R package {BSDA} [@R-BSDA] to conduct
@@ -654,13 +654,13 @@ df <- df %>%
                  lower.ci = round_tidy(d1[1,7],2), 
                  upper.ci = round_tidy(d1[1,8],2))
 
-# add columns for the t-value & p-value
+# add columns for the t-value & *p*-value
 df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
+  dplyr::mutate("*t*-value" = round_tidy(t$statistic, 2),
+                "*p*-value" = round_tidy(t$p.value, 3))
 
 # compare the original p-value reported in the paper & the p-value we calculated
-df$original_p == df$`p-value`
+df$original_p == df$`*p*-value`
 
 # specific name for this analysis
 df_hua1 <- df 
@@ -694,11 +694,11 @@ df <- df %>%
 
 # add columns for the t-value & p-value
 df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
+  dplyr::mutate("*t*-value" = round_tidy(t$statistic, 2),
+                "*p*-value" = round_tidy(t$p.value, 3))
 
 # compare the original p-value reported in the paper & the p-value we calculated
-df$original_p == df$`p-value`
+df$original_p == df$`*p*-value`
 
 # specific name for this analysis
 df_hua2 <- df 
@@ -733,14 +733,14 @@ df <- df %>%
 
 # add columns for the t-value & p-value
 df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
+  dplyr::mutate("*t*-value" = round_tidy(t$statistic, 2),
+                "*p*-value" = round_tidy(t$p.value, 3))
 
 # note that the p-value is different
 df$notes <- "p-value in text is .034"
 
 # compare the original p-value reported in the paper & the p-value we calculated
-df$original_p == df$`p-value`
+df$original_p == df$`*p*-value`
 
 # make a note if they are different
 df$notes <- "p-values differ, but conclusions unchanged"
@@ -776,13 +776,13 @@ df <- df %>%
                  lower.ci = round_tidy(d1[1,7],2), 
                  upper.ci = round_tidy(d1[1,8],2))
 
-# add columns for the t-value & p-value
+# add columns for the t-value & *p*-value
 df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
+  dplyr::mutate("*t*-value" = round_tidy(t$statistic, 2),
+                "*p*-value" = round_tidy(t$p.value, 3))
 
-# compare the original p-value reported in the paper & the p-value we calculated
-df$original_p == df$`p-value`
+# compare the original p-value reported in the paper & the *p*-value we calculated
+df$original_p == df$`*p*-value`
 
 # make a note if they are different
 df$notes <- "p-values differ, but conclusions unchanged"
@@ -818,13 +818,13 @@ df <- df %>%
                  lower.ci = round_tidy(d1[1,7],2), 
                  upper.ci = round_tidy(d1[1,8],2))
 
-# add columns for the t-value & p-value
+# add columns for the t-value & *p*-value
 df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
+  dplyr::mutate("*t*-value" = round_tidy(t$statistic, 2),
+                "*p*-value" = round_tidy(t$p.value, 3))
 
-# compare the original p-value reported in the paper & the p-value we calculated
-df$original_p == df$`p-value`
+# compare the original *p*-value reported in the paper & the *p*-value we calculated
+df$original_p == df$`*p*-value`
 
 # specific name for this analysis
 df_hua5 <- df 
@@ -856,13 +856,13 @@ df <- df %>%
   dplyr::mutate (d = round_tidy(d1[1,5],2), 
                  lower.ci = round_tidy(d1[1,7],2), 
                  upper.ci = round_tidy(d1[1,8],2))
-# add columns for the t-value & p-value
+# add columns for the t-value & *p*-value
 df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
+  dplyr::mutate("*t*-value" = round_tidy(t$statistic, 2),
+                "*p*-value" = round_tidy(t$p.value, 3))
 
-# compare the original p-value reported in the paper & the p-value we calculated
-df$original_p == df$`p-value`
+# compare the original *p*-value reported in the paper & the *p*-value we calculated
+df$original_p == df$`*p*-value`
 
 # specific name for this analysis
 df_hua6 <- df 
@@ -895,13 +895,13 @@ df <- df %>%
                  lower.ci = round_tidy(d1[1,7],2), 
                  upper.ci = round_tidy(d1[1,8],2))
 
-# add columns for the t-value & p-value
+# add columns for the t-value & *p*-value
 df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
+  dplyr::mutate("*t*-value" = round_tidy(t$statistic, 2),
+                "*p*-value" = round_tidy(t$p.value, 3))
 
-# compare the original p-value reported in the paper & the p-value we calculated
-df$original_p == df$`p-value`
+# compare the original *p*-value reported in the paper & the *p*-value we calculated
+df$original_p == df$`*p*-value`
 
 # specific name for this analysis
 df_hua7 <- df 
@@ -934,13 +934,13 @@ df <- df %>%
                  lower.ci = round_tidy(d1[1,7],2), 
                  upper.ci = round_tidy(d1[1,8],2))
 
-# add columns for the t-value & p-value
+# add columns for the t-value & *p*-value
 df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
+  dplyr::mutate("*t*-value" = round_tidy(t$statistic, 2),
+                "*p*-value" = round_tidy(t$p.value, 3))
 
-# compare the original p-value reported in the paper & the p-value we calculated
-df$original_p == df$`p-value`
+# compare the original *p*-value reported in the paper & the *p*-value we calculated
+df$original_p == df$`*p*-value`
 
 # specific name for this analysis
 df_hua8 <- df 
@@ -975,11 +975,11 @@ df <- df %>%
 
 # add columns for the t-value & p-value
 df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
+  dplyr::mutate("*t*-value" = round_tidy(t$statistic, 2),
+                "*p*-value" = round_tidy(t$p.value, 3))
 
 # compare the original p-value reported in the paper & the p-value we calculated
-df$original_p == df$`p-value`
+df$original_p == df$`*p*-value`
 
 # specific name for this analysis
 df_hua9 <- df 
@@ -1012,13 +1012,13 @@ df <- df %>%
                  lower.ci = round_tidy(d1[1,7],2), 
                  upper.ci = round_tidy(d1[1,8],2))
 
-# add columns for the t-value & p-value
+# add columns for the t-value & *p*-value
 df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
+  dplyr::mutate("*t*-value" = round_tidy(t$statistic, 2),
+                "*p*-value" = round_tidy(t$p.value, 3))
 
 # compare the original p-value reported in the paper & the p-value we calculated
-df$original_p == df$`p-value`
+df$original_p == df$`*p*-value`
 
 # specific name for this analysis
 df_hua10 <- df 
@@ -1165,14 +1165,14 @@ For the continuous measures, they analysed mean change scores by
 subtracting the baseline measures from the removal and application scores for 
 the outcome variables (self-reported pain, self-reported nausea, nurses' pain 
 ratings, caregivers' pain ratings). For these analyses, they reported the means 
-and standard deviations, as well as the p-values for the independent sample 
-*t*-tests (but not the associated t-values). 
+and standard deviations, as well as the *p*-values for the independent sample 
+*t*-tests (but not the associated *t*-values). 
 
-For these measures, we used the R package {BSDA} [@R-BSDA] to calculate the t-values
+For these measures, we used the R package {BSDA} [@R-BSDA] to calculate the *t*-values
 from the summary statistics and we used the R package {compute.es} 
 [@R-compute.es] to compute effect sizes (Cohen's *d*) with 95% confidence intervals 
 [in square brackets].See Table \ref{tab:kipping_table} for the summary and 
-inferential statistics. Our calculated p-values were slightly different than those
+inferential statistics. Our calculated *p*-values were slightly different than those
 reported in the original paper (for all but one analysis: nurses' pain ratings 
 during removal), but the conclusions were the same. 
 
@@ -1213,11 +1213,11 @@ df <- df %>%
 
 # add columns for the t-value & p-value
 df <- df %>% 
-  dplyr::mutate("t-value (df = 39)" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
+  dplyr::mutate("*t*-value (df = 39)" = round_tidy(t$statistic, 2),
+                "*p*-value" = round_tidy(t$p.value, 3))
 
 # compare the original p-value reported in the paper & the p-value we calculated
-df$original_p == df$`p-value`
+df$original_p == df$`*p*-value`
 
 # make a note if they are different
 df$notes <- "p-values differ, but conclusions unchanged"
@@ -1251,13 +1251,13 @@ df <- df %>%
                  lower.ci = round_tidy(d1[1,7],2), 
                  upper.ci = round_tidy(d1[1,8],2))
 
-# add columns for the t-value & p-value
+# add columns for the t-value & *p*-value
 df <- df %>% 
-  dplyr::mutate("t-value (df = 39)" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
+  dplyr::mutate("*t*-value (df = 39)" = round_tidy(t$statistic, 2),
+                "*p*-value" = round_tidy(t$p.value, 3))
 
 # compare the original p-value reported in the paper & the p-value we calculated
-df$original_p == df$`p-value`
+df$original_p == df$`*p*-value`
 
 # make a note if they are different
 df$notes <- "p-values differ, but conclusions unchanged"
@@ -1295,11 +1295,11 @@ df <- df %>%
 
 # add columns for the t-value & p-value
 df <- df %>% 
-  dplyr::mutate("t-value (df = 39)" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
+  dplyr::mutate("*t*-value (df = 39)" = round_tidy(t$statistic, 2),
+                "*p*-value" = round_tidy(t$p.value, 3))
 
 # compare the original p-value reported in the paper & the p-value we calculated
-df$original_p == df$`p-value`
+df$original_p == df$`*p*-value`
 
 # make a note if they are different
 df$notes <- "p-values differ, but conclusions unchanged"
@@ -1335,11 +1335,11 @@ df <- df %>%
 
 # add columns for the t-value & p-value
 df <- df %>% 
-  dplyr::mutate("t-value (df = 39)" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
+  dplyr::mutate("*t*-value (df = 39)" = round_tidy(t$statistic, 2),
+                "*p*-value" = round_tidy(t$p.value, 3))
 
 # compare the original p-value reported in the paper & the p-value we calculated
-df$original_p == df$`p-value`
+df$original_p == df$`*p*-value`
 
 # make a note if they are different
 df$notes <- "p-values differ, but conclusions unchanged"
@@ -1376,11 +1376,11 @@ df <- df %>%
 
 # add columns for the t-value & p-value
 df <- df %>% 
-  dplyr::mutate("t-value (df = 39)" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
+  dplyr::mutate("*t*-value (df = 39)" = round_tidy(t$statistic, 2),
+                "*p*-value" = round_tidy(t$p.value, 3))
 
 # compare the original p-value reported in the paper & the p-value we calculated
-df$original_p == df$`p-value`
+df$original_p == df$`*p*-value`
 
 # specific name for this analysis
 df_kip5 <- df 
@@ -1414,11 +1414,11 @@ df <- df %>%
 
 # add columns for the t-value & p-value
 df <- df %>% 
-  dplyr::mutate("t-value (df = 39)" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
+  dplyr::mutate("*t*-value (df = 39)" = round_tidy(t$statistic, 2),
+                "*p*-value" = round_tidy(t$p.value, 3))
 
-# compare the original p-value reported in the paper & the p-value we calculated
-df$original_p == df$`p-value`
+# compare the original *p*-value reported in the paper & the p-value we calculated
+df$original_p == df$`*p*-value`
 
 # make a note if they are different
 df$notes <- "p-values differ, but conclusions unchanged"
@@ -1456,11 +1456,11 @@ df <- df %>%
 
 # add columns for the t-value & p-value
 df <- df %>% 
-  dplyr::mutate("t-value (df = 39)" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
+  dplyr::mutate("*t*-value (df = 39)" = round_tidy(t$statistic, 2),
+                "*p*-value" = round_tidy(t$p.value, 3))
 
 # compare the original p-value reported in the paper & the p-value we calculated
-df$original_p == df$`p-value`
+df$original_p == df$`*p*-value`
 
 # make a note if they are different
 df$notes <- "p-values differ, but conclusions unchanged"
@@ -1496,11 +1496,11 @@ df <- df %>%
 
 # add columns for the t-value & p-value
 df <- df %>% 
-  dplyr::mutate("t-value (df = 39)" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
+  dplyr::mutate("*t*-value (df = 39)" = round_tidy(t$statistic, 2),
+                "*p*-value" = round_tidy(t$p.value, 3))
 
 # compare the original p-value reported in the paper & the p-value we calculated
-df$original_p == df$`p-value`
+df$original_p == df$`*p*-value`
 
 # make a note if they are different
 df$notes <-"p-values differ, but conclusions unchanged"
@@ -1562,7 +1562,7 @@ Using the base R package {stats} [@R-base], we tried to reproduce this analysis,
 chi-square test revealed a non-significant difference, `r apa(chi)`. 
 A one-sided z-test of proportions produced a similar result to that of the original
 paper, z = `r round(sqrt(res1$statistic),2)`, *p* = `r round(res1$p.value, 3)`; however,
-it is worth noting that this p-value still exceeded the alpha level of .05.  Using
+it is worth noting that this *p*-value still exceeded the alpha level of .05.  Using
 the R package {pwr} [@R-pwr], we calculated Cohen's h, a measure
 of effect size for proportions. This analysis revealed a medium-large effect 
 size (h = `r h[1]` [`r h[2]`, `r h[3]`]) with a large 95% confidence interval. 
@@ -1646,7 +1646,7 @@ not report effect sizes for the follow-up paired-sample
 *t*-tests (with Bonferroni correction). 
 
 We could not recreate their analyses from the summary data, so we report the 
-t-values & p-values from Sil et al. (2012, p. 6). Then, we used the R package
+*t*-values & *p*-values from Sil et al. (2012, p. 6). Then, we used the R package
 {compute.es} [@R-compute.es] to calculate the associated effect sizes 
 (Cohen's *d*) with 95% confidence intervals.
 
@@ -1937,8 +1937,8 @@ condition (VC assessment vs. traditional CPT) and clinical status
 (children with ADHD [*n* = `r df_negut$adhd_n[1]`] vs. typically-developing 
 children [*n* = `r df_negut$td_n[1]`]), and one 
 within-subjects factor: test modality (with vs. without distractors). 
-They ran a MANCOVA with age and IQ as covariates. We report their V-, F-, and 
-p-values for the MANCOVA results, but we also used
+They ran a MANCOVA with age and IQ as covariates. We report their V-, *F*-, and 
+*p*-values for the MANCOVA results, but we also used
 the R package {effectsize} [@R-effectsize] to calculate partial eta squared
 (n~p~^2^) with 90% confidence intervals for these effects. 
 
@@ -2003,14 +2003,14 @@ df <- df %>%
 
 # add columns for the t-value & p-value
 df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
+  dplyr::mutate("*t*-value" = round_tidy(t$statistic, 2),
+                "*p*-value" = round_tidy(t$p.value, 3))
 
 
 # compare the original t-value reported in the paper & the p-value we calculated
-df$original_t == df$`t-value`
+df$original_t == df$`*t*-value`
 
-# compare the original p-value reported in the paper & the p-value we calculated
+# compare the original d-value reported in the paper & the d-value we calculated
 df$original_d == df$d
 
 # specific name for this analysis
@@ -2044,16 +2044,16 @@ df <- df %>%
                  lower.ci = round_tidy(d1[1,7],2), 
                  upper.ci = round_tidy(d1[1,8],2))
 
-# add columns for the t-value & p-value
+# add columns for the t-value & *p*-value
 df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
+  dplyr::mutate("*t*-value" = round_tidy(t$statistic, 2),
+                "*p*-value" = round_tidy(t$p.value, 3))
 
 
 # compare the original t-value reported in the paper & the p-value we calculated
-df$original_t == df$`t-value`
+df$original_t == df$`*t*-value`
 
-# compare the original p-value reported in the paper & the p-value we calculated
+# compare the original d-value reported in the paper & the d-value we calculated
 df$original_d == df$d
 
 # specific name for this analysis
@@ -2089,17 +2089,17 @@ df <- df %>%
 
 # add columns for the t-value & p-value
 df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
+  dplyr::mutate("*t*-value" = round_tidy(t$statistic, 2),
+                "*p*-value" = round_tidy(t$p.value, 3))
 
 
 # compare the original t-value reported in the paper & the p-value we calculated
-df$original_t == df$`t-value`
+df$original_t == df$`*t*-value`
 
-# compare the original p-value reported in the paper & the p-value we calculated
+# compare the original d-value reported in the paper & the d-value we calculated
 df$original_d == df$d
 
-df$notes <- "t-value different than original, but conclusions unchanged"
+df$notes <- "*t*-value different than original, but conclusions unchanged"
 
 # specific name for this analysis
 df_negut3 <- df 
@@ -2188,8 +2188,8 @@ write_csv(df_negut_final, here::here("data_output", "negut_data_output.csv"))
 Pollak et al. (2009) conducted 3 (Test: TOVA, No VR-CPT, VR-CPT) X 
 2 (Group: ADHD vs. control) mixed-factorial ANOVAs on each of the DVs: reaction 
 time, variability of reaction time, errors of omission, errors of commission. We 
-report their F values for the ANOVA results, but we used the base R stats 
-package [@R-base] to recalculate the p-values and the R package {effectsize}
+report their *F* values for the ANOVA results, but we used the base R stats 
+package [@R-base] to recalculate the *p*-values and the R package {effectsize}
 [@R-effectsize] to calculate partial eta squared (n~p~^2^) with 90% confidence 
 intervals for these effects. 
 
@@ -2365,8 +2365,8 @@ t <- tsum.test(mean.x = df$adhd_m, s.x = df$adhd_sd, n.x = df$adhd_n,
 
 # add columns for the t-value & p-value
 df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
+  dplyr::mutate("*t*-value" = round_tidy(t$statistic, 2),
+                "*p*-value" = round_tidy(t$p.value, 3))
 
 # specific name for this analysis
 df_pol1 <- df 
@@ -2383,8 +2383,8 @@ t <- tsum.test(mean.x = df$adhd_m, s.x = df$adhd_sd, n.x = df$adhd_n,
 
 # add columns for the t-value & p-value
 df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
+  dplyr::mutate("*t*-value" = round_tidy(t$statistic, 2),
+                "*p*-value" = round_tidy(t$p.value, 3))
 
 # specific name for this analysis
 df_pol2 <- df 
@@ -2402,8 +2402,8 @@ t <- tsum.test(mean.x = df$adhd_m, s.x = df$adhd_sd, n.x = df$adhd_n,
 
 # add columns for the t-value & p-value
 df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
+  dplyr::mutate("*t*-value" = round_tidy(t$statistic, 2),
+                "*p*-value" = round_tidy(t$p.value, 3))
 
 # specific name for this analysis
 df_pol3 <- df 
@@ -2465,8 +2465,8 @@ t <- tsum.test(mean.x = df$adhd_m, s.x = df$adhd_sd, n.x = df$adhd_n,
 
 # add columns for the t-value & p-value
 df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
+  dplyr::mutate("*t*-value" = round_tidy(t$statistic, 2),
+                "*p*-value" = round_tidy(t$p.value, 3))
 
 # specific name for this analysis
 df_pol4 <- df 
@@ -2483,8 +2483,8 @@ t <- tsum.test(mean.x = df$adhd_m, s.x = df$adhd_sd, n.x = df$adhd_n,
 
 # add columns for the t-value & p-value
 df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
+  dplyr::mutate("*t*-value" = round_tidy(t$statistic, 2),
+                "*p*-value" = round_tidy(t$p.value, 3))
 
 # specific name for this analysis
 df_pol5 <- df 
@@ -2502,8 +2502,8 @@ t <- tsum.test(mean.x = df$adhd_m, s.x = df$adhd_sd, n.x = df$adhd_n,
 
 # add columns for the t-value & p-value
 df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
+  dplyr::mutate("*t*-value" = round_tidy(t$statistic, 2),
+                "*p*-value" = round_tidy(t$p.value, 3))
 
 # specific name for this analysis
 df_pol6 <- df 
@@ -2567,8 +2567,8 @@ t <- tsum.test(mean.x = df$adhd_m, s.x = df$adhd_sd, n.x = df$adhd_n,
 
 # add columns for the t-value & p-value
 df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
+  dplyr::mutate("*t*-value" = round_tidy(t$statistic, 2),
+                "*p*-value" = round_tidy(t$p.value, 3))
 
 # specific name for this analysis
 df_pol7 <- df 
@@ -2585,8 +2585,8 @@ t <- tsum.test(mean.x = df$adhd_m, s.x = df$adhd_sd, n.x = df$adhd_n,
 
 # add columns for the t-value & p-value
 df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
+  dplyr::mutate("*t*-value" = round_tidy(t$statistic, 2),
+                "*p*-value" = round_tidy(t$p.value, 3))
 
 # specific name for this analysis
 df_pol8 <- df 
@@ -2604,8 +2604,8 @@ t <- tsum.test(mean.x = df$adhd_m, s.x = df$adhd_sd, n.x = df$adhd_n,
 
 # add columns for the t-value & p-value
 df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
+  dplyr::mutate("*t*-value" = round_tidy(t$statistic, 2),
+                "*p*-value" = round_tidy(t$p.value, 3))
 
 # specific name for this analysis
 df_pol9 <- df 
@@ -2668,8 +2668,8 @@ t <- tsum.test(mean.x = df$adhd_m, s.x = df$adhd_sd, n.x = df$adhd_n,
 
 # add columns for the t-value & p-value
 df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
+  dplyr::mutate("*t*-value" = round_tidy(t$statistic, 2),
+                "*p*-value" = round_tidy(t$p.value, 3))
 
 # specific name for this analysis
 df_pol10 <- df 
@@ -2686,8 +2686,8 @@ t <- tsum.test(mean.x = df$adhd_m, s.x = df$adhd_sd, n.x = df$adhd_n,
 
 # add columns for the t-value & p-value
 df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
+  dplyr::mutate("*t*-value" = round_tidy(t$statistic, 2),
+                "*p*-value" = round_tidy(t$p.value, 3))
 
 # specific name for this analysis
 df_pol11 <- df 
@@ -2705,8 +2705,8 @@ t <- tsum.test(mean.x = df$adhd_m, s.x = df$adhd_sd, n.x = df$adhd_n,
 
 # add columns for the t-value & p-value
 df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
+  dplyr::mutate("*t*-value" = round_tidy(t$statistic, 2),
+                "*p*-value" = round_tidy(t$p.value, 3))
 
 # specific name for this analysis
 df_pol12 <- df 
@@ -2816,7 +2816,7 @@ Rodriguez et al. (2018) report two key analyses that relevant to our manuscript:
 examine differences across the four groups (control & 3 ADHD presentation groups: 
 Inattentive, Impulsive and Hyperactivity, Combined) on the dependent variables 
 (omissions, commissions, response time, and variability) across the two halves 
-of the tests. We report their lambdas, F-values, and p-values to supplement the
+of the tests. We report their lambdas, F-values, and *p*-values to supplement the
 information in the manuscript, and we used the R package {effectsize} [@R-effectsize]
 to calculate partial eta squared (n~p~^2^) with 90% confidence 
 intervals for these effects. 
@@ -2874,7 +2874,7 @@ They used non-parametric tests (namely, Mann-Whitney U tests) to compare the two
 groups' performance on each test. They did not report enough data to allow us to 
 compute an effect size measure for this comparison. As such, in Table 
 \ref{tab:bioulac_table_1}, we provide the summary statistics and the 
-p-values reported in the original paper (p. 517).
+*p*-values reported in the original paper (p. 517).
 
 According to Bioulac et al. (2012), the deteroriation of performance across
 blocks---measured by correct hits---for children with ADHD  was significant 
@@ -2886,7 +2886,7 @@ CPT test). To compute an effect size for these comparisons, we used the
 reported Mann-Whitney U values (p. 517--518) to compute Vargha-Delaney's A 
 (using formula 7 from Ruscio, 2008). Unfortunately, we could not
 calculate confidence intervals around this effect size without the raw data. Table 
-\ref{tab:bioulac_table_2} provides the Mann-Whitney U values and associated p-values 
+\ref{tab:bioulac_table_2} provides the Mann-Whitney U values and associated *p*-values 
 reported in the original paper along with our computed A values. 
 
 
@@ -2912,7 +2912,7 @@ df_bio_final_1 <- df %>%
 
 # rearrange the columns we are keeping
 df_bio_final_1 <- df_bio_final_1 %>% 
-  relocate (`p-value`, .after = last_col()) %>% 
+  relocate (`*p*-value`, .after = last_col()) %>% 
   relocate (test, .before = measure)
 ```
 
@@ -3000,7 +3000,7 @@ performance against the control group of children without ABI.
 Gilboa et al. (2015) used univariate ANOVAs to compare the two groups on the 
 measures from the VC and CPRS-R:S tests. In Table \ref{tab:gil_table}, we report 
 their F-values from the ANOVA results (p. 5), but we used the base R package {stats} 
-[@R-base] to recalculate the p-values and the R package {effectsize} [@R-effectsize] 
+[@R-base] to recalculate the *p*-values and the R package {effectsize} [@R-effectsize] 
 to calculate Cohen's *d* with 95% confidence intervals. We followed their decision 
 to corect for multiple comparisons (.05 / 4 = .0125). 
 
@@ -3055,7 +3055,7 @@ p <- pf(q = df$`original F`[1], df1 = 1, df2 = 75, lower.tail = FALSE)
 
 # add to tibble 
 df <- df %>% 
-  dplyr::mutate (`exact p` = round_tidy(p,4)) 
+  dplyr::mutate (`*p*-value` = round_tidy(p,4)) 
 
 # specific name for this analysis
 df_gil1 <- df 
@@ -3080,7 +3080,7 @@ p <- pf(q = df$`original F`[1], df1 = 1, df2 = 75, lower.tail = FALSE)
 
 # add to tibble 
 df <- df %>% 
-  dplyr::mutate (`exact p` = round_tidy(p,4)) 
+  dplyr::mutate (`*p*-value` = round_tidy(p,4)) 
 
 # specific name for this analysis
 df_gil2 <- df 
@@ -3100,7 +3100,7 @@ p <- pf(q = df$`original F`[1], df1 = 1, df2 = 75, lower.tail = FALSE)
 
 # add to tibble 
 df <- df %>% 
-  dplyr::mutate (`exact p` = round_tidy(p,4)) 
+  dplyr::mutate (`*p*-value` = round_tidy(p,4)) 
 
 # specific name for this analysis
 df_gil3 <- df 
@@ -3120,7 +3120,7 @@ p <- pf(q = df$`original F`[1], df1 = 1, df2 = 75, lower.tail = FALSE)
 
 # add to tibble 
 df <- df %>% 
-  dplyr::mutate (`exact p` = round_tidy(p,4)) 
+  dplyr::mutate (`*p*-value` = round_tidy(p,4)) 
 
 # specific name for this analysis
 df_gil4 <- df 
@@ -3140,7 +3140,7 @@ p <- pf(q = df$`original F`[1], df1 = 1, df2 = 73, lower.tail = FALSE)
 
 # add to tibble 
 df <- df %>% 
-  dplyr::mutate (`exact p` = round_tidy(p,4)) 
+  dplyr::mutate (`*p*-value` = round_tidy(p,4)) 
 
 # specific name for this analysis
 df_gil5 <- df 
@@ -3160,7 +3160,7 @@ p <- pf(q = df$`original F`[1], df1 = 1, df2 = 73, lower.tail = FALSE)
 
 # add to tibble 
 df <- df %>% 
-  dplyr::mutate (`exact p` = round_tidy(p,4)) 
+  dplyr::mutate (`*p*-value` = round_tidy(p,4)) 
 
 # specific name for this analysis
 df_gil6 <- df 
@@ -3180,7 +3180,7 @@ p <- pf(q = df$`original F`[1], df1 = 1, df2 = 73, lower.tail = FALSE)
 
 # add to tibble 
 df <- df %>% 
-  dplyr::mutate (`exact p` = round_tidy(p,4)) 
+  dplyr::mutate (`*p*-value` = round_tidy(p,4)) 
 
 
 # specific name for this analysis
@@ -3201,7 +3201,7 @@ p <- pf(q = df$`original F`[1], df1 = 1, df2 = 73, lower.tail = FALSE)
 
 # add to tibble 
 df <- df %>% 
-  dplyr::mutate (`exact p` = round_tidy(p,4)) 
+  dplyr::mutate (`*p*-value` = round_tidy(p,4)) 
 
 df$notes <- "reported as significant at .01 in paper, but it is not significant based on our computed p-values"
 
@@ -3502,7 +3502,7 @@ df_lor <- df %>%
 
 # select measure
 df <- df_lor %>% 
-  filter(measure == "identifying the virtual environment")
+  filter(measure == "identifying the social situation")
 
 # RUN T-Test 
 
@@ -3513,8 +3513,8 @@ t <- tsum.test(mean.x = df$exp_m, s.y = df$exp_sd, n.y = df$exp_n,
 
 # add columns for the t-value & p-value
 df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
+  dplyr::mutate("*t*-value" = round_tidy(t$statistic, 2),
+                "*p*-value" = round_tidy(t$p.value, 3))
 
 # specific name for this analysis
 df_lor1 <- df 
@@ -3539,10 +3539,10 @@ t_1 <- tsum.test(mean.x = df_1$exp_m, s.y = df_1$exp_sd, n.y = df_1$exp_n,
           mean.y = df_1$ctrl_m, s.x = df_1$ctrl_sd, n.x = df_1$ctrl_n,
           alternative = "two.sided")
 
-# add columns for the t-value & p-value
+# add columns for the *t*-value & *p*-value
 df_1 <- df_1 %>% 
-  dplyr::mutate("t-value" = round_tidy(t_1$statistic, 2),
-                "p-value" = round_tidy(t_1$p.value, 3))
+  dplyr::mutate("*t*-value" = round_tidy(t_1$statistic, 2),
+                "*p*-value" = round_tidy(t_1$p.value, 3))
 
 # specific name for this analysis
 df_lor2 <- df_1
@@ -3560,8 +3560,8 @@ t_4 <- tsum.test(mean.x = df_4$exp_m, s.y = df_4$exp_sd, n.y = df_4$exp_n,
 
 # add columns for the t-value & p-value
 df_4 <- df_4 %>% 
-  dplyr::mutate("t-value" = round_tidy(t_4$statistic, 2),
-                "p-value" = round_tidy(t_4$p.value, 3))
+  dplyr::mutate("*t*-value" = round_tidy(t_4$statistic, 2),
+                "*p*-value" = round_tidy(t_4$p.value, 3))
 
 # specific name for this analysis
 df_lor3 <- df_4
@@ -3583,8 +3583,8 @@ t <- tsum.test(mean.x = df$exp_m, s.y = df$exp_sd, n.y = df$exp_n,
 
 # add columns for the t-value & p-value
 df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
+  dplyr::mutate("*t*-value" = round_tidy(t$statistic, 2),
+                "*p*-value" = round_tidy(t$p.value, 3))
 
 # specific name for this analysis
 df_lor4 <- df 
@@ -3606,8 +3606,8 @@ t <- tsum.test(mean.x = df$exp_m, s.y = df$exp_sd, n.y = df$exp_n,
 
 # add columns for the t-value & p-value
 df <- df %>% 
-  dplyr::mutate("t-value" = round_tidy(t$statistic, 2),
-                "p-value" = round_tidy(t$p.value, 3))
+  dplyr::mutate("*t*-value" = round_tidy(t$statistic, 2),
+                "*p*-value" = round_tidy(t$p.value, 3))
 
 # specific name for this analysis
 df_lor5 <- df 
