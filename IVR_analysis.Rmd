@@ -2,7 +2,7 @@
 title: "Immersive Virtual Reality Implementations in Developmental Psychology"
 subtitle: "Supplmental Analyses"
 author: "Araiza-Alba, Keane, Beaudry, Kaufman"
-date: '`r format (Sys.time(), "%d %B %Y")`'
+date: "October 30, 2020"
 output: 
   pdf_document:
         number_sections: true
@@ -44,28 +44,14 @@ library(here)
 library(tidyverse)
 library(compute.es) # for Cohen's d
 library(BSDA) # run *t*-test from summary data
-#library(fmsb) # for odds ratio [currently not using because we are using Cohen's h]
 library(pwr) # for Cohen's h
 library(finalfit) # to keep trailing zeros
-# library(purrrlyr) # keep if I'm using by_row
 library(apa) # report apa style results in rmarkdown
-#library(effsize) # Cohen's d for within subjects data
 library(kableExtra) # build tables
 library(effectsize) # partial eta2 from F stats
 library(papaja) # for R package references
 
 r_refs("r-references.bib") # build R reference library for papaja
-
-# library(captioner) 
-# library(plyr)
-# library(extrafont) #load the fonts needed for latex font in ggplot
-# library(skimr)
-# library(ggbeeswarm)
-#library(ggrepel) use this if I'm going to add labels
-# library(plotly)
-# library(RColorBrewer)
-# library(datapasta) # I don't need this to run the file, so delete when I'm done.
-
 
 ```
 
