@@ -43,7 +43,7 @@ library(knitr)
 library(here)
 library(tidyverse)
 library(compute.es) # for Cohen's d
-library(BSDA) # run t-test from summary data
+library(BSDA) # run *t*-test from summary data
 #library(fmsb) # for odds ratio [currently not using because we are using Cohen's h]
 library(pwr) # for Cohen's h
 library(finalfit) # to keep trailing zeros
@@ -323,7 +323,7 @@ of these papers did not report complete statistical analyses or effect sizes;
 therefore, when possible, we calculated these using the information provided 
 in the original papers. The data and code for these analyses are available on 
 the Open Science Framework at: 
-https://osf.io/f96hc/?view_only=2b4de23c4edc4a60b5de607e6e57f24f
+https://osf.io/f96hc/?view_only=5e960f19b3c049708baabbaf216a5743
 
 
 ## Interpretation of effect sizes {-}
@@ -360,7 +360,7 @@ hoc comparison they reported (with enough detail for reanlysis) was comparing
 the pain tolerance scores of younger and older children in the the 
 distraction+helmet condition. 
 
-We used the R package {BSDA} [@R-BSDA] to compute the t-test statistic based on 
+We used the R package {BSDA} [@R-BSDA] to compute the *t*-test statistic based on 
 the summary statistics reported in the paper, and we used the R package {compute.es} 
 [@R-compute.es] to calculate the effect size (Cohen's *d*) with 95% confidence 
 intervals (CI). Within the distraction+helmet (VR) condition, older children 
@@ -469,7 +469,7 @@ conditions (baseline, distraction-only, distraction+helmet [VR]) on log-transfor
 pain tolerance scores. They reported that their ANOVA showed a significant main 
 effect of condition, *F*(2,98) = 20.45, *p* < .001, with a large effect size (*f*
 = 0.65). They did not report effect sizes for the follow-up paired-sample
-t-tests (with Bonferroni correction). 
+*t*-tests (with Bonferroni correction). 
 
 We could not recreate their post hoc analyses from the summary data, so we report the 
 t-values & p-values from Dahlquist et al. (2010, p. 622). Then, we used the R package
@@ -637,7 +637,7 @@ statistics and effect sizes. For two of these comparisons (noted in Table
 than those reported in the paper, but the conclusions were unchanged. 
 
 Specifically, we used the R package {BSDA} [@R-BSDA] to conduct
-independent t-tests and the R package {compute.es} [@R-compute.es] to calculate 
+independent *t*-tests and the R package {compute.es} [@R-compute.es] to calculate 
 the effect sizes (Cohen's *d*) and accompanying 95% confidence intervals 
 [reported in square brackets]. 
 
@@ -1119,7 +1119,7 @@ write_csv(df_hua_final, here::here("data_output", "hua_data_output.csv"))
 # using the Enguage Digitizer Software (REF) and then calculate it from 
 # that. The paper reports an effect size, but I don't know what the 
 # reported measure of effect size is, so I need to confirm it with my 
-# own analysis. I don't think I can or should report the t-test analysis
+# own analysis. I don't think I can or should report the *t*-test analysis
 # because they estimated the means after controlling for so many variables.
 
 # I also need to compare the pre- and post-procedural pain, but again, 
@@ -1180,7 +1180,7 @@ subtracting the baseline measures from the removal and application scores for
 the outcome variables (self-reported pain, self-reported nausea, nurses' pain 
 ratings, caregivers' pain ratings). For these analyses, they reported the means 
 and standard deviations, as well as the p-values for the independent sample 
-t-tests (but not the associated t-values). 
+*t*-tests (but not the associated t-values). 
 
 For these measures, we used the R package {BSDA} [@R-BSDA] to calculate the t-values
 from the summary statistics and we used the R package {compute.es} 
@@ -1657,7 +1657,7 @@ children's (*n* = 62) log-transformed pain tolerance scores. They reported that
 their ANOVA showed a significant main effect of condition, 
 *F*(1,122) = 19.15, *p* < .001, with a large effect size (*f*) of 0.56. They did 
 not report effect sizes for the follow-up paired-sample
-t-tests (with Bonferroni correction). 
+*t*-tests (with Bonferroni correction). 
 
 We could not recreate their analyses from the summary data, so we report the 
 t-values & p-values from Sil et al. (2012, p. 6). Then, we used the R package
@@ -1912,7 +1912,7 @@ the smallest and largest effect sizes between the AULA scores comparing
 children undergoing treatment (*n* = 29) and those without treatment 
 (*n* = 28); all comparisons were significant. The smallest effect was found 
 for `r df_diaz_final[3,1]`. Children undergoing treatment 
-reponded faster, *M* = `r df_diaz_final[3,3]`, than those without treatment, 
+responded faster, *M* = `r df_diaz_final[3,3]`, than those without treatment, 
 *M* = `r df_diaz_final[3,5]`, *U* = `r df_diaz_final[3,6]`, *z* = 
 `r df_diaz_final[3,7]`, *p* = `r df_diaz_final[3,8]`, A = `r df_diaz_final[3,9]`.
 The largest effect between the AULA scores was for `r df_diaz_final[1,1]`. 
@@ -1948,8 +1948,8 @@ the test--retest reliability of the ClinicaVR in our manuscript.
 
 They used a mixed factorial design with two between-subject factors: test
 condition (VC assessment vs. traditional CPT) and clinical status 
-(children with ADHD [*n* = `r df_negut$adhd_n[1]`] vs. 
-typically-developing children [*n* = `r df_negut$td_n[1]`]), and one 
+(children with ADHD [*n* = `r df_negut$adhd_n[1]`] vs. typically-developing 
+children [*n* = `r df_negut$td_n[1]`]), and one 
 within-subjects factor: test modality (with vs. without distractors). 
 They ran a MANCOVA with age and IQ as covariates. We report their V-, F-, and 
 p-values for the MANCOVA results, but we also used
@@ -2886,13 +2886,13 @@ CPT) mixed-factorial design, with type of test manipulated within subjects.
 
 They used non-parametric tests (namely, Mann-Whitney U tests) to compare the two 
 groups' performance on each test. They did not report enough data to allow us to 
-compute an effect size measure for this comparison. As such, we provide only 
-the summary statistics reported in the original paper (see Table 
-\ref{tab:bioulac_table_1}). 
+compute an effect size measure for this comparison. As such, in Table 
+\ref{tab:bioulac_table_1}, we provide the summary statistics and the 
+p-values reported in the original paper (p. 517).
 
 According to Bioulac et al. (2012), the deteroriation of performance across
 blocks---measured by correct hits---for children with ADHD  was significant 
-for the Virtual Classroom test, chi-square(df = 4) = 25,299, *p* <.001, but 
+for the Virtual Classroom test, chi-square(df = 4) = 25,299, *p* < .001, but 
 not for the CPT test, chi-square(df = 5) = 10,145, *p* = .07. For each test, 
 they reported Mann-Whitney U values comparing the correct hits
 of the two groups in each block (with the exception of Blocks 1 and 2 for the 
@@ -2901,7 +2901,7 @@ reported Mann-Whitney U values (p. 517--518) to compute Vargha-Delaney's A
 (using formula 7 from Ruscio, 2008). Unfortunately, we could not
 calculate confidence intervals around this effect size without the raw data. Table 
 \ref{tab:bioulac_table_2} provides the Mann-Whitney U values and associated p-values 
-reported in the original paper and our computed A values. 
+reported in the original paper along with our computed A values. 
 
 
 ```{r bioulac_concatenate_1}
@@ -3012,11 +3012,11 @@ because only children with ABI completed the test; thus, we cannot compare their
 performance against the control group of children without ABI. 
 
 Gilboa et al. (2015) used univariate ANOVAs to compare the two groups on the 
-measures from the VC and CPRS-R:S tests. We used report their F values for the 
-ANOVA results (from p. 5), but we used the base R stats package [@R-base] to recalculate 
-the p-values and the R package {effectsize} [@R-effectsize] to calculate Cohen's
-*d* with 95% confidence intervals. We followed their decision to corect
-for multiple comparisons (.05 / 4 = .0125). 
+measures from the VC and CPRS-R:S tests. In Table \ref{tab:gil_table}, we report 
+their F-values from the ANOVA results (p. 5), but we used the base R package {stats} 
+[@R-base] to recalculate the p-values and the R package {effectsize} [@R-effectsize] 
+to calculate Cohen's *d* with 95% confidence intervals. We followed their decision 
+to corect for multiple comparisons (.05 / 4 = .0125). 
 
 ```{r gilboa_d}
 
@@ -3280,7 +3280,7 @@ landscape(knitr::kable(df_gil_final,
   column_spec(column = 8, width = "2cm") %>% 
    kable_styling(full_width = F, 
                 latex_options = "HOLD_position")) %>% 
-  add_footnote("Note: For the VC test, ABI group: *n* = 41 and control group: *n* = 35. One participant in each group did not complete the CPRS-R:S test. As such, the error degrees of freedom was 75 for the VC measures and 73 for the CPRS-R:S measures. Corrected alpha is .0125.", 
+  add_footnote("Note: For the VC test, ABI group: *n* = 41 and control group: *n* = 35. One participant in each group did not complete the CPRS-R:S test. As such, the error degrees of freedom were 75 for the VC measures and 73 for the CPRS-R:S measures. Corrected alpha is .0125.", 
                threeparttable = TRUE, notation = "none")
 
 ```
@@ -3337,9 +3337,13 @@ not significant on either measure of emotion recognition: Faces test, *F*(1,70) 
 0.188, *p* = .666, *n*~p~^2^ = .003: Eyes test, *F*(1,70) = 0.470, *p* = .495, 
 *n*~p~^2^ = .007. 
 
-In Table \ref{tab:ip_table}, we report the summary statistics and the d-values,
-t-values, and p-values reported in Table 3 of Ip et al. (2018) comparing the 
-pre- and post-training scores within each group. 
+In Table \ref{tab:ip_table}, we report the summary statistics and the *d*-, *t*-, 
+and *p*-values reported in Table 3 of Ip et al. (2018) comparing the 
+pre- and post-training scores within each training group. We did not recalculate 
+the effect size measure because our calculations suggest that they (appropriately)
+reportedd~av~ for these correlated means (Lakens, 2013); unfortunately, we could not 
+calculate confidence intervals around this parameter without the raw data.
+
 
 ```{r ip_affective}
 
@@ -3403,17 +3407,18 @@ d_soc <- mes (m.1 = df$post_m[1],
 To determine if the post-training scores in the two groups were significantly 
 different for the two measures that had significant interactions (affectve 
 expressions and social interaction), we used the R package {BSDA}  [@R-BSDA] to 
-conduct independent t-tests. We also used the R package {compute.es} [@R-compute.es] 
+conduct independent *t*-tests. We also used the R package {compute.es} [@R-compute.es] 
 to calculate the effect sizes (Cohen's *d*) and accompanying 95% confidence 
-intervals. 
+intervals for these independent means. 
 
 For affective expressions, the VR group's post-training score was significantly
-higher than the control group's post-training score, *t* = `r round(t_aff$statistic,3)`,
-*p* = `r round_tidy(t_aff$p.value,4)`, *d* = `r round(d_aff$d, 3)` [`r d_aff$l.d`, 
-`r d_aff$u.d`]. For social reciprocity, the VR group's post-training score was 
-also significantly higher than the control group's post-training score, *t* = 
-`r round(t_soc$statistic,3)`, *p* = `r round_tidy(t_soc$p.value,4)`, *d* = 
-`r round(d_soc$d, 3)` [`r d_soc$l.d`, `r d_soc$u.d`].  
+higher than the control group's post-training score, *t*(`r round(t_aff$parameter,2)`) 
+= `r round(t_aff$statistic,3)`, *p* = `r round_tidy(t_aff$p.value,4)`, *d* = 
+`r round(d_aff$d, 3)` [`r d_aff$l.d`, `r d_aff$u.d`]. For social reciprocity, 
+the VR group's post-training score was also significantly higher than the control 
+group's post-training score, *t*(`r round(t_soc$parameter,2)`) = 
+`r round(t_soc$statistic,3)`, *p* = `r round_tidy(t_soc$p.value,4)`, 
+*d* = `r round(d_soc$d, 3)` [`r d_soc$l.d`, `r d_soc$u.d`].  
 
 ```{r ip_concatenate_table}
 
@@ -3469,12 +3474,11 @@ VR application (referred to as the control group).
 
 The presentation of the results made it difficult to reproduce and/or 
 summarise the analyses; however, we present the results that were accessible. 
-The summary statistics that were presented in the paper were not statistically
-analysed, as far as we could tell. As such, we used the R package {BSDA} [@R-BSDA] 
-to conduct independent t-tests comparing the two groups and the R package 
-{compute.es} [@R-compute.es] to calculate the effect sizes (Cohen's *d*) and 
-ccompanying 95% confidence intervals [reported in square brackets]. See
-\ref{tab:lor_table}.
+The summary statistics reported in the paper were not statistically analysed, 
+as far as we could tell (see Table \ref{tab:lor_table}). As such, we used the R package 
+{BSDA} [@R-BSDA] to conduct independent *t*-tests comparing the two groups and 
+the R package {compute.es} [@R-compute.es] to calculate the effect sizes 
+(Cohen's *d*) and accompanying 95% confidence intervals. 
 
 ```{r lorenzo_d}
 
@@ -3710,6 +3714,9 @@ I used `r cite_r("r-references.bib")` for all analyses.
 
 Cohen, J. (1988). *Statistical power analysis for the behavioral
 sciences* (2nd ed.). Hillsdale, NJ: Erlbaum.
+
+Lakens, D. (2013). Calculating and reporting effect sizes to facilitate
+cumulative science: A practical primer for *t*-tests and ANOVAs. *Frontiers in Psychology: Cognition, 4*, 1--12. https://doi.org/10.338/fpsyg.2013.00863 
 
 Ruscio, J. (2008). A probability-based measure of effect size: Robustness to 
 base rates and other factors. *Psychological Methods, 13*(1), 19–-30. 
